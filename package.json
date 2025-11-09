@@ -1,0 +1,27 @@
+{
+  "name": "login-form",
+  "version": "1.0.0",
+  "description": "This project is a very basic HTML page created for practice purposes.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "cross-env PORT=8080 nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JensKristianRuben/login-form.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/JensKristianRuben/login-form/issues"
+  },
+  "homepage": "https://github.com/JensKristianRuben/login-form#readme",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cross-env": "^10.1.0",
+    "express": "^5.1.0"
+  }
+}
