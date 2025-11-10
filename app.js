@@ -4,9 +4,9 @@ import PagesRouter from './routers/pagesRouter.js';
 
 const app = express();
 
+app.use(express.static("public"));
 app.use(generalLimiter);
 app.use(PagesRouter);
-app.use(express.static("public"));
 
 // TODO: find ud af om public mappen kan virker eller om der skal ske noget andet her.
 

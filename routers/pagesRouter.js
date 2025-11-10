@@ -3,11 +3,12 @@ import fs from 'fs';
 
 const router = Router();
 
-const loginPage = fs.readFileSync("./login/login.html").toString();
+const loginPage = fs.readFileSync("./public/login/login.html").toString();
 
 router.get("/", (req, res) => {
     res.send(loginPage);
 })
+
 
 
 
