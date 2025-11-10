@@ -1,14 +1,19 @@
 import express from 'express';
 import generalLimiter from './util/generalLimiter.js';
 import PagesRouter from './routers/pagesRouter.js';
+import loginRouter from './routers/loginRouter.js';
 
 const app = express();
 
 app.use(express.static("public"));
 app.use(generalLimiter);
-app.use(PagesRouter);
+app.use(express.urlencoded({ extended: true }));
 
-// TODO: find ud af om public mappen kan virker eller om der skal ske noget andet her.
+
+app.use(PagesRouter);
+app.use(loginRouter);
+
+
 
 
 

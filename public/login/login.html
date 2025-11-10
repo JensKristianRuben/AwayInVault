@@ -16,15 +16,15 @@
             <h2 class="info-box-header">New here?</h2>
             <p class="info-box-text">Join our community and unlock amazing features. Create your account in seconds.</p>
         </div>
-        <form class="login-form" action="/login" method="POST">
+        <form class="login-form" action="/api/login" method="POST">
 
             <h2>Sign in</h2>
             <p>Enter your credentials to continue</p>
             <label class="login-label" for="username">Username</label>
-            <input class="login-input" type="text" id="username" name="username">
+            <input class="login-input" type="text" id="username" name="email" value="alice@example.com">
 
             <label class="login-label" for="password">Password</label>
-            <input class="login-input" type="password" id="password" name="password">
+            <input class="login-input" type="password" id="password" name="password" value="1234">
 
             <button class="login-button" type="submit">Login</button>
         </form>
