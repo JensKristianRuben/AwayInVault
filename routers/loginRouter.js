@@ -21,6 +21,7 @@ router.post("/api/login", async (req, res) => {
     if (!user) {
         return res.status(401).send({ data: "User not found" });
     }
+    
 
     const matchingHashedPasswords = await comparePasswords(password, user.password);
 

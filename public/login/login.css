@@ -24,7 +24,7 @@ form {
     align-items: center;
     border-radius: 5px;
     width: 50%;
-    height: 50%;
+    height: 100%;
 }
 
 input {
@@ -68,19 +68,18 @@ button:hover {
 .info-box {
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
-    background-color: #4CAF50;
+    background-color: #97bb99;
     border-radius: 3px;
     color: #333;
     height: 100%;
-    width: 50%;
+    width: 100%;
 }
 h2 {
     color: white;
     width: 80%;
     margin: 0;
-
 }
 p {
     color: white;
@@ -91,7 +90,10 @@ p {
 .info-box-header {
     font-size: 40px;
     font-weight: bold;
+    margin: 10%;
     margin-bottom: 10px;
+    display: flex;
+    justify-content: center;
 }
 .info-box-text {
     font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
