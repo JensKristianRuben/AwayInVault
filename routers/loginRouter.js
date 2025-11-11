@@ -5,12 +5,11 @@ const router = Router();
 
 
 export const users = [
-    { id: 1, email: "alice@example.com", password: "1234" },
-    { id: 2, email: "bob@example.com", password: "secret" }
+    { id: 1, email: "alice@example.com", password: "$2b$10$u1u1QQZUHddPxR8skh7RtuaTAmkl5dcNQBb4I5eOkN.g8yfYjICGe" },
+    { id: 2, email: "bob@example.com", password: "$2b$10$Ks4p6.W8xq1Wyai6rSh2DOLBcA/M2jgHDk4I4epVYG2sZ4UCfpZkK" }
 ];
 
-//TODO: lav password hashed og gem dem in mem hashed - sammenlign med hashed med compare().
-
+//TODO: Tilføj cookies/sessioner
 
 router.post("/api/login", async (req, res) => {
 
@@ -23,7 +22,7 @@ router.post("/api/login", async (req, res) => {
         return res.status(401).send({ data: "User not found" });
     }
 
-    const matchingHashedPasswords = await comparePasswords(password, user.hashedPassword);
+    const matchingHashedPasswords = await comparePasswords(password, user.password);
 
     if (!matchingHashedPasswords) {
         return res.status(401).send({ data: "Invalid password" })

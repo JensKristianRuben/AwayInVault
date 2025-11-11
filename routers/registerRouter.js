@@ -17,7 +17,9 @@ router.post("/api/register", async (req, res) => {
         const hashedPassword = await hashPassword(password);
         const newUser = { email, hashedPassword };
         users.push(newUser);
+        
         return res.status(201).send({ data: "User created" });
+
 })
 
 

@@ -16,14 +16,7 @@ app.use(loginRouter);
 app.use(registerRouter);
 
 
-
-
-
-
 const PORT = Number(process.env.PORT);
-
-
-
 
 app.listen(PORT, () => {
     console.log("Server is running on port: ", PORT); 
