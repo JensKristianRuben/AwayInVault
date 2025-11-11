@@ -9,7 +9,15 @@ router.get("/", (req, res) => {
     res.send(loginPage);
 })
 
+const signInPage = fs.readFileSync("./public/sign-in/signIn.html").toString();
+router.get("/signin", (req, res) => {
+    res.send(signInPage)
+})
 
 
+ 
+ 
+
+ 
 
 export default router;

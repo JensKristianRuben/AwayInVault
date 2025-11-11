@@ -1,39 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="./login/login.css">
-    <link rel="icon" type="image/x-icon" href="../public\favicon.png">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./login/login.css" />
+    <link rel="icon" type="image/x-icon" href="../public\favicon.png" />
     <title>Login</title>
-</head>
+  </head>
 
-<body>
-
+  <body>
     <main>
-        <form action="" class="signup-form">
-            <div class="info-box">
-                <h2 class="info-box-header">New here?</h2>
-                <p class="info-box-text">Join our community and unlock amazing features. Create your account in seconds.</p>
-                <button>Sign up?</button>
-            </div>
+      <form action="" class="signup-form">
+        <div class="info-box">
+          <h2 class="info-box-header">New here?</h2>
+          <p class="info-box-text">
+            Join our community and unlock amazing features. Create your account
+            in seconds.
+          </p>
+          <button>Sign up?</button>
+        </div>
+        <input type="text" placeholder="Name" name="name" style="display: none;" />
+        <input type="email" placeholder="Email" name="email" style="display: none;" />
+        <input type="password" placeholder="Password" name="password" style="display: none;"/>
+        <button type="submit" id="showLogin" style="display: none;">Sign Up</button>
 
+      </form>
+      <form class="login-form" action="/api/login" method="POST">
+        <h2>Sign in</h2>
+        <p>Enter your credentials to continue</p>
+        <label class="login-label" for="username">Username</label>
+        <input
+          class="login-input"
+          type="text"
+          id="username"
+          name="email"
+          value="alice@example.com"
+        />
 
-        </form>
-        <form class="login-form" action="/api/login" method="POST">
+        <label class="login-label" for="password">Password</label>
+        <input
+          class="login-input"
+          type="password"
+          id="password"
+          name="password"
+          value="1234"
+        />
 
-            <h2>Sign in</h2>
-            <p>Enter your credentials to continue</p>
-            <label class="login-label" for="username">Username</label>
-            <input class="login-input" type="text" id="username" name="email" value="alice@example.com">
-
-            <label class="login-label" for="password">Password</label>
-            <input class="login-input" type="password" id="password" name="password" value="1234">
-
-            <button class="login-button" type="submit">Login</button>
-        </form>
+        <button class="login-button" type="submit">Login</button>
+      </form>
     </main>
-</body>
-
+  </body>
 </html>

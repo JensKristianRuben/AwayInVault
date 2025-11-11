@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "cross-env PORT=8080 nodemon app.js"
+    "dev": "cross-env PORT=8080 nodemon app.js -e js,html,css"
   },
   "repository": {
     "type": "git",
