@@ -78,7 +78,27 @@ button {
   font-weight: bold;
   color: #333;
 }
+.side-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 12px 22px;
+  border-radius: 8px;
+  background: #fff;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  z-index: 20;
+}
 
+.right-side {
+  right: 25%;
+}
+
+.left-side {
+  left: 25%;
+  display: none;
+}
 
 @media (max-width: 768px) {
   main {
