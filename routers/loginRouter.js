@@ -28,7 +28,6 @@ router.post("/api/login", async (req, res) => {
     if (!matchingHashedPasswords) {
         return res.status(401).send({ data: "Invalid password" })
     }
-
     res.status(200).send({ data: "Welcome sir!" })
 });
 
