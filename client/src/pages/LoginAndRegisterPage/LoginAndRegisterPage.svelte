@@ -1,21 +1,42 @@
 <script>
-  import { Router, Link, Route } from "svelte-routing";
+  import { Router, Link, Route, navigate } from "svelte-routing";
+  import { onMount } from "svelte";
 
-  let mode = "login";
+  let mode = "register";
+  console.log(mode);
 
-  const goRight = () => (mode = "register");
-  const goLeft = () => (mode = "login");
+  const goRight = () => {
+    mode = "register";
+    navigate("/register");
+    console.log(mode);
+  };
+  const goLeft = () => {
+    mode = "login";
+    navigate("/login");
+    console.log(mode);
+  };
+
+  onMount(() => {
+    const path = window.location.pathname;
+    if (path === "/login") {
+      mode = "login";
+    } else {
+      mode = "register";
+      navigate("/register", { replace: true });
+    }
+  });
 </script>
 
 <main
   class="login-and-register-main-container"
   class:right-active={mode === "register"}
+  class:left-active={mode === "login"}
 >
-  <div class="info-box left-info">
-    <h2 class="info-box-header">Velkommen</h2>
+  <div class="info-box right-info">
+    <h2 class="info-box-header">Hallo, cheif</h2>
     <p class="info-box-text">
-      Join our community and unlock amazing features. Create your account
-      inseconds.
+      Join our community and unlock amazing features. Create your account in
+      seconds.
     </p>
     <button
       type="button"
@@ -27,15 +48,14 @@
 
   <form action="" class="left-form">
     <label for="username">Username</label>
-    <input type="text" id="username" name="username" />
+    <input type="text" id="username" name="email" value="alice@example.com" />
 
     <label for="password">Password</label>
-    <input type="password" id="password" name="password" />
-
+    <input type="password" id="password" name="password" value="1234" />
     <button type="submit">Login</button>
   </form>
-  <div class="info-box right-info">
-    <h2 class="info-box-header">Hey</h2>
+  <div class="info-box left-info">
+    <h2 class="info-box-header">Seen you before?</h2>
     <p class="info-box-text">
       Already part of our community? Log in in seconds.
     </p>
@@ -51,10 +71,10 @@
     <input type="email" id="email" name="email" />
 
     <label for="password">Password</label>
-    <input type="password" id="password" name="password" />
+    <input type="password" id="LoginPassword" name="loginPassword" />
 
     <label for="password2">Repeat Password</label>
-    <input type="password" id="password2" name="password2" />
+    <input type="password" id="loginPassword2" name="loginPassword2" />
 
     <button type="submit">Register</button>
   </form>
@@ -72,7 +92,6 @@
   }
 
   form {
-    background-color: pink;
     position: absolute;
     top: 0;
     width: 50%;
@@ -88,13 +107,11 @@
 
   .left-form {
     left: 0;
-    background: #92f392;
     opacity: 0;
   }
 
   .right-form {
     right: 0;
-    background: pink;
   }
 
   .info-box {
@@ -106,22 +123,54 @@
     z-index: 15;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: space-evenly;
     align-items: center;
     transition:
       opacity 0.6s ease,
       transform 0.6s ease;
+    font-family: "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+  }
+
+  .info-box h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0 0 1rem 0;
+  }
+
+  .info-box p {
+    font-size: 1rem;
+    font-weight: 300;
+    max-width: 80%;
+    margin: 0 0 2rem 0;
+    letter-spacing: 0.5px;
+  }
+
+  .info-box button {
+    margin-top: auto;
+    padding: 12px 24px;
+    border-radius: 8px;
+    background-color: #ffffff;
+    color: #333;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    transition:
+      transform 0.2s ease,
+      background 0.2s ease;
   }
 
   .left-info {
     left: 0;
     opacity: 1;
+    background-color: #1f3f1f;
   }
 
   .right-info {
     right: 0;
     opacity: 0;
     transform: translateX(50%);
+    background-color: #1f3f1f;
   }
 
   button {
@@ -135,8 +184,6 @@
   }
 
   .side-btn {
-    position: absolute;
-    top: 50%;
     transform: translateY(-50%);
     padding: 12px 22px;
     border-radius: 8px;
@@ -157,30 +204,40 @@
     left: 25%;
   }
 
-  .active {
-    display: block;
-    transform: translateY(-5px);
-  }
-  .inactive {
-    display: none;
-  }
-  .right-active .overlay {
-    transform: translateX(100%);
-  }
-  .right-active .left-form {
+  .right-form {
     opacity: 1;
   }
-  .right-active .right-form {
-    transform: translateX(0);
-    opacity: 0;
-  }
-  .right-active .left-info {
+  .left-form {
     opacity: 0;
     transform: translateX(-50%);
   }
-  .right-active .right-info {
+
+  .left-info {
     opacity: 1;
-    transform: translateX(0);
+    transform: translateX(0%);
+  }
+
+  .right-info {
+    opacity: 0;
+    transform: translateX(50%);
+  }
+
+  .left-active .right-form {
+    opacity: 0;
+    transform: translateX(50%);
+  }
+  .left-active .right-info {
+    opacity: 1;
+    transform: translate(0%);
+  }
+
+  .left-active .left-info {
+    opacity: 0;
+    transform: translate(-50%);
+  }
+  .left-active .left-form {
+    opacity: 1;
+    transform: translateX(0%);
   }
 
   input {
@@ -200,53 +257,79 @@
     cursor: pointer;
   }
 
+  form label {
+    color: white;
+  }
+
   @media (max-width: 768px) {
     .login-and-register-main-container {
-      position: relative;
       width: 100%;
-      height: 100%;
-      overflow: hidden;
-    }
-
-    .login-and-register-main-container {
-      width: 100%;
-      height: 100%;
+      height: 100vh;
+      border-radius: 0;
     }
 
     form {
       width: 100%;
       height: 50%;
-      flex-direction: row;
-    }
-    .left-form {
+      flex-direction: column;
+      position: absolute;
+      left: 0;
       top: 0;
-      z-index: 2;
-    }
-    .right-form {
-      top: 100%;
-      opacity: 0;
     }
 
-    .overlay {
+    .info-box {
       width: 100%;
       height: 50%;
-      top: 0;
       left: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      top: 0;
+      padding: 20px;
     }
 
-    .right-active .overlay {
+    .right-form {
+      opacity: 1;
+      top: 50%;
+    }
+    .left-form {
+      opacity: 0;
+      transform: translateY(-100%);
+    }
+
+    .left-info {
+      opacity: 1;
+    }
+
+    .right-info {
+      opacity: 0;
+      transform: translateX(50%);
+    }
+
+    .left-active .right-form {
+      opacity: 0;
+      transform: translateX(50%);
+    }
+    .left-active .right-info {
+      opacity: 1;
+      transform: translate(0%);
+    }
+
+    .left-active .left-info {
+      opacity: 0;
+      transform: translate(-50%);
+    }
+    .left-active .left-form {
+      opacity: 1;
       transform: translateY(100%);
     }
-    .right-active .left-form {
-      transform: translateY(-100%);
-      opacity: 0;
+
+    .right-side {
+      top: 40%;
+      right: 40%;
     }
-    .right-active .right-form {
-      transform: translateY(-100%);
-      opacity: 1;
+
+    .left-side {
+      top: 75%;
+      left: 40%;
+      display: block;
     }
   }
 </style>
