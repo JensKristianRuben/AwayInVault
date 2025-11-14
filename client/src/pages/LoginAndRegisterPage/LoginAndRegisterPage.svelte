@@ -1,5 +1,5 @@
 <script>
-  import { Router, Link, Route, navigate } from "svelte-routing";
+  import { navigate } from "svelte-routing";
   import { onMount } from "svelte";
 
   let mode = "register";
@@ -16,6 +16,12 @@
     console.log(mode);
   };
 
+  $: document.title = getTitle(mode);
+
+  function getTitle(mode) {
+    if (mode === "register") return "Awayinvault - Sign Up";
+    return "Awayinvault - Sign in";
+  }
   onMount(() => {
     const path = window.location.pathname;
     if (path === "/login") {
@@ -46,7 +52,11 @@
     >
   </div>
 
-  <form action="" class="left-form">
+  <form
+    action="http://localhost:8080/api/login"
+    method="POST"
+    class="left-form"
+  >
     <label for="username">Username</label>
     <input type="text" id="username" name="email" value="alice@example.com" />
 
@@ -66,15 +76,19 @@
       on:click={goLeft}>Already have Account?</button
     >
   </div>
-  <form action="" class="right-form">
+  <form
+    action="http://localhost:8080/api/register"
+    method="POST"
+    class="right-form"
+  >
     <label for="email">Email</label>
     <input type="email" id="email" name="email" />
 
     <label for="password">Password</label>
-    <input type="password" id="LoginPassword" name="loginPassword" />
+    <input type="password" id="registerPassword" name="registerPassword" />
 
     <label for="password2">Repeat Password</label>
-    <input type="password" id="loginPassword2" name="loginPassword2" />
+    <input type="password" id="registerPassword2" name="registerPassword2" />
 
     <button type="submit">Register</button>
   </form>

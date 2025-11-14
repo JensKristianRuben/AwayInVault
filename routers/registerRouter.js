@@ -7,7 +7,7 @@ const router = Router();
 router.post("/api/register", async (req, res) => {
 
     const email = req.body.email;
-    const password = req.body.password;
+    const password = req.body.registerPassword;
 
     const existingUser = users.find(user => user.email === email);
 
