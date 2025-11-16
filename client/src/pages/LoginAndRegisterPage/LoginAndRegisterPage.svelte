@@ -2,36 +2,58 @@
   import { navigate } from "svelte-routing";
   import { onMount } from "svelte";
 
-  let mode = "register";
-  console.log(mode);
+  let mode;
 
-  const goRight = () => {
-    mode = "register";
-    navigate("/register");
-    console.log(mode);
-  };
-  const goLeft = () => {
+  function goToLogin() {
     mode = "login";
-    navigate("/login");
     console.log(mode);
-  };
+    window.history.pushState({}, "", "/#login");
+  }
+
+  function goToRegister() {
+    mode = "register";
+    console.log(mode);
+    window.history.pushState({}, "", "/#register");
+  }
 
   $: document.title = getTitle(mode);
 
   function getTitle(mode) {
     if (mode === "register") return "Awayinvault - Sign Up";
     return "Awayinvault - Sign in";
-  }
+  };
+
   onMount(() => {
-    const path = window.location.pathname;
-    if (path === "/login") {
-      mode = "login";
-    } else {
-      mode = "register";
-      navigate("/register", { replace: true });
-    }
-    
+    const hash = window.location.hash.slice(1);
+    if (hash === "login") mode = "login";
+    else mode = "register";
   });
+
+
+  let email = "alice@example.com";
+  let password = "1234";
+  let shakeForm = false;
+
+  async function handleLogin(event) {
+    event.preventDefault();
+
+    const response = await fetch("http://localhost:8080/api/login", {
+      method: "POST",
+      headers: { "Content-type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        email,
+        password,
+      }),
+    });
+
+    if (response.status === 200) {
+      navigate("/succes");
+    } else {
+      shakeForm = true;
+      setTimeout(() => (shakeForm = false), 500);
+    }
+  }
+
 </script>
 
 <main
@@ -49,20 +71,21 @@
       type="button"
       id="goRight"
       class="side-btn right-side"
-      on:click={goRight}>Sign up?</button
+      on:click={goToRegister}>Sign up?</button
     >
   </div>
 
-  <form
-    action="http://localhost:8080/api/login"
-    method="POST"
-    class="left-form"
-  >
+  <form class="left-form {shakeForm ? 'shake' : ''}" on:submit={handleLogin}>
     <label for="username">Username</label>
-    <input type="text" id="username" name="email" value="alice@example.com" />
+    <input type="text" id="username" name="email" bind:value={email} />
 
     <label for="password">Password</label>
-    <input type="password" id="password" name="password" value="1234" />
+    <input
+      type="password"
+      id="password"
+      name="password"
+      bind:value={password}
+    />
     <button type="submit">Login</button>
   </form>
   <div class="info-box left-info">
@@ -74,7 +97,7 @@
       type="button"
       id="goLeft"
       class="side-btn left-side"
-      on:click={goLeft}>Already have Account?</button
+      on:click={goToLogin}>Already have Account?</button
     >
   </div>
   <form
@@ -83,7 +106,7 @@
     class="right-form"
   >
     <label for="email">Email</label>
-    <input type="email" id="email" name="email"/>
+    <input type="email" id="email" name="email" />
 
     <label for="password">Password</label>
     <input type="password" id="registerPassword" name="registerPassword" />
@@ -273,6 +296,33 @@
 
   form label {
     color: white;
+  }
+
+  form.shake {
+    animation: shake 0.5s;
+    border: 2px solid red;
+    border-radius: 6px;
+  }
+
+  @keyframes shake {
+    0% {
+      transform: translateX(0px);
+    }
+    20% {
+      transform: translateX(-10px);
+    }
+    40% {
+      transform: translateX(10px);
+    }
+    60% {
+      transform: translateX(-10px);
+    }
+    80% {
+      transform: translateX(10px);
+    }
+    100% {
+      transform: translateX(0px);
+    }
   }
 
   @media (max-width: 768px) {

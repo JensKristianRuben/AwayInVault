@@ -5,7 +5,7 @@
 
   onMount(() => {
     const timer = setTimeout(() => {
-      navigate("/login");
+      navigate("/");
     }, 5000);
 
     return () => clearTimeout(timer);
@@ -41,5 +41,5 @@
     font-size: 2.5rem;
     margin-bottom: 1rem;
   }
-  
+
 </style>
