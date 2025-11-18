@@ -3,13 +3,7 @@
   import { navigate } from "svelte-routing";
 
 
-  onMount(() => {
-    const timer = setTimeout(() => {
-      navigate("/");
-    }, 5000);
 
-    return () => clearTimeout(timer);
-  });
 </script>
 
 <main class="success-container">
