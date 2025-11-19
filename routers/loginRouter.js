@@ -1,20 +1,8 @@
 import { Router } from "express";
 import { comparePasswords } from "../util/passwordUtil.js";
+import supabase from '../util/supabaseClient.js'
 
 const router = Router();
-
-export const users = [
-  {
-    id: 1,
-    email: "alice@example.com",
-    password: "$2b$10$u1u1QQZUHddPxR8skh7RtuaTAmkl5dcNQBb4I5eOkN.g8yfYjICGe",
-  },
-  {
-    id: 2,
-    email: "bob@example.com",
-    password: "$2b$10$Ks4p6.W8xq1Wyai6rSh2DOLBcA/M2jgHDk4I4epVYG2sZ4UCfpZkK",
-  },
-];
 
 //TODO: Tilføj cookies/sessioner
 
@@ -22,7 +10,18 @@ router.post("/api/login", async (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
 
-  const user = users.find((user) => user.email === email);
+  const { data: users, error } = await supabase
+    .from("users")
+    .select("*")
+    .eq("email", email)
+    .limit(1);
+
+  if (error) {
+    console.error(error);
+    return res.status(500).send({ error: "Database error" });
+  }
+
+  const user = users[0];
 
   if (!user) {
     return res.status(401).send({ data: "User not found" });
@@ -30,7 +29,7 @@ router.post("/api/login", async (req, res) => {
 
   const matchingHashedPasswords = await comparePasswords(
     password,
-    user.password
+    user.password_hash
   );
 
   if (!matchingHashedPasswords) {
