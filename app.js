@@ -2,13 +2,11 @@ import "dotenv/config";
 import express from "express";
 import session from "express-session";
 import generalLimiter from "./util/generalLimiter.js";
-import PagesRouter from "./routers/pagesRouter.js";
 import loginRouter from "./routers/loginRouter.js";
 import registerRouter from "./routers/registerRouter.js";
 import logoutRouter from "./routers/logoutRouter.js";
 import passwordsRouter from "./routers/passwordsRouter.js"
 import helmet from "helmet";
-import router from "./routers/loginRouter.js";
 import cors from 'cors'
 
 const app = express();
@@ -29,11 +27,8 @@ app.use(
     cookie: { secure: false },
   })
 );
-
+app.use(generalLimiter);
 app.use(helmet());
-
-
-app.use(PagesRouter);
 app.use(loginRouter);
 app.use(registerRouter);
 app.use(logoutRouter);
