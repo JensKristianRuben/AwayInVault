@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { comparePasswords } from "../util/passwordUtil.js";
-import supabase from '../util/supabaseClient.js'
+import supabase from "../util/supabaseClient.js";
 
 const router = Router();
 
@@ -37,13 +37,17 @@ router.post("/api/login", async (req, res) => {
 
     req.session.userId = user.id;
 
-    res.status(200).send({ data: "Login successful" });
+    res.status(200).send({
+      data: {
+        id: user.id,
+        email: user.email,
+        isActive: user.is_active,
+      },
+    });
   } catch (error) {
     console.error(error);
     res.status(500).send({ error: "Internal server error" });
   }
 });
-
-
 
 export default router;

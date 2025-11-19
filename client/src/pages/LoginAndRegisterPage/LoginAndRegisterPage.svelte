@@ -1,19 +1,23 @@
 <script>
   import { navigate } from "svelte-routing";
   import { onMount } from "svelte";
+  import { user, redirectAfterLogin } from "../../stores/clientAuth.js";
+  import { get } from "svelte/store";
 
-  let mode;
+  export let mode;
 
   function goToLogin() {
     mode = "login";
     console.log(mode);
-    window.history.pushState({}, "", "/#login");
+    // window.history.pushState({}, "", "/#login");
+    navigate("/#login");
   }
 
   function goToRegister() {
     mode = "register";
     console.log(mode);
-    window.history.pushState({}, "", "/#register");
+    // window.history.pushState({}, "", "/#register");
+    navigate("/#register");
   }
 
   $: document.title = getTitle(mode);
@@ -21,14 +25,13 @@
   function getTitle(mode) {
     if (mode === "register") return "Awayinvault - Sign Up";
     return "Awayinvault - Sign in";
-  };
+  }
 
   onMount(() => {
     const hash = window.location.hash.slice(1);
     if (hash === "login") mode = "login";
     else mode = "register";
   });
-
 
   let email = "alice@example.com";
   let password = "123456789";
@@ -42,19 +45,20 @@
       headers: { "Content-type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({
         email,
-        password
+        password,
       }),
-      credentials: "include"
+      credentials: "include",
     });
 
     if (response.status === 200) {
+      const result = await response.json();
+      user.set(result.data);
       navigate("/succes");
     } else {
       shakeForm = true;
       setTimeout(() => (shakeForm = false), 500);
     }
   }
-
 </script>
 
 <main
