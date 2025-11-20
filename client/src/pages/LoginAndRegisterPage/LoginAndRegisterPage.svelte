@@ -1,22 +1,19 @@
 <script>
   import { navigate } from "svelte-routing";
   import { onMount } from "svelte";
-  import { user, redirectAfterLogin } from "../../stores/clientAuth.js";
-  import { get } from "svelte/store";
+  import { user } from "../../stores/clientAuth.js";
 
   export let mode;
 
   function goToLogin() {
     mode = "login";
     console.log(mode);
-    // window.history.pushState({}, "", "/#login");
     navigate("/#login");
   }
 
   function goToRegister() {
     mode = "register";
     console.log(mode);
-    // window.history.pushState({}, "", "/#register");
     navigate("/#register");
   }
 
@@ -53,7 +50,7 @@
     if (response.status === 200) {
       const result = await response.json();
       user.set(result.data);
-      navigate("/succes");
+      navigate("/passwords");
     } else {
       shakeForm = true;
       setTimeout(() => (shakeForm = false), 500);

@@ -76,8 +76,8 @@
     {/if}
   </Route>
 
-  <Route path="/password">
-    {#if guard("/succes")}
+  <Route path="/passwords">
+    {#if guard("/passwords")}
       <PasswordPage />
     {/if}
   </Route>
