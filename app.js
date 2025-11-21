@@ -8,7 +8,7 @@ import logoutRouter from "./routers/logoutRouter.js";
 import sessionRouter from "./routers/sessionRouter.js";
 import helmet from "helmet";
 import cors from "cors";
-import path from 'path';
+import path from "path";
 import { fileURLToPath } from "url";
 
 const app = express();
@@ -22,7 +22,7 @@ app.use(express.static(path.join(__dirname, "client", "dist")));
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173", "https://arbezzebra.dk"],
     credentials: true,
   })
 );
@@ -42,11 +42,9 @@ app.use(registerRouter);
 app.use(logoutRouter);
 app.use(sessionRouter);
 
-
 app.get("/{*splat}", (req, res) => {
   res.sendFile(path.join(__dirname, "client", "dist", "index.html"));
 });
-
 
 const PORT = Number(process.env.PORT);
 
