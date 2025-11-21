@@ -54,7 +54,6 @@ router.post("/api/register", async (req, res) => {
     // if (mailError) {
     //   console.error(mailError);
     //   return res.status(500).send({ error: "User created but email failed to send" });
-
     // };
 
     res.status(201).send({ data: "User created. Activation email sent." });
