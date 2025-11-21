@@ -1,11 +1,13 @@
 <script>
   import { Router, Route } from "svelte-routing";
   import { onMount } from "svelte";
-  import { user, redirectAfterLogin } from "./stores/clientAuth";
+  import { user } from "./stores/clientAuth";
   import { get } from "svelte/store";
   import LoginAndRegisterPage from "./pages/LoginAndRegisterPage/LoginAndRegisterPage.svelte";
   import SuccesPage from "./pages/SuccessPage/SuccesPage.svelte";
   import PasswordPage from './pages/PasswordPage/PasswordPage.svelte'
+  import toastr from 'toastr';
+
 
   onMount(async () => {
     try {
@@ -14,12 +16,14 @@
       });
       if (res.ok) {
         const data = await res.json();
+        toastr.success('You have a SESSION my friend');
         user.set(data.user);
-        console.log("All good");
       } else {
         user.set(null);
+        toastr.error("you DO NOT have a SESSION my friend");
       }
     } catch (err) {
+      toastr.error("you DO NOT have a SESSION my friend");
       console.error("Failed to fetch session:", err);
       user.set(null);
     }
@@ -58,10 +62,6 @@
 </script>
 
 <Router>
-  <!-- <Route path="/">
-    <LoginAndRegisterPage />
-  </Route> -->
-
   <Route path="/">
     <LoginAndRegisterPage
       {mode}
