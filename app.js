@@ -8,13 +8,14 @@ import logoutRouter from "./routers/logoutRouter.js";
 import sessionRouter from "./routers/sessionRouter.js";
 import helmet from "helmet";
 import cors from "cors";
-import path from "path";
+import path, { dirname } from "path";
 import { fileURLToPath } from "url";
 
 const app = express();
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// const __dirname = path.dirname(__filename);
+const __dirname = dirname(__filename);
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "client", "dist")));
