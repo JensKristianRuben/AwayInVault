@@ -43,6 +43,10 @@ app.use(registerRouter);
 app.use(logoutRouter);
 app.use(sessionRouter);
 
+app.get("/something", (req, res) => {
+  res.send({data: "something"})
+})
+
 app.get("/{*splat}", (req, res) => {
   res.sendFile(path.join(__dirname, "client", "dist", "index.html"));
 });
