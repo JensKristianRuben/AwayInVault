@@ -8,13 +8,17 @@ import logoutRouter from "./routers/logoutRouter.js";
 import sessionRouter from "./routers/sessionRouter.js";
 import helmet from "helmet";
 import cors from "cors";
+import sql from "./database/db.js";
+import connectPgSimple from "connect-pg-simple";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
 
 const app = express();
+const PgStore = connectPgSimple(session);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "client", "dist")));
@@ -28,15 +32,31 @@ app.use(
   })
 );
 
-
+// app.use(
+//   session({
+//     secret: process.env.SESSION_SECRET,
+//     resave: false,
+//     saveUninitialized: true,
+//     cookie: {
+//       secure: true,
+//       sameSite: "none",
+//     },
+//   })
+// );
 app.use(
   session({
+    store: new PgStore({
+      conString: process.env.SUPABASE_DB_URL,
+      tableName: "sessions",
+      createTableIfMissing: false,
+    }),
     secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     cookie: {
       secure: true,
       sameSite: "none",
+      maxAge: 1000 * 60 * 60 * 24,
     },
   })
 );
@@ -46,8 +66,6 @@ app.use(loginRouter);
 app.use(registerRouter);
 app.use(logoutRouter);
 app.use(sessionRouter);
-
-console.log("SERVING STATIC FROM:", path.join(__dirname, "client/dist"));
 
 app.get("/api/something", (req, res) => {
   res.send({ data: "something" });

@@ -16,6 +16,7 @@ router.post("/api/register", async (req, res) => {
     return res.status(400).send({ error: "Email and password are required" });
   }
 
+  
   try {
     const hashedPassword = await hashPassword(password);
 
