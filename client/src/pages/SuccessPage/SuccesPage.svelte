@@ -1,17 +1,4 @@
 <script>
-  import { onMount } from "svelte";
-  import { navigate } from "svelte-routing";
-
-  async function fetchPasswords() {
-    const passwords = await fetch("http://localhost:8080/passwords", {
-      credentials: "include",
-    });
-
-    const result = await passwords.json();
-    console.log(result);
-  }
-
-  fetchPasswords();
 </script>
 
 <main class="success-container">
