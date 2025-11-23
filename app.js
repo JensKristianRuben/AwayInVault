@@ -20,7 +20,7 @@ const __dirname = dirname(__filename);
 
 
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, "client", "dist")));
+app.use(express.static(path.join(__dirname, "public")));
 
 app.use(helmet());
 
@@ -53,7 +53,7 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: true,
+      secure: false,
       sameSite: "lax",
       maxAge: 1000 * 60 * 60 * 24,
     },
@@ -71,11 +71,11 @@ app.get("/api/something", (req, res) => {
 });
 
 app.get("/passwords", (req, res) => {
-  res.sendFile(path.join(__dirname, "client/dist/index.html"));
+  res.sendFile(path.join(__dirname, "public/index.html"));
 });
 
 // app.get("/{*splat}", (req, res) => {
-//   res.sendFile(path.join(__dirname, "client/dist/index.html"));
+//   res.sendFile(path.join(__dirname, "public/index.html"));
 // });
 
 const PORT = Number(process.env.PORT);
