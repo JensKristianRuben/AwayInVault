@@ -5,9 +5,9 @@
   import { get } from "svelte/store";
   import LoginAndRegisterPage from "./pages/LoginAndRegisterPage/LoginAndRegisterPage.svelte";
   import SuccesPage from "./pages/SuccessPage/SuccesPage.svelte";
-  import PasswordPage from './pages/PasswordPage/PasswordPage.svelte'
-  import toastr from 'toastr';
-
+  import PasswordPage from "./pages/PasswordPage/PasswordPage.svelte";
+  import ActivationPage from "./pages/ActivationPage/ActivationPage.svelte";
+  import toastr from "toastr";
 
   onMount(async () => {
     try {
@@ -16,7 +16,7 @@
       });
       if (res.ok) {
         const data = await res.json();
-        toastr.success('You have a SESSION my friend');
+        toastr.success("You have a SESSION my friend");
         user.set(data.user);
       } else {
         user.set(null);
@@ -64,15 +64,19 @@
 <Router>
   <Route path="/">
     <LoginAndRegisterPage
-      {mode}
-      on:goLogin={goToLogin}
-      on:goRegister={goToRegister}
+    {mode}
+    on:goLogin={goToLogin}
+    on:goRegister={goToRegister}
     />
   </Route>
-
+  
+  <Route path="/activation">
+    <ActivationPage />
+  </Route>
+  
   <Route path="/succes">
     <!-- {#if guard("/succes")} -->
-      <SuccesPage />
+    <SuccesPage />
     <!-- {/if} -->
   </Route>
 
@@ -81,4 +85,5 @@
       <PasswordPage />
     {/if}
   </Route>
+
 </Router>

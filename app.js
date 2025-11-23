@@ -34,35 +34,6 @@ app.use(
   })
 );
 
-// app.use(
-//   session({
-//     secret: process.env.SESSION_SECRET,
-//     resave: false,
-//     saveUninitialized: true,
-//     cookie: {
-//       secure: true,
-//       sameSite: "none",
-//     },
-//   })
-// );
-// app.use(
-//   session({
-//     store: new PgStore({
-//       conString: process.env.SUPABASE_DB_URL,
-//       tableName: "sessions",
-//       createTableIfMissing: false,
-//     }),
-//     secret: process.env.SESSION_SECRET,
-//     resave: false,
-//     saveUninitialized: false,
-//     cookie: {
-//       secure: true,
-//       sameSite: "lax",
-//       maxAge: 1000 * 60 * 60 * 24,
-//     },
-//   })
-// );
-
 app.use(
   session({
     store: new SupabaseStore(),
@@ -91,9 +62,9 @@ app.get("/passwords", (req, res) => {
   res.sendFile(path.join(__dirname, "public/index.html"));
 });
 
-// app.get("/{*splat}", (req, res) => {
-//   res.sendFile(path.join(__dirname, "public/index.html"));
-// });
+app.get("/{*splat}", (req, res) => {
+  res.sendFile(path.join(__dirname, "public/index.html"));
+});
 
 const PORT = Number(process.env.PORT);
 
