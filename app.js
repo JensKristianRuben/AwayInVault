@@ -8,7 +8,6 @@ import logoutRouter from "./routers/logoutRouter.js";
 import sessionRouter from "./routers/sessionRouter.js";
 import helmet from "helmet";
 import cors from "cors";
-import sql from "./database/db.js";
 import connectPgSimple from "connect-pg-simple";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
@@ -55,7 +54,7 @@ app.use(
     saveUninitialized: false,
     cookie: {
       secure: true,
-      sameSite: "none",
+      sameSite: "lax",
       maxAge: 1000 * 60 * 60 * 24,
     },
   })
