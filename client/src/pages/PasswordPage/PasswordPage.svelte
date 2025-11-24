@@ -19,7 +19,7 @@
   <div class="side-dropdown">
     <img src="./a-way-in.png" alt="awayinvault logo" class="logo">
     <a href="/passwords" class="menu-link">passwords</a>
-    <a href="#" class="menu-link">Files</a>
+    <a href="/activation" class="menu-link">Files</a>
     <a href="#" class="menu-link">3</a>
     <a href="#" class="menu-link">4</a>
     <a href="#" class="menu-link">5</a>
