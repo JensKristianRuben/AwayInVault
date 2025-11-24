@@ -74,9 +74,9 @@
   </Route>
 
   <Route path="/passwords">
-    {#if guard("/passwords")}
+    <!-- {#if guard("/passwords")} -->
       <PasswordPage />
-    {/if}
+    <!-- {/if} -->
   </Route>
 
 </Router>
