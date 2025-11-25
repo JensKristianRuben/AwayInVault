@@ -2,11 +2,11 @@
   import { Router, Route } from "svelte-routing";
   import { onMount } from "svelte";
   import { user } from "./stores/clientAuth";
-  import { get } from "svelte/store";
   import LoginAndRegisterPage from "./pages/LoginAndRegisterPage/LoginAndRegisterPage.svelte";
   import PasswordPage from "./pages/PasswordPage/PasswordPage.svelte";
   import ActivationPage from "./pages/ActivationPage/ActivationPage.svelte";
   import toastr from "toastr";
+  import PrivateRouteGuard from "./components/PrivateRouteGuard.svelte";
 
   onMount(async () => {
     try {

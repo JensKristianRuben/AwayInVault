@@ -33,7 +33,6 @@ router.post("/api/register", async (req, res) => {
       .select();
 
     if (error) {
-      console.error(error);
       return res.status(500).send({ error: "Could not create user" });
     }
 
@@ -50,7 +49,6 @@ router.post("/api/register", async (req, res) => {
     });
 
     if (mailError) {
-      console.error(mailError);
       return res
         .status(500)
         .send({ error: "User created but email failed to send" });
