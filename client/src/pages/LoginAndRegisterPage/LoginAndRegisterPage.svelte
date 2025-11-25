@@ -54,6 +54,37 @@
       setTimeout(() => (shakeForm = false), 500);
     }
   }
+
+  let registerEmail = "";
+  let registerPassword = "";
+  let registerPassword2 = "";
+  let passwordMismatch = false;
+
+  async function register(event) {
+    event.preventDefault();
+
+    if (registerPassword !== registerPassword2) {
+      passwordMismatch = true;
+      return;
+    }
+    passwordMismatch = false;
+
+    const response = await fetch("/api/register", {
+      method: "POST",
+      headers: { "Content-type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        registerEmail,
+        registerPassword,
+      }),
+      credentials: "include",
+    });
+
+    if (response.ok) {
+      navigate("/#login");
+    } else {
+      console.error("Registration failed");
+    }
+  }
 </script>
 
 <main
@@ -102,15 +133,15 @@
       on:click={goToLogin}>Already have Account?</button
     >
   </div>
-  <form action="/api/register" method="POST" class="right-form">
+  <form class="right-form" on:submit={register}>
     <label for="email">Email</label>
-    <input type="email" id="email" name="email" />
+    <input type="email" id="email" name="email" bind:value={registerEmail}/>
 
     <label for="password">Password</label>
-    <input type="password" id="registerPassword" name="registerPassword" />
+    <input type="password" id="registerPassword" name="registerPassword" bind:value={registerPassword} />
 
     <label for="password2">Repeat Password</label>
-    <input type="password" id="registerPassword2" name="registerPassword2" />
+    <input type="password" id="registerPassword2" name="registerPassword2" bind:value={registerPassword2} />
 
     <button type="submit">Register</button>
   </form>

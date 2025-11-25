@@ -9,7 +9,7 @@ const router = Router();
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 router.post("/api/register", async (req, res) => {
-  const email = req.body.email;
+  const email = req.body.registerEmail;
   const password = req.body.registerPassword;
 
   if (!email || !password) {
