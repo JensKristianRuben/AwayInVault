@@ -28,25 +28,6 @@
     }
   });
 
-  async function guard(path) {
-    if (!get(user)) {
-      const res = await fetch("/api/session", {
-        credentials: "include",
-      });
-      if (res.ok) {
-        const data = await res.json();
-        user.set(data.user);
-      }
-    }
-
-    if (!get(user)) {
-      window.location.href = "/#login";
-      return false;
-    }
-
-    return true;
-  }
-
   let mode = "login";
 
   function goToLogin() {
@@ -63,20 +44,17 @@
 <Router>
   <Route path="/">
     <LoginAndRegisterPage
-    {mode}
-    on:goLogin={goToLogin}
-    on:goRegister={goToRegister}
+      {mode}
+      on:goLogin={goToLogin}
+      on:goRegister={goToRegister}
     />
   </Route>
-  
+
   <Route path="/activation">
     <ActivationPage />
   </Route>
 
   <Route path="/passwords">
-    <!-- {#if guard("/passwords")} -->
-      <PasswordPage />
-    <!-- {/if} -->
+    <PasswordPage />
   </Route>
-
 </Router>
