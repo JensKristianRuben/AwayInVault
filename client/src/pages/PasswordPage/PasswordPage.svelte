@@ -20,9 +20,6 @@
     <img src="./a-way-in.png" alt="awayinvault logo" class="logo">
     <a href="/passwords" class="menu-link">passwords</a>
     <a href="/activation" class="menu-link">Activation</a>
-    <a href="#" class="menu-link">3</a>
-    <a href="#" class="menu-link">4</a>
-    <a href="#" class="menu-link">5</a>
     <button class="logout-button" id="logoutButton" on:click={logout}>Logout</button>
   </div>
 </nav>

@@ -54,7 +54,9 @@
     <ActivationPage />
   </Route>
 
-  <Route path="/passwords">
+  <PrivateRouteGuard path="/passwords" component={PasswordPage} />
+  
+  <!-- <Route path="/passwords">
     <PasswordPage />
-  </Route>
+  </Route> -->
 </Router>

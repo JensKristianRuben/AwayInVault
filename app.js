@@ -14,6 +14,10 @@ import SupabaseStore from "./stores/supabaseStore.js";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
 
+// todo: lav side session guards
+// todo: forgot password
+
+
 const app = express();
 
 
