@@ -168,12 +168,13 @@
     height: 100vh;
     border-radius: 12px;
     overflow: hidden;
-    background: #0f260f;
+    background: #17362680;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   }
 
   form {
     position: absolute;
+    background-color: #17362680;
     top: 0;
     width: 50%;
     height: 100%;
@@ -252,14 +253,14 @@
   .left-info {
     left: 0;
     opacity: 1;
-    background-color: #1f3f1f;
+    background-color: #001a0d;
   }
 
   .right-info {
     right: 0;
     opacity: 0;
     transform: translateX(50%);
-    background-color: #1f3f1f;
+    background-color: #001a0d;
   }
 
   button {
