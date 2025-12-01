@@ -1,6 +1,10 @@
 <script>
-  export let title;
-  export let username;
+
+
+  let { title, username, encrypted_password, onWatchClick } = $props();
+
+  let displayedPassword = $state("••••••••••");
+  let isLoading = $state(false);
 
   function handleEdit() {
     console.log(`Redigerer ${title}`);
@@ -9,12 +13,19 @@
   function handleDelete() {
     console.log(`Sletter ${title}`);
   }
+
+  function handleShowPassword() {
+    console.log("Hej Fra passwordcard modulet");
+    
+    onWatchClick();
+  }
+  
 </script>
 
 <div class="passwords-grid-container">
   <div class="passwords-grid-container-info">
     <h3 class="passwords-grid-container-title">{title}</h3>
-    <button aria-label="Edit" on:click={handleEdit}
+    <button aria-label="Edit" onclick={handleEdit}
       ><svg
         xmlns="http://www.w3.org/2000/svg"
         width="24"
@@ -32,7 +43,7 @@
         ></path></svg
       ></button
     >
-    <button aria-label="Delete" on:click={handleDelete}
+    <button aria-label="Delete" onclick={handleDelete}
       ><svg
         xmlns="http://www.w3.org/2000/svg"
         width="24"
@@ -82,7 +93,7 @@
     <div class="passwords-grid-container-info-item">
       <div class="passwords-grid-container-info-item-wrapper">
         <p>Password</p>
-        <p>••••••••••</p>
+        <p>{isLoading ? 'Dekrypterer...' : displayedPassword}</p>
       </div>
       <button aria-label="Copy"
         ><svg
@@ -101,7 +112,7 @@
           ></path></svg
         ></button
       >
-      <button aria-label="Watch"
+      <button aria-label="Watch" onclick={handleShowPassword} 
         ><svg
           xmlns="http://www.w3.org/2000/svg"
           width="24"

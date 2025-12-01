@@ -3,6 +3,7 @@
   import PasswordCard from "../../components/passwordPage/passwordCard.svelte";
   import Sidebar from "../../components/sidebar.svelte";
   import CreatePasswordModal from "../../components/passwordPage/CreatePasswordModal.svelte";
+  import MasterPasswordModal from "../../components/passwordPage/MasterPasswordModal.svelte";
   import { onMount } from "svelte";
 
   async function logout() {
@@ -20,7 +21,7 @@
 
   let passwordsList = $state([]);
 
-  async function fetchPasswords(params) {
+  async function fetchPasswords() {
     let response = await fetch("http://localhost:8080/api/passwords", {
       method: "GET",
       credentials: "include",
@@ -28,6 +29,7 @@
 
     const data = await response.json();
 
+    // todo: lav modal hvis der ikke findes passwords
     passwordsList = data;
   }
 
@@ -47,6 +49,20 @@
   function closeModal() {
     isModalOpen = false;
   }
+
+  let isMasterPasswordModalOpen = $state(false);
+
+  function closeMasterPasswordModal() {
+    isMasterPasswordModalOpen = false;
+  }
+
+  function openMasterPasswordModal() {
+    console.log("heeeej");
+    
+    isMasterPasswordModalOpen = true;
+  }
+
+
 </script>
 
 <Sidebar />
@@ -55,6 +71,12 @@
   onClose={closeModal}
   class={isModalOpen ? "is-open" : ""}
   onSave={handleNewPassword}
+/>
+
+<!-- TODO: onclick={openModal} skal sættes på masterpassword modal på en eller anden måde -->
+<MasterPasswordModal
+  onClose={closeMasterPasswordModal}
+  class={isMasterPasswordModalOpen ? "is-open" : ""}
 />
 
 <main class="passwords-main">
@@ -91,9 +113,12 @@
 
   <div class="passwords-grid">
     {#each passwordsList as password (password.id)}
-      <PasswordCard 
-      title={password.website}
-      username={password.username} />
+      <PasswordCard
+        title={password.website}
+        username={password.username}
+        encrypted_password={password.encrypted_password}
+        onWatchClick={openMasterPasswordModal}
+      />
     {/each}
   </div>
 </main>
