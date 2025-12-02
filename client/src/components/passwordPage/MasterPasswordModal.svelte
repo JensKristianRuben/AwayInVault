@@ -16,7 +16,8 @@
   function handleVerifyClick() {
     console.log("Handle verify");
     if (masterPassword) {
-      onVerify?.(masterPassword);  
+      onVerify?.(masterPassword);
+      masterPassword = "";
       onClose?.();
       return;
     }
@@ -40,7 +41,11 @@
   >
     <p>Enter your master password to view your password</p>
     <div class="password-and-brn-wrapper">
-      <input type="password" placeholder="Masterpassword" bind:value={masterPassword}/>
+      <input
+        type="password"
+        placeholder="Masterpassword"
+        bind:value={masterPassword}
+      />
       <button aria-label="check-password" onclick={handleVerifyClick}>
         <svg
           xmlns="http://www.w3.org/2000/svg"

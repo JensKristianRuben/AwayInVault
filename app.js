@@ -15,7 +15,7 @@ import SupabaseStore from "./stores/supabaseStore.js";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
 
-// todo: udfyld password kortene så de holder alle data
+// Todo: Det er ved indtagelsen af masterpasswordet jeg skal sikre at det er langt og komplekst
 // todo: lav slette funktion på password kortene
 // todo: lav update funktion på password kortene
 // todo: lav se password på kortene

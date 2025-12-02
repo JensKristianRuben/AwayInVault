@@ -27,33 +27,6 @@
   let username = $state("");
   let password = $state("");
 
-  async function decryptPassword(encryptedPayload) {
-    const parts = encryptedPayload.split(":");
-    if (parts.length !== 3) {
-      console.error("Payload format er forkert. Skal være salt:iv:ciphertext");
-      return null;
-    }
-    const [saltBase64, ivBase64, ciphertextBase64] = parts;
-
-    const salt = CryptoJS.enc.Base64.parse(saltBase64);
-    const iv = CryptoJS.enc.Base64.parse(ivBase64);
-
-    const key = await deriveKey(salt);
-
-    const encryptedData = CryptoJS.lib.CipherParams.create({
-      ciphertext: CryptoJS.enc.Base64.parse(ciphertextBase64),
-    });
-
-    const decryptedBytes = CryptoJS.AES.decrypt(encryptedData, key, {
-      iv: iv,
-      mode: CryptoJS.mode.CBC,
-      padding: CryptoJS.pad.Pkcs7,
-    });
-
-    const originalText = decryptedBytes.toString(CryptoJS.enc.Utf8);
-
-    return originalText;
-  }
   async function savePassword() {
     if (!password || password.trim() === "") {
       toastr.error("Password field cannot be empty.");
