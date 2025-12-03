@@ -129,6 +129,13 @@
 
     return originalText;
   }
+
+  // ______________DELETE________________
+
+  function handleDeletePasswordCard(id){
+    console.log("Hvad så fra id:" + id);
+    
+  }
 </script>
 
 <Sidebar />
@@ -187,6 +194,8 @@
         onWatchClick={() =>
           openMasterPasswordModal(password.id, password.encrypted_password)}
         decrypted_password={decryptedPasswords[password.id]}
+        onDeleteClick={() => handleDeletePasswordCard(password.id)}
+        id={password.id}
       />
     {/each}
   </div>

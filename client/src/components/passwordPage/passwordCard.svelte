@@ -1,22 +1,17 @@
 <script>
 
 
-  let { title, username, encrypted_password, onWatchClick, decrypted_password } = $props();
-
-  let displayedPassword = $state("••••••••••");
-  // let isLoading = $state(false);
+  let { title, username, encrypted_password, onWatchClick, decrypted_password, onDeleteClick, id } = $props();
 
   function handleEdit() {
-    console.log(`Redigerer ${title}`);
+    
   }
 
   function handleDelete() {
-    console.log(`Sletter ${title}`);
+   onDeleteClick()
   }
 
   function handleShowPassword() {
-
-    // isLoading = true;
     
     onWatchClick(encrypted_password);
   }
