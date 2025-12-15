@@ -1,4 +1,6 @@
 <script>
+  import { enc } from "crypto-js";
+
 
 
   let { title, username, encrypted_password, onWatchClick, decrypted_password, onDeleteClick, id } = $props();
@@ -12,9 +14,23 @@
   }
 
   function handleShowPassword() {
-    
     onWatchClick(encrypted_password);
   }
+
+  function handleCopyUsername() {
+    navigator.clipboard.writeText(username)
+  }
+
+  function handleCopyPassword() {
+    if(decrypted_password) {
+      navigator.clipboard.writeText(decrypted_password)
+    }
+    else {
+      navigator.clipboard.writeText(encrypted_password)
+    }
+  }
+
+
   
 </script>
 
@@ -68,7 +84,7 @@
         <p>Username</p>
         <p>{username}</p>
       </div>
-      <button aria-label="Copy"
+      <button aria-label="Copy" onclick={handleCopyUsername}
         ><svg
           xmlns="http://www.w3.org/2000/svg"
           width="24"
@@ -91,7 +107,7 @@
         <p>Password</p>
         <p>{decrypted_password ? decrypted_password : '••••••••••'}</p>
       </div>
-      <button aria-label="Copy"
+      <button aria-label="Copy" onclick={handleCopyPassword}
         ><svg
           xmlns="http://www.w3.org/2000/svg"
           width="24"

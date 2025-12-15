@@ -15,6 +15,7 @@ import SupabaseStore from "./stores/supabaseStore.js";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
 
+// Todo: find ud af hvorfor den går direkte til /activation når man først logger på.
 // Todo: Det er ved indtagelsen af masterpasswordet jeg skal sikre at det er langt og komplekst
 // todo: lav slette funktion på password kortene
 // todo: lav update funktion på password kortene

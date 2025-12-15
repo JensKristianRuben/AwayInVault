@@ -4,6 +4,27 @@ import { requireAuth } from "../util/authUtil.js";
 
 const router = Router();
 
+router.get("/api/passwords", requireAuth, async (req, res) => {
+  const userId = req.user.id;
+
+  try {
+    const { data, error } = await supabase
+      .from("passwords")
+      .select("*")
+      .eq("user_id", userId);
+
+    if (error) {
+      console.error("Couldnt read passwords", error.message);
+      return res.status(500).send({ error: "Database error" });
+    }
+
+    return res.status(200).send(data);
+  } catch (err) {
+    console.error("Server error:", err);
+    res.status(500).send({ error: "Internal server error" });
+  }
+});
+
 router.post("/api/passwords", requireAuth, async (req, res) => {
   const { website, username, encryptedPassword } = req.body;
   const userId = req.user.id;
@@ -38,23 +59,24 @@ router.post("/api/passwords", requireAuth, async (req, res) => {
   }
 });
 
-router.get("/api/passwords", requireAuth, async (req, res) => {
-  const userId = req.user.id;
+router.delete("/api/passwords/:id", requireAuth, async (req, res) => {
+  const passwordId = req.params.id;
 
   try {
-    const { data, error } = await supabase
+     const { data, error } = await supabase
       .from("passwords")
-      .select("*")
-      .eq("user_id", userId);
+      .delete()
+      .eq("id", passwordId)
+      .select();
 
     if (error) {
-      console.error("Couldnt read passwords", error.message);
+      console.error("Supabase elete error:", error.message);
       return res.status(500).send({ error: "Database error" });
     }
 
-    return res.status(200).send(data)
+    res.status(204).send({data});
 
-  } catch (err) {
+  } catch (error) {
     console.error("Server error:", err);
     res.status(500).send({ error: "Internal server error" });
   }

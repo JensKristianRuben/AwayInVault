@@ -1,28 +1,15 @@
 <script>
-  import { navigate } from "svelte-routing";
   import PasswordCard from "../../components/passwordPage/passwordCard.svelte";
   import Sidebar from "../../components/sidebar.svelte";
   import CreatePasswordModal from "../../components/passwordPage/CreatePasswordModal.svelte";
   import MasterPasswordModal from "../../components/passwordPage/MasterPasswordModal.svelte";
+  import ConfirmModal from "../../components/passwordPage/ConfirmModal.svelte";
   import { onMount } from "svelte";
   import CryptoJS from "crypto-js";
 
   let passwordToDecrypt = $state(null);
   let selectedPasswordId = $state(null);
   let decryptedPasswords = $state({});
-
-  async function logout() {
-    const response = await fetch("http://localhost:8080/api/logout", {
-      method: "POST",
-      credentials: "include",
-    });
-
-    if (!response.ok) {
-      console.log("Logout failed");
-      return;
-    }
-    navigate("/");
-  }
 
   let passwordsList = $state([]);
 
@@ -42,7 +29,6 @@
 
   function handleNewPassword(newPassword) {
     passwordsList = [...passwordsList, newPassword];
-    console.log(passwordsList);
   }
 
   let isModalOpen = $state(false);
@@ -68,6 +54,17 @@
     isMasterPasswordModalOpen = true;
   }
 
+  let isConfirmModalOpen = $state(false);
+  let confirmDeletion = $state(false);
+
+  function openConfirmModal() {
+    isConfirmModalOpen = true;
+  }
+  function closeConfirmModal() {
+    isConfirmModalOpen = false;
+    console.log(confirmDeletion);
+  }
+
   async function handleMasterPasswordVerification(masterPassword) {
     const key = masterPassword;
     const encryptedValue = passwordToDecrypt;
@@ -84,7 +81,14 @@
 
         decryptedPasswords = {
           ...decryptedPasswords,
-          [currentId]: decryptedPassword};
+          [currentId]: decryptedPassword,
+        };
+
+        setTimeout(() => {
+          const tempPasswords = { ...decryptedPasswords };
+          delete tempPasswords[currentId];
+          decryptedPasswords = tempPasswords;
+        }, 5000);
       } catch (error) {
         console.error("Fejl under dekryptering/kryptering:", error);
       }
@@ -132,9 +136,18 @@
 
   // ______________DELETE________________
 
-  function handleDeletePasswordCard(id){
-    console.log("Hvad så fra id:" + id);
-    
+  async function handleDeletePasswordCard(id) {
+    openConfirmModal();
+
+    // const response = await fetch(`http://localhost:8080/api/passwords/${id}`, {
+    //   method: "DELETE",
+    //   credentials: "include"
+    // })
+
+    // if(!response.ok) {
+    //   console.error("The deletion meet an error", response.status);
+    // }
+    // passwordsList = passwordsList.filter(password => password.id !== id);
   }
 </script>
 
@@ -150,6 +163,12 @@
   onClose={closeMasterPasswordModal}
   class={isMasterPasswordModalOpen ? "is-open" : ""}
   onVerify={handleMasterPasswordVerification}
+/>
+
+<ConfirmModal
+  onClose={closeConfirmModal}
+  class={isConfirmModalOpen ? "is-open" : ""}
+  onConfirm={confirmDeletion}
 />
 
 <main class="passwords-main">
