@@ -7,6 +7,7 @@
   import ActivationPage from "./pages/ActivationPage/ActivationPage.svelte";
   import toastr from "toastr";
   import PrivateRouteGuard from "./components/PrivateRouteGuard.svelte";
+  import PasswordGeneratorPage from "./pages/PasswordGeneratorPage/PasswordGeneratorPage.svelte";
 
   onMount(async () => {
   
@@ -53,4 +54,5 @@
 
   <PrivateRouteGuard path="/passwords" component={PasswordPage} />
   <PrivateRouteGuard path="/activation" component={ActivationPage} />
+  <PrivateRouteGuard path="/generator" component={PasswordGeneratorPage} />
 </Router>

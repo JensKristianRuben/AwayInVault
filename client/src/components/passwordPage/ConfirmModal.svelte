@@ -8,8 +8,11 @@
   }
 
   function handleConfirmClick() {
-    // isConfirmed = true
     onConfirm?.();
+  }
+
+  function stopPropagation(event) {
+    event.stopPropagation();
   }
 </script>
 
@@ -20,7 +23,13 @@
   role="button"
   tabindex="0"
 >
-  <div class="confirm-Wrapper">
+  <div
+    class="confirm-Wrapper"
+    onclick={stopPropagation}
+    role="dialog"
+    tabindex="-1"
+    onkeydown={null}
+  >
     <p>Are you sure you want to delete this?</p>
     <button aria-label="check-password" onclick={handleConfirmClick}>
       <svg

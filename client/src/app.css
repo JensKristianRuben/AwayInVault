@@ -6,8 +6,19 @@ body {
     flex-direction: column;
   }
 
+main {
+  height: 100vh;
+}
+
+button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+
    @media (max-width: 768px) {
     body{
       display: block;
     }
    }
+

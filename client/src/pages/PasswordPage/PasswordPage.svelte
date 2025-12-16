@@ -9,6 +9,7 @@
   import { fly, fade } from "svelte/transition";
   import { onMount } from "svelte";
   import CryptoJS from "crypto-js";
+  import toastr from "toastr";
 
   let passwordToDecrypt = $state(null);
   let selectedPasswordId = $state(null);
@@ -19,6 +20,8 @@
   let passwordToEdit = $state(null);
 
   let passwordsList = $state([]);
+
+  let passwordToDeleteId = $state(null);
 
   let filteredPasswords = $derived(
     passwordsList.filter((password) => {
@@ -56,8 +59,6 @@
     });
 
     const data = await response.json();
-
-    // todo: lav modal hvis der ikke findes passwords
     passwordsList = data;
   }
 
@@ -91,14 +92,13 @@
   }
 
   let isConfirmModalOpen = $state(false);
-  let confirmDeletion = $state(false);
 
   function openConfirmModal() {
     isConfirmModalOpen = true;
   }
   function closeConfirmModal() {
     isConfirmModalOpen = false;
-    console.log(confirmDeletion);
+    passwordToDeleteId = null;
   }
 
   async function handleMasterPasswordVerification(masterPassword) {
@@ -172,18 +172,37 @@
 
   // ______________DELETE________________
 
-  async function handleDeletePasswordCard(id) {
+  function handleDeletePasswordCard(id) {
+    passwordToDeleteId = id;
     openConfirmModal();
+  }
 
-    // const response = await fetch(`http://localhost:8080/api/passwords/${id}`, {
-    //   method: "DELETE",
-    //   credentials: "include"
-    // })
+  async function executeDeletion() {
+    if (!passwordToDeleteId) return;
+    try {
+      const response = await fetch(
+        `http://localhost:8080/api/passwords/${passwordToDeleteId}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        }
+      );
 
-    // if(!response.ok) {
-    //   console.error("The deletion meet an error", response.status);
-    // }
-    // passwordsList = passwordsList.filter(password => password.id !== id);
+      if (response.ok) {
+
+
+        passwordsList = passwordsList.filter(
+          (p) => String(p.id) !== String(passwordToDeleteId)
+        );
+        toastr.success("Password succesfully deleted")
+
+      } else {
+        toastr.error("Could not delete")
+      }
+    } catch (error) {
+      console.error(error);
+    }
+    closeConfirmModal();
   }
 </script>
 
@@ -193,6 +212,7 @@
   onClose={closeModal}
   class={isModalOpen ? "is-open" : ""}
   onSave={handleNewPassword}
+  existingPasswords={passwordsList}
 />
 
 <MasterPasswordModal
@@ -204,7 +224,7 @@
 <ConfirmModal
   onClose={closeConfirmModal}
   class={isConfirmModalOpen ? "is-open" : ""}
-  onConfirm={confirmDeletion}
+  onConfirm={executeDeletion}
 />
 
 <EditPasswordModal

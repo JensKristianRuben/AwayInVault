@@ -17,22 +17,14 @@ import { fileURLToPath } from "url";
 
 
 
-// 1. Search password - done
-// 2. Edit password - 
-// 3. Random password
-// 4. find et sted og brug websockets
+
+// 5. Første gang man logger ind skal man skrive sit masterpassword
 
 
 // Todo: find ud af hvorfor den går direkte til /activation når man først logger på.
 // Todo: Det er ved indtagelsen af masterpasswordet jeg skal sikre at det er langt og komplekst
-// todo: lav slette funktion på password kortene
-// todo: lav update funktion på password kortene
-// todo: lav se password på kortene
-// todo: lav kopir på kortene 
-// todo: lav søge funktion mellem kortene
 // todo: lav roll password funktion til random password
 // todo: forgot password
-// todo: update password
 // todo: encryptpasswords - bruger skal bruge deres masterpassword - find på flow for om de skal skrive det hver gang eller kun en gang?
 
 

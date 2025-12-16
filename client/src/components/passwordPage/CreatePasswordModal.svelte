@@ -2,9 +2,9 @@
   import toastr from "toastr";
   import CryptoJS from "crypto-js";
 
-  const { onClose, class: className, onSave } = $props();
+  const { onClose, class: className, onSave, existingPasswords } = $props();
 
-  let masterPassword = "DET_HEMMELIGE_MASTER_PASSWORD";
+  // DET_HEMMELIGE_MASTER_PASSWORD
 
   async function deriveKey(salt) {
     return await CryptoJS.PBKDF2(masterPassword, salt, {
@@ -27,16 +27,76 @@
   let username = $state("");
   let password = $state("");
 
+  let masterPassword = $state("");
+
+  function generateRandomPassword() {
+    const length = 24;
+    const charset =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+{}[]<>?";
+    const array = new Uint32Array(length);
+    window.crypto.getRandomValues(array);
+    password = Array.from(array)
+      .map((num) => charset[num % charset.length])
+      .join("");
+  }
+
+  async function decryptPassword(masterKey, encryptedPayload) {
+    try {
+      const parts = encryptedPayload.split(":");
+      if (parts.length !== 3) {
+        console.error(
+          "Payload format er forkert. Skal være salt:iv:ciphertext"
+        );
+        return null;
+      }
+      const [saltBase64, ivBase64, ciphertextBase64] = parts;
+
+      const salt = CryptoJS.enc.Base64.parse(saltBase64);
+      const iv = CryptoJS.enc.Base64.parse(ivBase64);
+
+      const key = await deriveKey(salt);
+
+      const encryptedData = CryptoJS.lib.CipherParams.create({
+        ciphertext: CryptoJS.enc.Base64.parse(ciphertextBase64),
+      });
+
+      const decryptedBytes = CryptoJS.AES.decrypt(encryptedData, key, {
+        iv: iv,
+        mode: CryptoJS.mode.CBC,
+        padding: CryptoJS.pad.Pkcs7,
+      });
+
+      const originalText = decryptedBytes.toString(CryptoJS.enc.Utf8);
+
+      return originalText;
+    } catch (error) {
+      return null;
+    }
+  }
+
   async function savePassword() {
     if (!password || password.trim() === "") {
       toastr.error("Password field cannot be empty.");
       return;
     }
     if (!masterPassword) {
-      toastr.error("Master Password not available. Please log in.");
+      toastr.error("Master Password is required to encrypt.");
       return;
     }
 
+    if (existingPasswords && existingPasswords.length > 0) {
+      const testPassword = existingPasswords[0];
+      const isCorrect = await decryptPassword(
+        masterPassword,
+        testPassword.encrypted_password
+      );
+      if (!isCorrect) {
+        toastr.error(
+          "Wrong masterpassword"
+        );
+        return;
+      }
+    }
     const salt = CryptoJS.lib.WordArray.random(128 / 8);
     const key = await deriveKey(salt);
     const iv = CryptoJS.lib.WordArray.random(128 / 8);
@@ -119,6 +179,17 @@
         ><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg
       ></button
     >
+
+    <label for="master-pass" class="mp-label">Master Password</label>
+    <input
+      type="password"
+      id="master-pass"
+      placeholder="Enter Master Password to encrypt..."
+      bind:value={masterPassword}
+      class="master-password-input"
+    />
+
+    <div class="divider"></div>
     <label for="website">Website</label>
     <input
       type="text"
@@ -144,7 +215,7 @@
         placeholder="CI;vq=w_0MkBopqC"
         bind:value={password}
       />
-      <button aria-label="Generate-password"
+      <button aria-label="Generate-password" onclick={generateRandomPassword}
         ><svg
           xmlns="http://www.w3.org/2000/svg"
           width="24"
@@ -300,5 +371,13 @@
   .backlay.is-open {
     opacity: 1;
     visibility: visible;
+  }
+
+  .divider {
+    width: 100%;
+    height: 1px;
+    background-color: #6fbd96;
+    margin: 10px 0;
+    opacity: 0.3;
   }
 </style>

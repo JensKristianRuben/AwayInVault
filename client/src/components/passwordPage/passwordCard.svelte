@@ -1,5 +1,4 @@
 <script>
-  import { enc } from "crypto-js";
 
 
 
@@ -10,7 +9,7 @@
   }
 
   function handleDelete() {
-   onDeleteClick()
+   onDeleteClick(id)
   }
 
   function handleShowPassword() {

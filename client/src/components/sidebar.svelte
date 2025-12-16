@@ -19,8 +19,7 @@
   <div class="side-dropdown">
     <img src="./a-way-in.png" alt="awayinvault logo" class="logo" />
     <a href="/passwords" class="menu-link">passwords</a>
-    <a href="/activation" class="menu-link">Activation</a>
-    <a href="/" class="menu-link">Login</a>
+    <a href="/generator" class="menu-link">Password generator</a>
     <button class="logout-button" id="logoutButton" on:click={logout}
       >Logout</button
     >
