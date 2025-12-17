@@ -15,6 +15,10 @@ import SupabaseStore from "./stores/supabaseStore.js";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
 
+import http from "http"; 
+import { Server } from "socket.io";
+import generatePassword from './sockets/generatePasswordSockets.js'
+
 
 
 
@@ -30,6 +34,10 @@ import { fileURLToPath } from "url";
 
 const app = express();
 
+const server = http.createServer(app);
+
+const allowedOrigins = ["https://arbezzebra.dk", "https://www.arbezzebra.dk", "http://localhost:5173"];
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -44,7 +52,7 @@ app.use(helmet());
 
 app.use(
   cors({
-    origin: ["https://arbezzebra.dk", "https://www.arbezzebra.dk", "http://localhost:5173"],
+    origin: allowedOrigins,
     credentials: true,
   })
 );
@@ -76,8 +84,19 @@ app.get("/{*splat}", (req, res) => {
   res.sendFile(path.join(__dirname, "public/index.html"));
 });
 
+const io = new Server(server, {
+  cors: {
+    origin: allowedOrigins,
+    credentials: true,
+  }
+});
+
+io.on("connection", (socket) => {
+    generatePassword(io, socket);
+});
+
 const PORT = Number(process.env.PORT);
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log("Server is running on port: ", PORT);
 });

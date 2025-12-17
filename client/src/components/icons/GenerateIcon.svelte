@@ -1,23 +1,24 @@
 <script>
-    let isSpinning = $state(false);
+  let { onclick } = $props();
 
-    function handleSpin() {
-        if (isSpinning) return;
+  let isSpinning = $state(false);
 
-        isSpinning = true;
+  function handleSpin() {
+    if (isSpinning) return;
 
+    isSpinning = true;
 
-        setTimeout(() => {
-            isSpinning = false;
-        }, 500);
-    }
+    setTimeout(() => {
+      isSpinning = false;
+    }, 500);
 
+    onclick?.();
+  }
 </script>
-
 
 <button aria-label="generate-bottom" onclick={handleSpin}>
   <svg
-  class={isSpinning ? "spin-active" : ""}
+    class={isSpinning ? "spin-active" : ""}
     xmlns="http://www.w3.org/2000/svg"
     width="20"
     height="20"

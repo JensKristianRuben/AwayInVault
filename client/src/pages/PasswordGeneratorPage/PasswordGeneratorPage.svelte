@@ -2,6 +2,42 @@
   import Sidebar from "../../components/sidebar.svelte";
   import GenerateIcon from "../../components/icons/GenerateIcon.svelte";
   import CopyIcon from "../../components/icons/CopyIcon.svelte";
+
+  import { onMount } from "svelte";
+  import { io } from "socket.io-client";
+  import toastr from "toastr";
+
+
+  let password = $state("")
+  let socket;
+
+  onMount(() => {
+
+    socket = io("http://localhost:8080");
+
+    socket.on("server-password", (newPassword) => {
+      password = newPassword;
+    });
+
+    socket.on("server-error", (msg) => {
+      console.error(msg);
+      password = "ERROR";
+    });
+
+    return () => socket.disconnect();
+  });
+  
+  function handleGenerateRandomThunderPassword() {
+    password = "Loading...";
+    socket.emit("get-external-password");
+  }
+
+  function handleCopy() {
+    if (password !== "" && password !== "Loading...") {
+      navigator.clipboard.writeText(password);
+      toastr.succes("Password copied")
+    }
+  }
 </script>
 
 <Sidebar />
@@ -9,9 +45,11 @@
 <main>
   <div class="password-generator-container">
     <div class="password-text-and-button-wrapper">
-      <p>********</p>
+      <p>{password}</p>
       <CopyIcon />
-      <GenerateIcon />
+      <GenerateIcon 
+      onclick={handleGenerateRandomThunderPassword}
+      />  
     </div>
   </div>
 
