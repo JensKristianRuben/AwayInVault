@@ -20,6 +20,7 @@
     <img src="./a-way-in.png" alt="awayinvault logo" class="logo" />
     <a href="/passwords" class="menu-link">passwords</a>
     <a href="/generator" class="menu-link">Password generator</a>
+    <a href="/rapport" class="menu-link">Security rapport</a>
     <button class="logout-button" id="logoutButton" on:click={logout}
       >Logout</button
     >

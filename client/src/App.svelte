@@ -8,6 +8,7 @@
   import toastr from "toastr";
   import PrivateRouteGuard from "./components/PrivateRouteGuard.svelte";
   import PasswordGeneratorPage from "./pages/PasswordGeneratorPage/PasswordGeneratorPage.svelte";
+  import SecurityRapportPage from "./pages/SecurityRapportPage/SecurityRapportPage.svelte";
 
   onMount(async () => {
   
@@ -55,4 +56,5 @@
   <PrivateRouteGuard path="/passwords" component={PasswordPage} />
   <PrivateRouteGuard path="/activation" component={ActivationPage} />
   <PrivateRouteGuard path="/generator" component={PasswordGeneratorPage} />
+  <PrivateRouteGuard path="/rapport" component={SecurityRapportPage} />
 </Router>

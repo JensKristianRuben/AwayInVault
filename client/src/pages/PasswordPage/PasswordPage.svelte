@@ -5,6 +5,7 @@
   import MasterPasswordModal from "../../components/passwordPage/MasterPasswordModal.svelte";
   import ConfirmModal from "../../components/passwordPage/ConfirmModal.svelte";
   import EditPasswordModal from "../../components/passwordPage/EditPasswordModal.svelte";
+//  import { deriveKey, decryptPassword, handleMasterPasswordVerification } from "./passwordPage.js";
   import { flip } from "svelte/animate";
   import { fly, fade } from "svelte/transition";
   import { onMount } from "svelte";
@@ -20,7 +21,6 @@
   let passwordToEdit = $state(null);
 
   let passwordsList = $state([]);
-
   let passwordToDeleteId = $state(null);
 
   let filteredPasswords = $derived(
@@ -68,17 +68,9 @@
     passwordsList = [...passwordsList, newPassword];
   }
 
-  let isModalOpen = $state(false);
-
-  function openModal() {
-    isModalOpen = true;
-  }
-
-  function closeModal() {
-    isModalOpen = false;
-  }
-
-  let isMasterPasswordModalOpen = $state(false);
+  let isCreatePasswordModalOpen = $state(false);
+  let isMasterPasswordModalOpen = $state(false); //TODO:
+  let isConfirmModalOpen = $state(false); //TODO:
 
   function closeMasterPasswordModal() {
     isMasterPasswordModalOpen = false;
@@ -91,11 +83,9 @@
     isMasterPasswordModalOpen = true;
   }
 
-  let isConfirmModalOpen = $state(false);
+ 
 
-  function openConfirmModal() {
-    isConfirmModalOpen = true;
-  }
+
   function closeConfirmModal() {
     isConfirmModalOpen = false;
     passwordToDeleteId = null;
@@ -145,7 +135,7 @@
   async function decryptPassword(masterKey, encryptedPayload) {
     const parts = encryptedPayload.split(":");
     if (parts.length !== 3) {
-      console.error("Payload format er forkert. Skal være salt:iv:ciphertext");
+      console.error("Payload is wrong - must be salt:iv:ciphertext");
       return null;
     }
     const [saltBase64, ivBase64, ciphertextBase64] = parts;
@@ -174,7 +164,7 @@
 
   function handleDeletePasswordCard(id) {
     passwordToDeleteId = id;
-    openConfirmModal();
+    isConfirmModalOpen = true;
   }
 
   async function executeDeletion() {
@@ -209,14 +199,14 @@
 <Sidebar />
 
 <CreatePasswordModal
-  onClose={closeModal}
-  class={isModalOpen ? "is-open" : ""}
+  onClose={() => isCreatePasswordModalOpen = false}
+  class={isCreatePasswordModalOpen ? "is-open" : ""}
   onSave={handleNewPassword}
   existingPasswords={passwordsList}
 />
 
 <MasterPasswordModal
-  onClose={closeMasterPasswordModal}
+  onClose={() => isMasterPasswordModalOpen = false}
   class={isMasterPasswordModalOpen ? "is-open" : ""}
   onVerify={handleMasterPasswordVerification}
 />
@@ -238,7 +228,7 @@
   <div class="logo-and-create-password-wrapper">
     <img src="/a-way-in.png" alt="awayinvault logo" class="logo-create-btn" />
     <h1>AwayinVault</h1>
-    <button class="add-password-button" onclick={openModal}>+</button>
+    <button class="add-password-button" onclick={() => isCreatePasswordModalOpen = true}>+</button>
   </div>
   <div class="search-wrapper">
     <svg
