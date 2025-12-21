@@ -1,15 +1,57 @@
 <script>
     let { class: className, onClose } = $props();
+    let otpValue = $state(["", "", "", "", "", ""]);
+    let inputFeilds = [];
+
+    $effect(() => {
+        if (className.includes("is-open") && inputFeilds[0]) {
+            otpValue = ["", "", "", "", "", ""];
+            setTimeout(() => inputFeilds[0].focus(), 50);
+        }
+    });
+
+    function handleInput(event, index) {
+        const value = event.target.value;
+
+        if (value.length === 1) {
+            if (index < 5) {
+                inputFeilds[index + 1]?.focus();
+            }
+        }
+
+        const fullCode = otpValue.join("");
+
+        if(fullCode.length === 6) {
+            console.log("Koden er klar: ", fullCode);
+            
+        }
+        
+
+    }
+
+    function handleInputKeydown(event, index) {
+        if (event.key === "Backspace") {
+            if (otpValue[index] === "" && index > 0) {
+                inputFeilds[index - 1]?.focus();
+            }
+        }
+    }
 
     function handleModalClick(event) {
         event.stopPropagation();
     }
 
+    function handleOnClose() {
+        onClose?.();
+    }
+
     function handleKeydown(event) {
         if (event.key === "Escape") {
-            onClose?.();
+            handleOnClose();
         }
     }
+
+
 </script>
 
 <div
@@ -19,13 +61,75 @@
     role="button"
     tabindex="0"
 >
+    <h2 class="two-factor-header">Two Factor Authenticator</h2>
     <div
         class="twoFA-modal"
         onclick={handleModalClick}
         onkeydown={handleKeydown}
         role="button"
         tabindex="0"
-    ></div>
+    >
+        <input
+            type="text"
+            inputmode="numeric"
+            maxlength="1"
+            class="otp-input-box"
+            bind:this={inputFeilds[0]}
+            bind:value={otpValue[0]}
+            oninput={(event) => handleInput(event, 0)}
+            onkeydown={(event) => handleInputKeydown(event, 0)}
+        />
+        <input
+            type="text"
+            inputmode="numeric"
+            maxlength="1"
+            class="otp-input-box"
+            bind:this={inputFeilds[1]}
+            bind:value={otpValue[1]}
+            oninput={(event) => handleInput(event, 1)}
+            onkeydown={(event) => handleInputKeydown(event, 1)}
+        />
+        <input
+            type="text"
+            inputmode="numeric"
+            maxlength="1"
+            class="otp-input-box"
+            bind:this={inputFeilds[2]}
+            bind:value={otpValue[2]}
+            oninput={(event) => handleInput(event, 2)}
+            onkeydown={(event) => handleInputKeydown(event, 2)}
+        />
+        <input
+            type="text"
+            inputmode="numeric"
+            maxlength="1"
+            class="otp-input-box"
+            bind:this={inputFeilds[3]}
+            bind:value={otpValue[3]}
+            oninput={(event) => handleInput(event, 3)}
+            onkeydown={(event) => handleInputKeydown(event, 3)}
+        />
+        <input
+            type="text"
+            inputmode="numeric"
+            maxlength="1"
+            class="otp-input-box"
+            bind:this={inputFeilds[4]}
+            bind:value={otpValue[4]}
+            oninput={(event) => handleInput(event, 4)}
+            onkeydown={(event) => handleInputKeydown(event, 4)}
+        />
+        <input
+            type="text"
+            inputmode="numeric"
+            maxlength="1"
+            class="otp-input-box"
+            bind:this={inputFeilds[5]}
+            bind:value={otpValue[5]}
+            oninput={(event) => handleInput(event, 5)}
+            onkeydown={(event) => handleInputKeydown(event, 5)}
+        />
+    </div>
 </div>
 
 <style>
@@ -40,6 +144,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
+        flex-direction: column;
         opacity: 0;
         visibility: hidden;
         transition:
@@ -55,6 +160,32 @@
     .twoFA-modal {
         width: 700px;
         height: 300px;
-        border: 1px solid rgb(255, 244, 244);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: row;
+        gap: 10px;
+    }
+
+    .two-factor-header {
+        color: white;
+        font-size: 40px;
+    }
+
+    .otp-input-box {
+        width: 100px;
+        height: 100px;
+        background-color: #001a0d;
+        border: none;
+        justify-items: center;
+        font-size: 50px;
+        color: white;
+        border-radius: 10px;
+    }
+
+    .otp-input-box:focus {
+        outline: none;
+
+        border: 2px solid #6fbd96;
     }
 </style>

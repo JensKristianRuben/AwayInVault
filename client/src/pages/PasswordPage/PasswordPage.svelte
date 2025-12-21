@@ -242,13 +242,11 @@
 </main>
 
 <style>
-  /* --------------- GENERAL ------------------- */
 
   .passwords-main {
     height: 100vh;
   }
 
-  /* -------------------------------------LOGO AND CREATE BUTTON WRAPPER ---------------------------------------*/
 
   .logo-and-create-password-wrapper {
     display: flex;
@@ -292,7 +290,6 @@
     box-shadow: 0 0 8px rgba(51, 170, 119, 0.5);
   }
 
-  /* ---------------------------------------- SEARCH BAR ----------------------------- */
   .search-wrapper {
     position: relative;
     width: 80%;
@@ -330,8 +327,6 @@
     border: 1px solid #00ff80;
     box-shadow: 0 0 8px rgba(51, 170, 119, 0.5);
   }
-
-  /* ---------------------PASSWORDS GRID ----------------------------- */
 
   .passwords-grid {
     display: grid;
