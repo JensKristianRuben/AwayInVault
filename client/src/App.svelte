@@ -1,5 +1,5 @@
 <script>
-  import { Router, Route, navigate } from "svelte-routing";
+  import { Router, Route } from "svelte-routing";
   import { onMount } from "svelte";
   import { user } from "./stores/clientAuth";
   import LoginAndRegisterPage from "./pages/LoginAndRegisterPage/LoginAndRegisterPage.svelte";
@@ -9,6 +9,8 @@
   import PrivateRouteGuard from "./components/PrivateRouteGuard.svelte";
   import PasswordGeneratorPage from "./pages/PasswordGeneratorPage/PasswordGeneratorPage.svelte";
   import SecurityRapportPage from "./pages/SecurityRapportPage/SecurityRapportPage.svelte";
+  import TwoFactorAuthModal from "./components/LoginAndRegisterPage/TwoFactorAuthModal.svelte";
+  import TwofactorAuthentication from "./pages/TwoFactorAuthentication/TwofactorAuthentication.svelte";
 
   onMount(async () => {
   
@@ -31,7 +33,7 @@
     }
   });
 
-  let mode = "login";
+  let mode = $state("login");
 
   function goToLogin() {
     mode = "login";
@@ -57,4 +59,5 @@
   <PrivateRouteGuard path="/activation" component={ActivationPage} />
   <PrivateRouteGuard path="/generator" component={PasswordGeneratorPage} />
   <PrivateRouteGuard path="/rapport" component={SecurityRapportPage} />
+  <PrivateRouteGuard path="/twofactorauthentication" component={TwofactorAuthentication}/>
 </Router>

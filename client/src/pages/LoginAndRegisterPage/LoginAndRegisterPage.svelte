@@ -5,7 +5,7 @@
   import TwoFactorAuthModal from "../../components/LoginAndRegisterPage/TwoFactorAuthModal.svelte";
 
   let mode = $state("login");
-  let isTwoFactorAuthModalOpen = $state(false)
+  let isTwoFactorAuthModalOpen = $state(false);
 
   function goToLogin() {
     mode = "login";
@@ -28,9 +28,9 @@
     else mode = "register";
   });
 
-  let email = "alice@example.com";
-  let password = "123456789";
-  let shakeForm = false;
+  let email = $state("alice@example.com");
+  let password = $state("123456789");
+  let shakeForm = $state(false);
 
   async function handleLogin(event) {
     event.preventDefault();
@@ -44,16 +44,15 @@
       }),
       credentials: "include",
     });
+    
 
     if (response.status === 200) {
       const result = await response.json();
 
-      if (user)
-
       if (result.requires2FA) {
-            isTwoFactorAuthModalOpen = true;
-            return;
-        }
+        isTwoFactorAuthModalOpen = true;
+        return;
+      }
 
       user.set(result.data);
       navigate("/passwords");
@@ -67,9 +66,9 @@
     }
   }
 
-  let registerEmail = "";
-  let registerPassword = "";
-  let registerPassword2 = "";
+  let registerEmail = $state("");
+  let registerPassword = $state("");
+  let registerPassword2 = $state("");
   let passwordMismatch = false;
 
   async function register(event) {
@@ -104,10 +103,10 @@
   }
 </script>
 
-
 <TwoFactorAuthModal
-class = {isTwoFactorAuthModalOpen ? "is-open" : ""}
-onClose = {() => isTwoFactorAuthModalOpen = false} />
+  class={isTwoFactorAuthModalOpen ? "is-open" : ""}
+  onClose={() => (isTwoFactorAuthModalOpen = false)}
+/>
 
 <main
   class="login-and-register-main-container"
@@ -125,11 +124,11 @@ onClose = {() => isTwoFactorAuthModalOpen = false} />
       type="button"
       id="goRight"
       class="side-btn right-side"
-      on:click={goToRegister}>Sign up?</button
+      onclick={goToRegister}>Sign up?</button
     >
   </div>
 
-  <form class="left-form {shakeForm ? 'shake' : ''}" on:submit={handleLogin}>
+  <form class="left-form {shakeForm ? 'shake' : ''}" onsubmit={handleLogin}>
     <label for="username">Username</label>
     <input type="text" id="username" name="email" bind:value={email} />
 
@@ -152,10 +151,10 @@ onClose = {() => isTwoFactorAuthModalOpen = false} />
       type="button"
       id="goLeft"
       class="side-btn left-side"
-      on:click={goToLogin}>Already have Account?</button
+      onclick={goToLogin}>Already have Account?</button
     >
   </div>
-  <form class="right-form" on:submit={register}>
+  <form class="right-form" onsubmit={register}>
     <label for="email">Email</label>
     <input type="email" id="email" name="email" bind:value={registerEmail} />
 

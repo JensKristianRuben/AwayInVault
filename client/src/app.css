@@ -1,10 +1,10 @@
 body {
-    margin: 0;
-    height: 100vh;
-    background: #001a0d;
-    display: flex;
-    flex-direction: column;
-  }
+  margin: 0;
+  height: 100vh;
+  background: #001a0d;
+  display: flex;
+  flex-direction: column;
+}
 
 main {
   height: 100vh;
@@ -16,9 +16,22 @@ button {
   cursor: pointer;
 }
 
-   @media (max-width: 768px) {
-    body{
-      display: block;
-    }
-   }
+h1 {
+  font-size: 4em;
+  margin-top: 50px;
+  color: #6fbd96;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 700;
+}
 
+h3 {
+  font-size: 1.5em;
+  color: #6fbd96;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 300;
+}
+@media (max-width: 768px) {
+  body {
+    display: block;
+  }
+}

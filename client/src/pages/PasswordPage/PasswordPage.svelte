@@ -1,6 +1,6 @@
 <script>
   import PasswordCard from "../../components/passwordPage/passwordCard.svelte";
-  import Sidebar from "../../components/sidebar.svelte";
+  import Sidebar from "../../components/Sidebar.svelte";
   import CreatePasswordModal from "../../components/passwordPage/CreatePasswordModal.svelte";
   import MasterPasswordModal from "../../components/passwordPage/MasterPasswordModal.svelte";
   import ConfirmModal from "../../components/passwordPage/ConfirmModal.svelte";
@@ -196,7 +196,7 @@
     <SearchIcon/>
 
 
-    
+
     <input
       type="text"
       name="passwordsSearchBar"
@@ -233,9 +233,9 @@
 
 <style>
 
-  .passwords-main {
+  /* .passwords-main {
     height: 100vh;
-  }
+  } */
 
 
   .logo-and-create-password-wrapper {
