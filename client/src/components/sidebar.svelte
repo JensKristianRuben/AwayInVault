@@ -76,6 +76,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    font-family: "Montserrat";
+    font-size: 12px;
   }
 
   .menu-link:hover {
