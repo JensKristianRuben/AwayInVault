@@ -9,8 +9,8 @@
   let secretCode = $state("");
   let otpValue = $state(["", "", "", "", "", ""]);
   let inputFeilds = [];
-  let qrCodeSection;
-  let sixDigitCodeSection;
+  let qrCodeSection = $state();
+  let sixDigitCodeSection = $state();;
 
 
   $effect(() => {

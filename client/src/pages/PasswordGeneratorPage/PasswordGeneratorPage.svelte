@@ -63,7 +63,7 @@
   function handleCopy() {
     if (password !== "" && password !== "Loading...") {
       navigator.clipboard.writeText(password);
-      toastr.succes("Password copied");
+      toastr.success("Password copied");
     }
   }
 

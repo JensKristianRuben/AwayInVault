@@ -9,7 +9,6 @@
     if (isCopied) return;
 
     isCopied = true;
-    toastr.success("Password copied");
 
     setTimeout(() => {
       isCopied = false;

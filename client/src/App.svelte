@@ -1,5 +1,5 @@
 <script>
-  import { Router, Route } from "svelte-routing";
+  import { Router, Route, navigate } from "svelte-routing";
   import { onMount } from "svelte";
   import { user } from "./stores/clientAuth";
   import LoginAndRegisterPage from "./pages/LoginAndRegisterPage/LoginAndRegisterPage.svelte";
@@ -13,18 +13,19 @@
   import TwofactorAuthentication from "./pages/TwoFactorAuthentication/TwofactorAuthentication.svelte";
 
   onMount(async () => {
-  
     try {
       const res = await fetch("http://localhost:8080/api/session", {
         credentials: "include",
       });
       if (res.ok) {
         const data = await res.json();
-        toastr.success("You have a SESSION my friend");
         user.set(data.user);
+
+        if (window.location.pathname === "/") {
+          navigate("/passwords", {replace: true})
+        }
       } else {
         user.set(null);
-        toastr.error("you DO NOT have a SESSION my friend");
       }
     } catch (err) {
       toastr.error("you DO NOT have a SESSION my friend");

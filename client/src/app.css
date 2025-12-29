@@ -30,6 +30,18 @@ h3 {
   font-family: "Montserrat", sans-serif;
   font-weight: 300;
 }
+
+button {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+  }
+
+  svg {
+    color: white;
+    height: 15px;
+  }
+  
 @media (max-width: 768px) {
   body {
     display: block;
