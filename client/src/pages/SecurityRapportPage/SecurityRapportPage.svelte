@@ -29,9 +29,14 @@
 <main>
   <h1>Security Rapport</h1>
   <div class="rapport-container">
-    <div class="rapport-item-container">{amountOfPasswords}</div>
-    <div class="rapport-item-container">{vulnarblePasswords}</div>
-    <div class="rapport-item-container">3</div>
+    <div class="rapport-item-container">
+      <h3>Amount of Passwords</h3>
+      <p class="stats-number">{amountOfPasswords}</p>
+      </div>
+    <div class="rapport-item-container">
+      <h3>Expired Passwords</h3>
+      {vulnarblePasswords}</div>
+    <div class="rapport-item-container"></div>
   </div>
 </main>
 
@@ -44,7 +49,6 @@
   }
   .rapport-container {
     width: 80%;
-    border: 1px solid black;
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -57,7 +61,16 @@
     border: 1px solid #6fbd96;
     border-radius: 10px;
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
+    flex-direction: column;
+    box-shadow: 0 0 15px rgba(0, 255, 128, 0.2);
+  }
+  .stats-number {
+    font-family: "MontSerrat";
+    font-weight: 300;
+    font-size: 150px;
+    color: #6fbd96;
+    margin: 0;
   }
 </style>

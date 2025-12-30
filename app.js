@@ -15,24 +15,17 @@ import cors from "cors";
 import SupabaseStore from "./stores/supabaseStore.js";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
-
 import http from "http"; 
 import { Server } from "socket.io";
 import generatePassword from './sockets/generatePasswordSockets.js'
 
 
-
-
-// 5. Første gang man logger ind skal man skrive sit masterpassword
-// Sikkerhedsoverblik - genbrugtepasswords
 // skal kunne ændre et password i rediger også
+// Links skal være clickable til siden
+// udløbede passwords skal i rapporten
+// skiftpassword med mail
+// Style mail så det ligner den kommer fra awayinvault
 
-
-// Todo: find ud af hvorfor den går direkte til /activation når man først logger på.
-// Todo: Det er ved indtagelsen af masterpasswordet jeg skal sikre at det er langt og komplekst
-// todo: lav roll password funktion til random password
-// todo: forgot password
-// todo: encryptpasswords - bruger skal bruge deres masterpassword - find på flow for om de skal skrive det hver gang eller kun en gang?
 
 
 const app = express();

@@ -69,6 +69,7 @@
   .passwords-grid-container {
     background-color: #082114;
     border: 1px solid #6fbd96;
+    box-shadow: 0 0 15px rgba(0, 255, 128, 0.2);
     width: 400px;
     height: 250px;
     border-radius: 10px;
@@ -93,6 +94,7 @@
     flex-direction: row;
     justify-content: space-between;
     background-color: #17362680;
+    
     border-radius: 5px;
     padding: 10px;
   }

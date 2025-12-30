@@ -41,7 +41,6 @@ router.get("/api/passwords/count", requireAuth, async (req, res) => {
       return res.status(500).send({ error: "Database error" });
     }
 
-    console.log(count);
     
     return res.status(200).send({ count })
 
