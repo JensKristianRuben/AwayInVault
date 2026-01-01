@@ -32,16 +32,23 @@ h3 {
 }
 
 button {
-    background-color: transparent;
-    border: none;
-    cursor: pointer;
-  }
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
 
-  svg {
-    color: white;
-    height: 15px;
-  }
-  
+svg {
+  color: white;
+  height: 15px;
+}
+
+#toast-container > .toast-success {
+  background-color: #6fbd96;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 300;
+  box-shadow: 0 0 15px rgba(0, 255, 128, 0.2);
+}
+
 @media (max-width: 768px) {
   body {
     display: block;
