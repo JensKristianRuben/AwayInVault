@@ -27,7 +27,6 @@ router.get("/api/passwords", requireAuth, async (req, res) => {
 });
 
 router.get("/api/passwords/count", requireAuth, async (req, res) => {
-
   const userId = req.user.id;
 
   try {
@@ -41,14 +40,38 @@ router.get("/api/passwords/count", requireAuth, async (req, res) => {
       return res.status(500).send({ error: "Database error" });
     }
 
-    
-    return res.status(200).send({ count })
+    return res.status(200).send({ count });
+  } catch (error) {
+    console.error("Server error:", error);
+    res.status(500).send({ error: "Internal server error" });
+  }
+});
+
+router.get("/api/passwords/expired", requireAuth, async (req, res) => {
+  const userId = req.user.id;
+
+  try {
+    const cutoff = new Date();
+    cutoff.setMonth(cutoff.getMonth() - 3);
+
+    const { data, error } = await supabase
+      .from("passwords")
+      .select("*")
+      .eq("user_id", userId)
+      .gt("created_at", cutoff.toISOString());
+
+    if (error) {
+      console.error("Couldnt read passwords:", error.message);
+      return res.status(500).send({ error: "Database error" });
+    }
+
+    return res.status(200).send(data);
 
   } catch (error) {
     console.error("Server error:", error);
     res.status(500).send({ error: "Internal server error" });
   }
-})
+});
 
 router.post("/api/passwords", requireAuth, async (req, res) => {
   const { website, username, encryptedPassword } = req.body;
@@ -111,11 +134,12 @@ router.put("/api/passwords/:id", requireAuth, async (req, res) => {
     }
 
     if (!data) {
-      return res.status(404).send({ error: "Password not found or unauthorized" });
+      return res
+        .status(404)
+        .send({ error: "Password not found or unauthorized" });
     }
 
-    res.status(200).send(data)
-
+    res.status(200).send(data);
   } catch (error) {
     console.error("Server error:", error);
     res.status(500).send({ error: "Internal server error" });

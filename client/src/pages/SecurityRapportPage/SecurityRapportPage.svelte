@@ -3,23 +3,38 @@
   import Sidebar from "../../components/Sidebar.svelte";
 
   let amountOfPasswords = $state();
-  let vulnarblePasswords = $state();
+  let vulnarblePasswords = $state([]);
 
   onMount(async () => {
-    const response = await fetch("http://localhost:8080/api/passwords/count", {
+    const countPasswordsResponse = await fetch("http://localhost:8080/api/passwords/count", {
       credentials: "include",
       headers: {
         "Content-Type": "Application/json"
       }
     })
 
+    const expiredPasswordsResponse = await fetch("http://localhost:8080/api/passwords/expired", {
+      credentials: "include",
+      headers: {
+        "Content-Type": "Application/json",
+      }
+    })
     
-    if (response.ok) {
-      const result = await response.json();
-      console.log(result.count);
+    if (countPasswordsResponse.ok && expiredPasswordsResponse.ok) {
+      const countPasswordsResult = await countPasswordsResponse.json();
+      amountOfPasswords = countPasswordsResult.count;
+
+      const expiredPasswordsResult = await expiredPasswordsResponse.json();
+      console.log(expiredPasswordsResult);
       
-      amountOfPasswords = result.count;
+      vulnarblePasswords = expiredPasswordsResult.map(p => p.website).join(", ");
+
+      
+      
+
     }
+
+  
     
   });
 </script>
