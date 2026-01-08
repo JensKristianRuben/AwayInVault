@@ -1,76 +1,29 @@
 <script>
   import toastr from "toastr";
-  import CryptoJS from "crypto-js";
+  import { encryptPassword, verifyMasterKey } from "../../util/cryptoUtil.js";
+  import { generateRandomPassword } from "../../util/randomUtil.js";
+  import DiceIcon from "../icons/DiceIcon.svelte";
+  import CrossIcon from "../icons/CrossIcon.svelte";
 
   const { onClose, class: className, onSave, existingPasswords } = $props();
 
   // DET_HEMMELIGE_MASTER_PASSWORD
+  let website = $state("");
+  let username = $state("");
+  let password = $state("");
+  let masterPassword = $state("");
 
-  async function deriveKey(salt) {
-    return await CryptoJS.PBKDF2(masterPassword, salt, {
-      keySize: 256 / 32,
-      iterations: 100000,
-    });
+  function handleGenerateClick() {
+    password = generateRandomPassword();
   }
 
-    function handleModalClick(event) {
-      event.stopPropagation();
-    }
+  function handleModalClick(event) {
+    event.stopPropagation();
+  }
 
   function handleKeydown(event) {
     if (event.key === "Escape") {
       onClose?.();
-    }
-  }
-
-  let website = $state("");
-  let username = $state("");
-  let password = $state("");
-
-  let masterPassword = $state("");
-
-  function generateRandomPassword() {
-    const length = 24;
-    const charset =
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+{}[]<>?";
-    const array = new Uint32Array(length);
-    window.crypto.getRandomValues(array);
-    password = Array.from(array)
-      .map((num) => charset[num % charset.length])
-      .join("");
-  }
-  
-  async function decryptPassword(masterKey, encryptedPayload) {
-    try {
-      const parts = encryptedPayload.split(":");
-      if (parts.length !== 3) {
-        console.error(
-          "Payload format wrong - must be salt:iv:ciphertext"
-        );
-        return null;
-      }
-      const [saltBase64, ivBase64, ciphertextBase64] = parts;
-
-      const salt = CryptoJS.enc.Base64.parse(saltBase64);
-      const iv = CryptoJS.enc.Base64.parse(ivBase64);
-
-      const key = await deriveKey(salt);
-
-      const encryptedData = CryptoJS.lib.CipherParams.create({
-        ciphertext: CryptoJS.enc.Base64.parse(ciphertextBase64),
-      });
-
-      const decryptedBytes = CryptoJS.AES.decrypt(encryptedData, key, {
-        iv: iv,
-        mode: CryptoJS.mode.CBC,
-        padding: CryptoJS.pad.Pkcs7,
-      });
-
-      const originalText = decryptedBytes.toString(CryptoJS.enc.Utf8);
-
-      return originalText;
-    } catch (error) {
-      return null;
     }
   }
 
@@ -85,31 +38,26 @@
     }
 
     if (existingPasswords && existingPasswords.length > 0) {
-      const testPassword = existingPasswords[0];
-      const isCorrect = await decryptPassword(
-        masterPassword,
-        testPassword.encrypted_password
-      );
-      if (!isCorrect) {
-        toastr.error(
-          "Wrong masterpassword"
-        );
+      let isMasterPasswordValid = false;
+
+      for (const item of existingPasswords) {
+        const payload = item.encrypted_password || item.encryptedPassword;
+        if (!payload) continue;
+
+        const isValid = await verifyMasterKey(payload, masterPassword);
+        if (isValid) {
+          isMasterPasswordValid = true;
+          break;
+        }
+      }
+
+      if (!isMasterPasswordValid) {
+        toastr.error("Wrong master password");
         return;
       }
     }
-    const salt = CryptoJS.lib.WordArray.random(128 / 8);
-    const key = await deriveKey(salt);
-    const iv = CryptoJS.lib.WordArray.random(128 / 8);
 
-    const encrypted = CryptoJS.AES.encrypt(password, key, {
-      iv: iv,
-      mode: CryptoJS.mode.CBC,
-      padding: CryptoJS.pad.Pkcs7,
-    });
-
-    const saltBase64 = salt.toString(CryptoJS.enc.Base64);
-    const ivBase64 = iv.toString(CryptoJS.enc.Base64);
-    const encryptedPayload = `${saltBase64}:${ivBase64}:${encrypted.toString()}`;
+    const encryptedPayload = await encryptPassword(password, masterPassword);
 
     const newPassword = {
       website,
@@ -164,21 +112,9 @@
     role="button"
     tabindex="0"
   >
-    <button class="close-btn" aria-label="Close" onclick={onClose}
-      ><svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        class="lucide lucide-x h-4 w-4"
-        ><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg
-      ></button
-    >
+    <button class="close-btn" aria-label="Close" onclick={onClose}>
+      <CrossIcon/>   
+    </button>
 
     <label for="master-pass" class="mp-label">Master Password</label>
     <input
@@ -215,27 +151,9 @@
         placeholder="CI;vq=w_0MkBopqC"
         bind:value={password}
       />
-      <button aria-label="Generate-password" onclick={generateRandomPassword}
-        ><svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class="lucide lucide-dice"
-        >
-          <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
-          <path d="M7 7h.01" />
-          <path d="M17 7h.01" />
-          <path d="M7 17h.01" />
-          <path d="M17 17h.01" />
-          <path d="M12 12h.01" />
-        </svg></button
-      >
+      <button aria-label="Generate-password" onclick={handleGenerateClick}>
+        <DiceIcon />
+      </button>
     </div>
 
     <div class="bottom-btns">
@@ -286,14 +204,6 @@
   button {
     background-color: transparent;
     border: none;
-  }
-  svg {
-    transition: transform 0.2s ease;
-    cursor: pointer;
-    color: white;
-  }
-  svg:hover {
-    transform: rotate(90deg) translateX(1px);
   }
 
   label {

@@ -1,15 +1,20 @@
 <script>
   import toastr from "toastr";
+  import { encryptPassword, verifyMasterKey } from "../../util/cryptoUtil.js";
 
   const { onClose, class: className, onSave, passwordData } = $props();
 
   let website = $state("");
   let username = $state("");
+  let newPassword = $state("");
+  let masterPassword = $state("");
 
   $effect(() => {
     if (passwordData) {
       website = passwordData.website;
       username = passwordData.username;
+      newPassword = "";
+      masterPassword = "";
     }
   });
 
@@ -19,33 +24,59 @@
       return;
     }
 
+    let passwordToSend;
+
+    if (newPassword) {
+      if (!masterPassword) {
+        toastr.error("Master Password is required to encrypt new password.");
+        return;
+      }
+
+      const isMasterPasswordCorrect = await verifyMasterKey(
+        passwordData.encrypted_password,
+        masterPassword
+      );
+
+      if (!isMasterPasswordCorrect) {
+        toastr.error("Wrong Master Password!");
+        return;
+      }
+
+      passwordToSend = await encryptPassword(newPassword, masterPassword);
+    } else {
+      passwordToSend = passwordData.encrypted_password;
+    }
+
     const updatedPasswordObj = {
-        id: passwordData.id,
-        website: website,
-        username: username,
-        encrypted_password: passwordData.encrypted_password 
+      id: passwordData.id,
+      website: website,
+      username: username,
+      encrypted_password: passwordToSend,
     };
 
     try {
-      const response = await fetch(`http://localhost:8080/api/passwords/${passwordData.id}`, {
-        method: "PUT", 
-        headers: {
-          "Content-Type": "Application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify(updatedPasswordObj),
-      });
+      const response = await fetch(
+        `http://localhost:8080/api/passwords/${passwordData.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "Application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify(updatedPasswordObj),
+        }
+      );
 
       if (!response.ok) {
         toastr.error("Failed to update password info");
-        return; 
+        return;
       }
 
       const savedItem = await response.json().catch(() => updatedPasswordObj);
 
       onSave?.(savedItem);
       onClose?.();
-      
+
       toastr.success("Information updated successfully!");
     } catch (error) {
       console.error("Network error during update:", error);
@@ -79,12 +110,23 @@
     tabindex="0"
   >
     <button class="close-btn" aria-label="Close" onclick={onClose}>
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x h-4 w-4">
-            <path d="M18 6 6 18"></path><path d="m6 6 12 12"></path>
-        </svg>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="lucide lucide-x h-4 w-4"
+      >
+        <path d="M18 6 6 18"></path><path d="m6 6 12 12"></path>
+      </svg>
     </button>
-    
-    <h2>Edit Details</h2> 
+
+    <h2>Edit Details</h2>
 
     <label for="website">Website</label>
     <input
@@ -100,6 +142,22 @@
       id="username"
       placeholder="Username..."
       bind:value={username}
+    />
+
+    <label for="password">Master password</label>
+    <input
+      type="text"
+      id="masterPassword"
+      placeholder="Leave empty to keep current password"
+      bind:value={masterPassword}
+    />
+
+    <label for="password">New Password</label>
+    <input
+      type="text"
+      id="password"
+      placeholder="Leave empty to keep current password"
+      bind:value={newPassword}
     />
 
     <div class="bottom-btns">
@@ -124,7 +182,9 @@
     max-width: 600px;
     opacity: 0;
     z-index: 1000;
-    transition: opacity 0.3s, visibility 0.3s;
+    transition:
+      opacity 0.3s,
+      visibility 0.3s;
     background-color: #001a0d;
     border: 1px solid #6fbd96;
     border-radius: 10px;
@@ -159,7 +219,7 @@
   }
 
   h2 {
-    color: #6fbd96; 
+    color: #6fbd96;
     font-family: "Montserrat", sans-serif;
     margin: 0;
   }
@@ -226,7 +286,9 @@
     align-items: center;
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
+    transition:
+      opacity 0.3s ease,
+      visibility 0.3s ease;
   }
 
   .backlay.is-open {

@@ -6,36 +6,36 @@
   let vulnarblePasswords = $state([]);
 
   onMount(async () => {
-    const countPasswordsResponse = await fetch("http://localhost:8080/api/passwords/count", {
-      credentials: "include",
-      headers: {
-        "Content-Type": "Application/json"
+    const countPasswordsResponse = await fetch(
+      "http://localhost:8080/api/passwords/count",
+      {
+        credentials: "include",
+        headers: {
+          "Content-Type": "Application/json",
+        },
       }
-    })
+    );
 
-    const expiredPasswordsResponse = await fetch("http://localhost:8080/api/passwords/expired", {
-      credentials: "include",
-      headers: {
-        "Content-Type": "Application/json",
+    const expiredPasswordsResponse = await fetch(
+      "http://localhost:8080/api/passwords/expired",
+      {
+        credentials: "include",
+        headers: {
+          "Content-Type": "Application/json",
+        },
       }
-    })
-    
+    );
+
     if (countPasswordsResponse.ok && expiredPasswordsResponse.ok) {
       const countPasswordsResult = await countPasswordsResponse.json();
       amountOfPasswords = countPasswordsResult.count;
 
       const expiredPasswordsResult = await expiredPasswordsResponse.json();
-      console.log(expiredPasswordsResult);
-      
-      vulnarblePasswords = expiredPasswordsResult.map(p => p.website).join(", ");
 
-      
-      
+      // vulnarblePasswords = expiredPasswordsResult.map(p => p.website).join(", ");
 
+      vulnarblePasswords = expiredPasswordsResult.map((p) => p.website);
     }
-
-  
-    
   });
 </script>
 
@@ -47,10 +47,13 @@
     <div class="rapport-item-container">
       <h3>Amount of Passwords</h3>
       <p class="stats-number">{amountOfPasswords}</p>
-      </div>
+    </div>
     <div class="rapport-item-container">
       <h3>Expired Passwords</h3>
-      {vulnarblePasswords}</div>
+      {#each vulnarblePasswords as website}
+        <div class="website-tag">{website}</div>
+      {/each}
+    </div>
     <div class="rapport-item-container"></div>
   </div>
 </main>
@@ -87,5 +90,16 @@
     font-size: 150px;
     color: #6fbd96;
     margin: 0;
+  }
+
+  .website-tag {
+    color: #6fbd96;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-family: "MontSerrat", sans-serif;
+    font-size: 14px;
+    width: 80%;
+    text-align: center;
+    font-weight: 500;
   }
 </style>

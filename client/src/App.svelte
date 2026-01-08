@@ -9,7 +9,7 @@
   import PrivateRouteGuard from "./components/PrivateRouteGuard.svelte";
   import PasswordGeneratorPage from "./pages/PasswordGeneratorPage/PasswordGeneratorPage.svelte";
   import SecurityRapportPage from "./pages/SecurityRapportPage/SecurityRapportPage.svelte";
-  import TwoFactorAuthModal from "./components/LoginAndRegisterPage/TwoFactorAuthModal.svelte";
+  import TwoFactorAuthModal from "./pages/LoginAndRegisterPage/Components/TwoFactorAuthModal.svelte";
   import TwofactorAuthentication from "./pages/TwoFactorAuthentication/TwofactorAuthentication.svelte";
 
   onMount(async () => {
@@ -55,8 +55,7 @@
       on:goRegister={goToRegister}
     />
   </Route>
-
-
+  
   <Route path="/activation"><ActivationPage /></Route>
   <PrivateRouteGuard path="/passwords" component={PasswordPage} />
   <PrivateRouteGuard path="/generator" component={PasswordGeneratorPage} />

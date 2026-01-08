@@ -1,6 +1,6 @@
 <script>
   import { navigate } from "svelte-routing";
-  import { user } from "../../stores/clientAuth";
+  import { user } from "../../../stores/clientAuth";
   import toastr from "toastr";
 
   let { class: className, onClose } = $props();

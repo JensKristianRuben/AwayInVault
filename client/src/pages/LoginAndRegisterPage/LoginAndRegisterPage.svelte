@@ -2,7 +2,7 @@
   import { navigate } from "svelte-routing";
   import { onMount } from "svelte";
   import { user, redirectAfterLogin } from "../../stores/clientAuth.js";
-  import TwoFactorAuthModal from "../../components/LoginAndRegisterPage/TwoFactorAuthModal.svelte";
+  import TwoFactorAuthModal from "./Components/TwoFactorAuthModal.svelte";
 
   let mode = $state("login");
   let isTwoFactorAuthModalOpen = $state(false);

@@ -1,7 +1,6 @@
 import { Router } from "express";
 import supabase from "../util/supabaseClient.js";
 import { requireAuth } from "../util/authUtil.js";
-import { log } from "console";
 
 const router = Router();
 
@@ -58,13 +57,13 @@ router.get("/api/passwords/expired", requireAuth, async (req, res) => {
       .from("passwords")
       .select("*")
       .eq("user_id", userId)
-      .gt("created_at", cutoff.toISOString());
+      .lt("updated_at", cutoff.toISOString());
 
     if (error) {
       console.error("Couldnt read passwords:", error.message);
       return res.status(500).send({ error: "Database error" });
     }
-
+    
     return res.status(200).send(data);
 
   } catch (error) {
@@ -122,6 +121,7 @@ router.put("/api/passwords/:id", requireAuth, async (req, res) => {
         website: website,
         username: username,
         encrypted_password: encrypted_password,
+        updated_at: new Date()
       })
       .eq("id", passwordId)
       .eq("user_id", userId)
