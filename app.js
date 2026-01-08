@@ -9,6 +9,7 @@ import sessionRouter from "./routers/sessionRouter.js";
 import passwordRouter from './routers/passwordsRouter.js'
 import activationPage from './routers/activationRouter.js';
 import twoFactorRouter from './routers/twoFactorRouter.js'
+import resetPasswordRouter from './routers/resetPasswordRouter.js'
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import cors from "cors";
@@ -20,11 +21,9 @@ import { Server } from "socket.io";
 import generatePassword from './sockets/generatePasswordSockets.js'
 
 
-// skal kunne ændre et password i rediger også
 // Links skal være clickable til siden
 // udløbede passwords skal i rapporten
 // skiftpassword med mail
-// Style mail så det ligner den kommer fra awayinvault
 
 
 
@@ -75,6 +74,7 @@ app.use(sessionRouter);
 app.use(passwordRouter);
 app.use(twoFactorRouter);
 app.use(activationPage);
+app.use(resetPasswordRouter);
  
 
 app.get("/{*splat}", (req, res) => {
