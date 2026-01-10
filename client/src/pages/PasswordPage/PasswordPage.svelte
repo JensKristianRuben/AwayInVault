@@ -138,6 +138,7 @@
 
     passwordToDecrypt = null;
     selectedPasswordId = null;
+    closeMasterPasswordModal();
   }
   function handleDeletePasswordCard(id) {
     passwordToDeleteId = id;

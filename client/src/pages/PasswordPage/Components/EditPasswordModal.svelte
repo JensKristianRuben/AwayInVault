@@ -64,7 +64,7 @@
           },
           credentials: "include",
           body: JSON.stringify(updatedPasswordObj),
-        }
+        },
       );
 
       if (!response.ok) {
@@ -144,17 +144,17 @@
       bind:value={username}
     />
 
-    <label for="password">Master password</label>
+    <label for="masterPassword">Master password</label>
     <input
-      type="text"
+      type="password"
       id="masterPassword"
-      placeholder="Leave empty to keep current password"
+      placeholder="Required if changing password"
       bind:value={masterPassword}
     />
 
     <label for="password">New Password</label>
     <input
-      type="text"
+      type="password"
       id="password"
       placeholder="Leave empty to keep current password"
       bind:value={newPassword}
@@ -168,118 +168,14 @@
 </div>
 
 <style>
-  .create-password-modal {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    height: auto;
-    width: 100%;
-    max-width: 600px;
-    opacity: 0;
-    z-index: 1000;
-    transition:
-      opacity 0.3s,
-      visibility 0.3s;
-    background-color: #001a0d;
-    border: 1px solid #6fbd96;
-    border-radius: 10px;
-    padding: 20px;
-    gap: 20px;
-  }
-
-  .create-password-modal.is-open {
-    opacity: 1;
-    visibility: visible;
-  }
-
-  .close-btn {
-    width: 100%;
-    display: flex;
-    justify-content: flex-end;
-    background-color: #001a0d;
-    border: none;
-  }
-
-  button {
-    background-color: transparent;
-    border: none;
-  }
-  svg {
-    transition: transform 0.2s ease;
-    cursor: pointer;
-    color: white;
-  }
-  svg:hover {
-    transform: rotate(90deg) translateX(1px);
-  }
-
-  h2 {
-    color: #6fbd96;
-    font-family: "Montserrat", sans-serif;
-    margin: 0;
-  }
-
-  label {
-    width: 70%;
-    display: flex;
-    justify-content: flex-start;
-    color: white;
-    font-family: "Montserrat", sans-serif;
-    font-weight: 700;
-  }
-
-  input {
-    width: 70%;
-    padding: 12px 15px;
-    background-color: #17362680;
-    border-radius: 10px;
-    border: none;
-    transition: all 0.3s ease;
-    color: white;
-  }
-  input:focus {
-    border: 1px solid #00ff80;
-    box-shadow: 0 0 8px rgba(51, 170, 119, 0.5);
-    width: 80%;
-  }
-
-  .bottom-btns {
-    margin-top: 50px;
-    width: 100%;
-    display: flex;
-    justify-content: flex-end;
-    gap: 20px;
-  }
-  .cancel-btn {
-    background-color: #2b4739;
-    border: none;
-    padding: 12px 15px;
-    cursor: pointer;
-    border-radius: 10px;
-    color: white;
-  }
-
-  .save-btn {
-    background-color: #6fbd96;
-    border: none;
-    padding: 12px 15px;
-    cursor: pointer;
-    border-radius: 10px;
-    font-weight: bold;
-  }
-
   .backlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: rgba(0, 0, 0, 0.7);
+    background-color: rgba(0, 26, 13, 0.85);
+    backdrop-filter: blur(5px);
     z-index: 999;
     display: flex;
     justify-content: center;
@@ -294,5 +190,132 @@
   .backlay.is-open {
     opacity: 1;
     visibility: visible;
+  }
+
+  .create-password-modal {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 500px;
+    
+    background-color: #001a0d;
+    border: 1px solid #6fbd96;
+    border-radius: 15px;
+    padding: 30px;
+    gap: 15px;
+    box-shadow: 0 0 30px rgba(0, 255, 128, 0.15);
+    transform: scale(0.95);
+    transition: transform 0.2s ease;
+  }
+  
+  .backlay.is-open .create-password-modal {
+      transform: scale(1);
+  }
+
+  .close-btn {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    margin-bottom: -10px;
+  }
+
+  .close-btn svg {
+    transition: transform 0.2s ease, color 0.2s;
+    cursor: pointer;
+    color: #6fbd96;
+  }
+  
+  .close-btn svg:hover {
+    transform: rotate(90deg);
+    color: #00ff80;
+  }
+
+  h2 {
+    color: #6fbd96;
+    font-family: "Montserrat", sans-serif;
+    margin: 0 0 10px 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 1.5rem;
+  }
+
+  label {
+    width: 80%;
+    display: flex;
+    justify-content: flex-start;
+    color: #6fbd96;
+    font-family: "Montserrat", sans-serif;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    margin-bottom: -10px;
+    margin-top: 5px;
+  }
+
+  input {
+    width: 80%;
+    padding: 12px 15px;
+    background-color: rgba(23, 54, 38, 0.6);
+    border-radius: 8px;
+    border: 1px solid transparent;
+    transition: all 0.3s ease;
+    color: white;
+    font-family: "Montserrat", sans-serif;
+    font-size: 1rem;
+    outline: none;
+  }
+  
+  input:focus {
+    border-color: #6fbd96;
+    background-color: rgba(23, 54, 38, 0.9);
+    box-shadow: 0 0 10px rgba(111, 189, 150, 0.3);
+  }
+
+  .bottom-btns {
+    margin-top: 30px;
+    width: 80%;
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+  }
+  
+  .cancel-btn {
+    background: none;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 8px;
+    color: #6fbd96;
+    font-family: "Montserrat", sans-serif;
+    opacity: 0.8;
+    transition: all 0.2s;
+  }
+  .cancel-btn:hover {
+      opacity: 1;
+      background-color: rgba(111, 189, 150, 0.1);
+  }
+
+  .save-btn {
+    background-color: #6fbd96;
+    color: #001a0d;
+    border: none;
+    padding: 10px 25px;
+    cursor: pointer;
+    border-radius: 8px;
+    font-weight: bold;
+    font-family: "Montserrat", sans-serif;
+    transition: all 0.2s;
+  }
+  
+  .save-btn:hover {
+      background-color: #00ff80;
+      box-shadow: 0 0 15px rgba(0, 255, 128, 0.4);
+      transform: translateY(-2px);
   }
 </style>

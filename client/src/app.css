@@ -54,7 +54,6 @@ svg {
   width: 350px !important;
 }
 
-
 #toast-container > .toast:hover {
   box-shadow: 0 0 20px rgba(0, 255, 128, 0.4) !important;
   border-color: #00ff80 !important;
