@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import { navigate } from "svelte-routing";
   import toastr from "toastr";
+  import { API_URL } from "../../config/fetchConfig";
 
   let message = $state("Activating account...");
   let isFinished = $state(false);
@@ -19,7 +20,7 @@
     }
 
     try {
-      const res = await fetch("http://localhost:8080/api/activation", {
+      const res = await fetch(`${API_URL}/api/activation`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token }),

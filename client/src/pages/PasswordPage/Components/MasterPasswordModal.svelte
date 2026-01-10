@@ -175,8 +175,4 @@
     box-shadow: 0 0 15px rgba(0, 255, 128, 0.4);
     transform: translateY(-1px);
   }
-
-  .dialog svg {
-    color: #001a0d;
-  }
 </style>

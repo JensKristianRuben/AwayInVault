@@ -21,5 +21,6 @@
 
   svg:hover {
     transform: rotate(90deg) translateX(1px);
+    color: #00ff80;
   }
 </style>

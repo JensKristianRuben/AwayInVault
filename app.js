@@ -21,23 +21,14 @@ import http from "http";
 import { Server } from "socket.io";
 import generatePassword from './sockets/generatePasswordSockets.js'
 
-
-// Links skal være clickable til siden
-// udløbede passwords skal i rapporten
-// skiftpassword med mail
-
-
-
 const app = express();
 
 const server = http.createServer(app);
 
 const allowedOrigins = ["https://arbezzebra.dk", "https://www.arbezzebra.dk", "http://localhost:5173", "http://localhost:5174"];
 
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));

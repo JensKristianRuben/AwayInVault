@@ -4,8 +4,7 @@
   import DeleteIcon from "../../../components/icons/DeleteIcon.svelte";
   import CopyIcon from "../../../components/icons/CopyIcon.svelte";
   import EyeIcon from "../../../components/icons/EyeIcon.svelte";
-
-
+  
   let {
     title,
     username,

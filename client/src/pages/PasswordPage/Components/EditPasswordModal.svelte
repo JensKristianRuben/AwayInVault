@@ -1,6 +1,7 @@
 <script>
   import toastr from "toastr";
   import { encryptPassword, verifyMasterKey } from "../../../util/cryptoUtil.js";
+  import { API_URL } from "../../../config/fetchConfig.js";
 
   const { onClose, class: className, onSave, passwordData } = $props();
 
@@ -56,7 +57,7 @@
 
     try {
       const response = await fetch(
-        `http://localhost:8080/api/passwords/${passwordData.id}`,
+        `${API_URL}/api/passwords/${passwordData.id}`,
         {
           method: "PUT",
           headers: {

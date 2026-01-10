@@ -12,6 +12,8 @@
   import { onMount } from "svelte";
   import toastr from "toastr";
   import SearchIcon from "../../components/icons/SearchIcon.svelte";
+  import { API_URL } from "../../config/fetchConfig";
+
 
   let passwordToDecrypt = $state(null);
   let selectedPasswordId = $state(null);
@@ -55,7 +57,7 @@
 
   async function fetchPasswords() {
     try {
-      let response = await fetch("http://localhost:8080/api/passwords", {
+      let response = await fetch(`${API_URL}/api/passwords`, {
         method: "GET",
         credentials: "include",
       });
@@ -149,7 +151,7 @@
     if (!passwordToDeleteId) return;
     try {
       const response = await fetch(
-        `http://localhost:8080/api/passwords/${passwordToDeleteId}`,
+        `${API_URL}/api/passwords/${passwordToDeleteId}`,
         {
           method: "DELETE",
           credentials: "include",

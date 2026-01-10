@@ -2,6 +2,7 @@
   import toastr from "toastr";
   import { encryptPassword, verifyMasterKey } from "../../../util/cryptoUtil.js";
   import { generateRandomPassword } from "../../../util/randomUtil.js";
+  import { API_URL } from "../../../config/fetchConfig.js";
   import DiceIcon from "../../../components/icons/DiceIcon.svelte";
   import CrossIcon from "../../../components/icons/CrossIcon.svelte";
 
@@ -66,7 +67,7 @@
     };
 
     try {
-      const response = await fetch("http://localhost:8080/api/passwords", {
+    const response = await fetch(`${API_URL}/api/passwords`, {
         method: "POST",
         headers: {
           "Content-Type": "Application/json",
@@ -169,15 +170,14 @@
 </div>
 
 <style>
-  /* --- BACKGROUND & OVERLAY --- */
   .backlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: rgba(0, 26, 13, 0.85); /* Mørkere tone */
-    backdrop-filter: blur(5px); /* Glass effect */
+    background-color: rgba(0, 26, 13, 0.85);
+    backdrop-filter: blur(5px);
     z-index: 999;
     display: flex;
     justify-content: center;
@@ -192,12 +192,11 @@
     visibility: visible;
   }
 
-  /* --- MODAL CONTAINER --- */
   .create-password-modal {
-    position: fixed; /* Beholder din positionering */
+    position: fixed;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%) scale(0.95); /* Starter lidt zoomet ud */
+    transform: translate(-50%, -50%) scale(0.95);
     
     display: flex;
     flex-direction: column;
@@ -206,24 +205,21 @@
     
     height: auto;
     width: 100%;
-    max-width: 500px; /* Lidt smallere for pænere look */
+    max-width: 500px;
     
     background-color: #001a0d;
     border: 1px solid #6fbd96;
-    border-radius: 15px; /* Mere runde hjørner */
+    border-radius: 15px;
     padding: 30px;
-    gap: 15px; /* Justeret gap */
-    
-    /* Neon Glow Effect */
+    gap: 15px;
     box-shadow: 0 0 30px rgba(0, 255, 128, 0.15);
     transition: transform 0.2s ease, opacity 0.3s;
   }
 
   .backlay.is-open .create-password-modal {
-    transform: translate(-50%, -50%) scale(1); /* Zoom ind effekt ved åbning */
+    transform: translate(-50%, -50%) scale(1);
   }
 
-  /* --- CLOSE BUTTON --- */
   .close-btn {
     width: 100%;
     display: flex;
@@ -236,34 +232,28 @@
     transition: transform 0.2s;
   }
   
-  .close-btn:hover {
-      transform: rotate(90deg); /* Roterer ved hover */
-      color: #00ff80;
-  }
 
-  /* --- INPUTS & LABELS --- */
   label {
-    width: 80%; /* Matcher input bredde */
+    width: 80%;
     display: flex;
     justify-content: flex-start;
     color: #6fbd96;
     font-family: "Montserrat", sans-serif;
     font-weight: 600;
-    font-size: 0.75rem; /* Mindre, uppercase labels */
+    font-size: 0.75rem;
     text-transform: uppercase;
-    margin-bottom: -10px; /* Strammer layoutet op */
+    margin-bottom: -10px;
     margin-top: 5px;
   }
 
-  /* Master password label specifik styling hvis nødvendigt */
   .mp-label {
-      color: #00ff80; /* Lidt lysere for at fremhæve vigtighed */
+      color: #00ff80;
   }
 
   input {
     width: 80%;
     padding: 12px 15px;
-    background-color: rgba(23, 54, 38, 0.6); /* Semi-transparent baggrund */
+    background-color: rgba(23, 54, 38, 0.6);
     border-radius: 8px;
     border: 1px solid transparent;
     transition: all 0.3s ease;
@@ -271,21 +261,19 @@
     font-family: "Montserrat", sans-serif;
     font-size: 1rem;
     outline: none;
-    box-sizing: border-box; /* Sikrer padding ikke ødelægger bredden */
+    box-sizing: border-box;
   }
 
   input:focus {
     border-color: #6fbd96;
-    box-shadow: 0 0 10px rgba(111, 189, 150, 0.3); /* Glow ved fokus */
+    box-shadow: 0 0 10px rgba(111, 189, 150, 0.3);
     background-color: rgba(23, 54, 38, 0.9);
   }
-  
-  /* Særlig styling til master password input for at fremhæve det */
+
   .master-password-input {
       border-color: rgba(111, 189, 150, 0.3);
   }
 
-  /* --- PASSWORD GENERATOR WRAPPER --- */
   .password-and-generator-wrapper {
     display: flex;
     flex-direction: row;
@@ -296,7 +284,7 @@
   }
   
   .password-input {
-      width: 100%; /* Fylder resten af pladsen */
+      width: 100%;
   }
 
   .dice-btn {
@@ -312,20 +300,18 @@
   }
   
   .dice-btn:hover {
-      transform: rotate(180deg) scale(1.1); /* Ruller terningen ved hover */
+      transform: rotate(180deg) scale(1.1);
       color: #00ff80;
   }
 
-  /* --- DIVIDER --- */
   .divider {
     width: 80%;
     height: 1px;
-    background: linear-gradient(90deg, transparent, #6fbd96, transparent); /* Fader ud i enderne */
+    background: linear-gradient(90deg, transparent, #6fbd96, transparent);
     margin: 10px 0;
     opacity: 0.4;
   }
 
-  /* --- BOTTOM BUTTONS --- */
   .bottom-btns {
     margin-top: 30px;
     width: 80%;
