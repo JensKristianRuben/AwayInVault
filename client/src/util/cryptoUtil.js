@@ -63,3 +63,33 @@ export async function verifyMasterKey(encryptedPayload, masterPasswordInput) {
     const result = await decryptPassword(encryptedPayload, masterPasswordInput);
     return result !== null;
 }
+
+
+
+export async function findReusedPasswords(passwordsList, masterPassword) {
+  const passwordMap = new Map();
+
+  for (const entry of passwordsList) {
+    try {
+      const plainText = await decryptPassword(entry.encrypted_password, masterPassword);
+      
+      if (plainText) {
+
+        if (passwordMap.has(plainText)) {
+          passwordMap.get(plainText).push(entry.website);
+        } else {
+          passwordMap.set(plainText, [entry.website]);
+        }
+      }
+    } catch (e) {
+      console.warn(`Kunne ikke analysere ${entry.website}`, e);
+    }
+  }
+  const reusedGroups = [];
+  passwordMap.forEach((websites, password) => {
+    if (websites.length > 1) {
+      reusedGroups.push(websites);
+    }
+  });
+  return reusedGroups;
+}

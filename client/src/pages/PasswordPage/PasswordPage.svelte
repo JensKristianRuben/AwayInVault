@@ -5,7 +5,8 @@
   import MasterPasswordModal from "./Components/MasterPasswordModal.svelte";
   import ConfirmModal from "./Components/ConfirmModal.svelte";
   import EditPasswordModal from "./Components/EditPasswordModal.svelte";
-  import { decryptPassword } from "./passwordPage.js";
+  import { getSearchParam } from "./passwordPage.js";
+  import { decryptPassword } from "../../util/cryptoUtil.js";
   import { flip } from "svelte/animate";
   import { fly, fade } from "svelte/transition";
   import { onMount } from "svelte";
@@ -70,7 +71,10 @@
     }
   }
 
-  onMount(fetchPasswords);
+  onMount(() => {
+    fetchPasswords();
+    searchQuery = getSearchParam("search");
+  });
 
   function handleNewPassword(newPassword) {
     passwordsList = [...passwordsList, newPassword];
@@ -97,36 +101,27 @@
   }
 
   async function handleMasterPasswordVerification(masterPassword) {
-    const key = masterPassword;
-    const encryptedValue = passwordToDecrypt;
-    const currentId = selectedPasswordId;
+    const decryptedResult = await decryptPassword(passwordToDecrypt, masterPassword);
 
-    if (key && encryptedValue && currentId) {
-      try {
-        const decryptedPassword = await decryptPassword(key, encryptedValue);
-
-        if (!decryptedPassword) {
-          console.error("Wrong masterpassword or the drcryption failed");
-          return;
-        }
-
-        decryptedPasswords = {
-          ...decryptedPasswords,
-          [currentId]: decryptedPassword,
-        };
-
-        setTimeout(() => {
-          const tempPasswords = { ...decryptedPasswords };
-          delete tempPasswords[currentId];
-          decryptedPasswords = tempPasswords;
-        }, 5000);
-      } catch (error) {
-        console.error("Error while decrypting the password:", error);
-      }
-
-      passwordToDecrypt = null;
-      selectedPasswordId = null;
+    if (!decryptedResult) {
+      console.error("Wrong masterpassword or decryption failed");
+      toastr.error("Wrong masterpassword!");
+      return;
     }
+
+    decryptedPasswords = {
+      ...decryptedPasswords,
+      [selectedPasswordId]: decryptedResult,
+    };
+
+    setTimeout(() => {
+      const tempPasswords = { ...decryptedPasswords };
+      delete tempPasswords[selectedPasswordId];
+      decryptedPasswords = tempPasswords;
+    }, 5000);
+    
+    passwordToDecrypt = null;
+    selectedPasswordId = null;
   }
 
   function handleDeletePasswordCard(id) {

@@ -36,21 +36,19 @@
         }
       );
 
-        if (!response.ok) {
-          toastr.error("Wrong one time password")
-          otpValue = ["", "", "", "", "", ""];
-          inputFeilds[0]?.focus();
-        }
+      if (!response.ok) {
+        toastr.error("Wrong one time password");
+        otpValue = ["", "", "", "", "", ""];
+        inputFeilds[0]?.focus();
+      }
 
       if (response.ok) {
         const result = await response.json();
         user.set(result.data);
         console.log($user);
-        toastr.success("Logged in")
+        toastr.success("Logged in");
         navigate("/passwords");
       }
-
-      
     }
   }
 
@@ -191,8 +189,13 @@
   }
 
   .two-factor-header {
-    color: white;
-    font-size: 40px;
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin: 2rem 0 1rem 0;
+    color: #6fbd96;
+    text-shadow: 0 0 15px rgba(0, 255, 128, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
   }
 
   .otp-input-box {
