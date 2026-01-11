@@ -139,13 +139,13 @@
       <h3>Thunder Random</h3>
       <p>Computers fake it, nature doesn't.</p>
     </button>
-    <button
+    <!-- <button
       class="generate-option {method === '3' ? 'selected' : ''}"
       onclick={() => (method = "3")}
     >
       <h3>3</h3>
       <p></p>
-    </button>
+    </button> -->
   </div>
 </main>
 

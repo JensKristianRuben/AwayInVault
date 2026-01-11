@@ -6,7 +6,7 @@
   import toastr from "toastr";
   import { API_URL } from "../../config/fetchConfig.js";
 
-  let email = $state("alice@example.com");
+  let email = $state("jeha0003@stud.ek.dk");
   let password = $state("123456789");
   let shakeForm = $state(false);
   let mode = $state("login");
@@ -29,8 +29,9 @@
 
   onMount(() => {
     const hash = window.location.hash.slice(1);
-    if (hash === "login") mode = "login";
-    else mode = "register";
+    if (hash === "login") {
+      goToLogin();
+    } else mode = "register";
   });
 
   async function handleLogin(event) {

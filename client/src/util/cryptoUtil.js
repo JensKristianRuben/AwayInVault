@@ -64,8 +64,6 @@ export async function verifyMasterKey(encryptedPayload, masterPasswordInput) {
     return result !== null;
 }
 
-
-
 export async function findReusedPasswords(passwordsList, masterPassword) {
   const passwordMap = new Map();
 
@@ -82,11 +80,11 @@ export async function findReusedPasswords(passwordsList, masterPassword) {
         }
       }
     } catch (e) {
-      console.warn(`Kunne ikke analysere ${entry.website}`, e);
+      console.warn(`Could not analyze ${entry.website}`, e);
     }
   }
   const reusedGroups = [];
-  passwordMap.forEach((websites, password) => {
+  passwordMap.forEach((websites) => {
     if (websites.length > 1) {
       reusedGroups.push(websites);
     }
