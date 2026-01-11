@@ -1,4 +1,4 @@
-export default (io, socket) => {
+export default (socket) => {
     socket.on("get-external-password", async ({ length }) => {
         try {
             if (length > 32) {  

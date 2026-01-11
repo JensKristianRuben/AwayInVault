@@ -31,7 +31,7 @@ Dekryptere brugerens passwords. Vi bruger deriveKey() til at lave en nøgle med 
 Callback delen er lidt funky - det er gammeldags express syntaks. Upsert er en abstraktion der er smart og enten indsætter eller opdaterer. 
 
 
+
 # NOTES
 
-Session store skal være soleklart
 sæt varabler lokalt ved app start

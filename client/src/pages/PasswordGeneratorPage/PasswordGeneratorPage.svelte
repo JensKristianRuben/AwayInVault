@@ -6,7 +6,6 @@
     generateStandardPassword,
     calculateStrength,
   } from "./generatingMethods.js";
-
   import { onMount } from "svelte";
   import { io } from "socket.io-client";
   import toastr from "toastr";
