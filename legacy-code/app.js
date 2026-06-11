@@ -71,7 +71,7 @@ app.use(resetPasswordRouter);
  
 
 app.get("/{*splat}", (req, res) => {
-  res.sendFile(path.join(__dirname, "public/index.html"));
+  res.status(404).send({error: "Route not found"})
 });
 
 const io = new Server(server, {
