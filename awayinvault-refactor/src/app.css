@@ -14,11 +14,19 @@
   --color-brand-900: #064e3b;
   --color-brand-950: #022c22;
 
-  /* Semantic aliases - these make it easy to switch themes later */
+  /* Default (Dark) Theme */
   --color-bg-main: var(--color-brand-950);
-  --color-bg-sidebar: var(--color-brand-600);
+  --color-bg-sidebar: var(--color-brand-900);
   --color-text-base: var(--color-brand-50);
   --color-accent: var(--color-brand-500);
+}
+
+/* Light Theme Overrides */
+:root.light {
+  --color-bg-main: var(--color-brand-50);
+  --color-bg-sidebar: var(--color-brand-100);
+  --color-text-base: var(--color-brand-950);
+  --color-accent: var(--color-brand-600);
 }
 
 @layer base {
@@ -27,5 +35,9 @@
     color: var(--color-text-base);
     @apply transition-colors duration-300;
   }
-}
 
+  /* Sørg for at links og knapper bruger de rigtige farver */
+  nav {
+    background-color: var(--color-bg-sidebar);
+  }
+}
