@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  /* Brand colors (Emerald scale) */
+  /* Brand farver (Emerald skala til knapper og detaljer) */
   --color-brand-50: #ecfdf5;
   --color-brand-100: #d1fae5;
   --color-brand-200: #a7f3d0;
@@ -14,18 +14,37 @@
   --color-brand-900: #064e3b;
   --color-brand-950: #022c22;
 
-  /* Default (Dark) Theme */
-  --color-bg-main: var(--color-brand-950);
-  --color-bg-sidebar: var(--color-brand-900);
-  --color-text-base: var(--color-brand-50);
+  /* Neutrale farver (Sorte og grå nuancer til layout) */
+  --color-neutral-50: #f9fafb;      /* Næsten hvid */
+  --color-neutral-100: #f3f4f6;     /* Lys grå (f.eks. lys sidebar) */
+  --color-neutral-200: #e5e7eb;     /* Lys ramme */
+  --color-neutral-300: #d1d5db;
+  --color-neutral-400: #9ca3af;     /* Muted tekst (mørkt tema) */
+  --color-neutral-500: #6b7280;     /* Muted tekst (lyst tema) */
+  --color-neutral-600: #374151;
+  --color-neutral-700: #1f2937;
+  --color-neutral-800: #1c1d1f;     /* Mørk ramme */
+  --color-neutral-900: #0d0e10;     /* Mørkegrå (mørk sidebar) */
+  --color-neutral-950: #030403;     /* Den matte sorte baggrund */
+
+  /* Default (Mørkt) Tema */
+  --color-bg-main: var(--color-neutral-950);
+  --color-bg-primary: var(--color-neutral-950); /* Understøtter bg-bg-primary anvendt i layouts */
+  --color-bg-sidebar: var(--color-neutral-900);
+  --color-text-base: var(--color-neutral-100);
+  --color-text-muted: var(--color-neutral-400);
+  --color-border-subtle: var(--color-neutral-800);
   --color-accent: var(--color-brand-500);
 }
 
-/* Light Theme Overrides */
+/* Lyst Tema Overrides */
 :root.light {
-  --color-bg-main: var(--color-brand-50);
-  --color-bg-sidebar: var(--color-brand-100);
-  --color-text-base: var(--color-brand-950);
+  --color-bg-main: var(--color-neutral-50);
+  --color-bg-primary: var(--color-neutral-50);
+  --color-bg-sidebar: var(--color-neutral-100);
+  --color-text-base: var(--color-neutral-900);
+  --color-text-muted: var(--color-neutral-500);
+  --color-border-subtle: var(--color-neutral-200);
   --color-accent: var(--color-brand-600);
 }
 
@@ -36,7 +55,6 @@
     @apply transition-colors duration-300;
   }
 
-  /* Sørg for at links og knapper bruger de rigtige farver */
   nav {
     background-color: var(--color-bg-sidebar);
   }

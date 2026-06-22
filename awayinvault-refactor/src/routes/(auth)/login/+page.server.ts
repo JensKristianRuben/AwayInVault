@@ -25,6 +25,26 @@ export const actions: Actions = {
     await event.locals.supabase.auth.signOut();
     throw redirect(303, "/login");
   },
+
+  loginWithGithub: async (event) => {
+    const result = await event.locals.supabase.auth.signInWithOAuth({
+      provider: "github",
+      options: {
+        redirectTo: `${event.url.origin}/auth/callback`,
+      },
+    });
+
+    if (result.error) {
+      return fail(500, {
+        message: "Github login failed: ",
+        error: result.error.message,
+      });
+    }
+
+    if (result.data.url) {
+      redirect(303, result.data.url);
+    }
+  },
 };
 
 export const load: PageServerLoad = async (event) => {

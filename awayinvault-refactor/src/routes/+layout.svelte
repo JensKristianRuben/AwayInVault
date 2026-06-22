@@ -14,7 +14,6 @@
 
 <div class="flex">
   <!-- Main Content -->
-  <main class="ml-16 min-h-screen w-full">
     {@render children()}
-  </main>
+
 </div>

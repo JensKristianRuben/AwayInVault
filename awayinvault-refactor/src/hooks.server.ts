@@ -49,7 +49,7 @@ export const authHandle: Handle = async ({ event, resolve }) => {
 
   
   const path = event.url.pathname;
-  const isPublicPage = path === "/login" || path === "/register";
+  const isPublicPage = path === "/" || path === "/login" || path === "/register";
 
   if (!session && !isPublicPage) {
     throw redirect(303, "/login");
