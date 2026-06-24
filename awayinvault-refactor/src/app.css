@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 @theme {
   /* Brand farver (Emerald skala til knapper og detaljer) */
@@ -52,6 +53,8 @@
   body {
     background-color: var(--color-bg-main);
     color: var(--color-text-base);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-font-smoothing: antialiased;
     @apply transition-colors duration-300;
   }
 

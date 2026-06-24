@@ -26,7 +26,23 @@
         href="/passwords"
         class="flex items-center group p-3 rounded-lg hover:bg-accent/10 transition-colors duration-200"
       >
-        <div class="w-10 flex-shrink-0 flex justify-center text-accent"></div>
+        <div class="w-10 flex-shrink-0 flex justify-center text-accent">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="w-6 h-6"
+          >
+            <circle cx="7.5" cy="15.5" r="5.5" />
+            <path d="m21 2-9.6 9.6" />
+            <path d="m15.5 7.5 3 3" />
+            <path d="M18 4.8 20 7" />
+          </svg>
+        </div>
         <span
           class="ml-4 text-text-base font-medium whitespace-nowrap transition-opacity duration-300"
           >Passwords</span
@@ -37,7 +53,24 @@
         href="/notes"
         class="flex items-center group p-3 rounded-lg hover:bg-accent/10 transition-colors duration-200"
       >
-        <div class="w-10 flex-shrink-0 flex justify-center text-accent"></div>
+        <div class="w-10 flex-shrink-0 flex justify-center text-accent">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="w-6 h-6"
+          >
+            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+            <polyline points="14 2 14 8 20 8" />
+            <line x1="16" x2="8" y1="13" y2="13" />
+            <line x1="16" x2="8" y1="17" y2="17" />
+            <line x1="10" x2="8" y1="9" y2="9" />
+          </svg>
+        </div>
         <span
           class="ml-4 text-text-base font-medium whitespace-nowrap transition-opacity duration-300"
           >Notes</span
@@ -48,7 +81,22 @@
         href="/about"
         class="flex items-center group p-3 rounded-lg hover:bg-accent/10 transition-colors duration-200"
       >
-        <div class="w-10 flex-shrink-0 flex justify-center text-accent"></div>
+        <div class="w-10 flex-shrink-0 flex justify-center text-accent">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="w-6 h-6"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 16v-4" />
+            <path d="M12 8h.01" />
+          </svg>
+        </div>
         <span
           class="ml-4 text-text-base font-medium whitespace-nowrap transition-opacity duration-300"
           >About</span

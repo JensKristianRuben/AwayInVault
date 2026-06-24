@@ -3,9 +3,7 @@
   import BoidsSimulation from './BoidsSimulation.svelte';
   import ZkBackgroundSimulation from './ZkBackgroundSimulation.svelte';
   import { fade, fly } from 'svelte/transition';
-
-  // Props
-  let { onNavigate = () => {} } = $props();
+  import { goto } from '$app/navigation';
 
   // State variabler
   let simMode = $state('flock'); // 'flock', 'key', 'shield'
@@ -124,7 +122,7 @@
             class="btn btn-secondary" 
             onmouseenter={() => { if (!isMobile) simMode = 'key'; }} 
             onmouseleave={() => { if (!isMobile) simMode = defaultMode; }}
-            onclick={() => onNavigate('/passwords')}
+            onclick={() => goto('/login')}
           >
             Log ind
           </button>
@@ -133,7 +131,7 @@
             class="btn btn-primary"
             onmouseenter={() => { if (!isMobile) simMode = 'shield'; }} 
             onmouseleave={() => { if (!isMobile) simMode = defaultMode; }}
-            onclick={() => onNavigate('/passwords')}
+            onclick={() => goto('/register')}
           >
             Opret konto
           </button>
