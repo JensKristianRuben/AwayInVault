@@ -27,6 +27,7 @@
 	},
 	"dependencies": {
 		"@supabase/ssr": "^0.12.0",
-		"@supabase/supabase-js": "^2.108.1"
+		"@supabase/supabase-js": "^2.108.1",
+		"svelte-sonner": "^1.1.1"
 	}
 }

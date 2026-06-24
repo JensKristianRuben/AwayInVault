@@ -1,26 +1,20 @@
-# sv
+# <img src="./src/lib/assets/favicon.png" alt="AwayInVault Logo" width="45" height="45" align="center" /> AwayInVault
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+This is **AwayInVault**, a project created for the purpose of practicing my fundamentals in security, clean coding, and encryption. What better project to explore these concepts than building a secure password vault?
 
-## Creating a project
+### Why "AwayInVault"?
+You might wonder about the name. It is a play on words: there is **"a way in"** to the vault, and **only you**, the holder of the master password, have access to that entrance.
 
-If you're seeing this, you've probably already done this step. Congrats!
+### Project Goals & Focus Areas
+- **Deep Dive into Encryption**: Implementing secure encryption methods to keep user data private.
+- **Biometric Logins**: Adding secure biometric inputs (Windows Hello, FaceID, TouchID).
+- **Web App Architecture**: Applying modern best practices to assemble a clean, robust, and performant web application using Svelte 5 and SvelteKit.
 
-```sh
-# create a new project
-npx sv create my-app
-```
-
-To recreate this project with the same configuration:
-
-```sh
-# recreate this project
-npx sv@0.16.1 create --template minimal --types ts --install npm awayinvault-refactor
-```
+---
 
 ## Developing
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+Once you've installed dependencies with `npm install` inside this directory, start a development server:
 
 ```sh
 npm run dev
@@ -38,5 +32,3 @@ npm run build
 ```
 
 You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
