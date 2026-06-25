@@ -10,4 +10,6 @@
 * **Navigation & Routing**:
   * **One-Time Use Components**: For components that are built for single/specific use cases (such as the landing page, specific layouts, or dashboard headers), implement routing directly inside the component using SvelteKit's `goto` from `$app/navigation`.
   * **Reusable Components**: For components designed to be reused across different views (such as generic buttons, cards, list items, or forms), do NOT use `goto` internally. Instead, delegate navigation by passing callback functions as props (e.g., using Svelte 5 `$props()` like `onclickLogin` or `onNavigate`) so the parent component controls the routing destination.
+* **Environment Variables**: Always add any new environment variables introduced in the project to both `.env` and `.env.example` (using placeholder values for the example file).
+* **Secrets & Security**: Never commit raw API keys, database passwords, or any sensitive credentials (secrets) to Git. Always keep them in local files like `.env` (which must be gitignored) and document their usage in `.env.example` using dummy/placeholder values.
 
