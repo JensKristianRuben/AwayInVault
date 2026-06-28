@@ -19,7 +19,7 @@
 
 <button
   onclick={toggleTheme}
-  class="flex items-center p-3 rounded-lg hover:bg-accent/10 transition-colors duration-200 group text-text-base focus:outline-none cursor-pointer"
+  class="flex items-center w-full p-3 rounded-lg hover:bg-accent/10 transition-colors duration-200 group/toggle text-text-base focus:outline-none cursor-pointer"
   aria-label="Toggle dark mode"
 >
   <div class="w-10 flex-shrink-0 flex justify-center text-accent">
@@ -57,4 +57,7 @@
       </svg>
     {/if}
   </div>
+  <span class="ml-4 text-sm font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-text-base">
+    {isDark ? 'Dark' : 'Light'}
+  </span>
 </button>

@@ -18,4 +18,6 @@
     * List projects for an owner (user or organization): `gh project list --owner <owner>`
     * List items in a specific project: `gh project item-list <project-number> --owner <owner>` (optionally add `--format json` for detailed data)
     * View a specific issue's details: `gh issue view <issue-number>`
+* **GitHub Issues**: Always write GitHub issues (titles, bodies, and labels) in English.
+
 

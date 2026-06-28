@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { generateSalt, deriveKey, encryptData, decryptData } from './crypto';
+import { generateSalt, deriveKey, encryptData, decryptData } from '../utils/crypto';
 
 describe('crypto utils', () => {
   it('should generate a 16-byte base64 salt', () => {
