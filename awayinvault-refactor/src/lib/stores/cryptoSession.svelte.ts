@@ -15,7 +15,7 @@ class CryptoSession {
     this.#salt = salt;
   }
 
-  ClearSession() {
+  clearSession() {
     this.#cryptoKey = null;
     this.#salt = null;
   }
