@@ -1,64 +1,68 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
 
 @theme {
-  /* Brand farver (Emerald skala til knapper og detaljer) */
-  --color-brand-50: #ecfdf5;
-  --color-brand-100: #d1fae5;
-  --color-brand-200: #a7f3d0;
-  --color-brand-300: #6ee7b7;
-  --color-brand-400: #34d399;
-  --color-brand-500: #10b981;
-  --color-brand-600: #059669;
-  --color-brand-700: #047857;
-  --color-brand-800: #065f46;
-  --color-brand-900: #064e3b;
-  --color-brand-950: #022c22;
+	/* Brand farver (Emerald skala til knapper og detaljer) */
+	--color-brand-50: #ecfdf5;
+	--color-brand-100: #d1fae5;
+	--color-brand-200: #a7f3d0;
+	--color-brand-300: #6ee7b7;
+	--color-brand-400: #34d399;
+	--color-brand-500: #10b981;
+	--color-brand-600: #059669;
+	--color-brand-700: #047857;
+	--color-brand-800: #065f46;
+	--color-brand-900: #064e3b;
+	--color-brand-950: #022c22;
 
-  /* Neutrale farver (Sorte og grå nuancer til layout) */
-  --color-neutral-50: #f9fafb;      /* Næsten hvid */
-  --color-neutral-100: #f3f4f6;     /* Lys grå (f.eks. lys sidebar) */
-  --color-neutral-200: #e5e7eb;     /* Lys ramme */
-  --color-neutral-300: #d1d5db;
-  --color-neutral-400: #9ca3af;     /* Muted tekst (mørkt tema) */
-  --color-neutral-500: #6b7280;     /* Muted tekst (lyst tema) */
-  --color-neutral-600: #374151;
-  --color-neutral-700: #1f2937;
-  --color-neutral-800: #1c1d1f;     /* Mørk ramme */
-  --color-neutral-900: #0d0e10;     /* Mørkegrå (mørk sidebar) */
-  --color-neutral-950: #030403;     /* Den matte sorte baggrund */
+	/* Neutrale farver (Sorte og grå nuancer til layout) */
+	--color-neutral-50: #f9fafb; /* Næsten hvid */
+	--color-neutral-100: #f3f4f6; /* Lys grå (f.eks. lys sidebar) */
+	--color-neutral-200: #e5e7eb; /* Lys ramme */
+	--color-neutral-300: #d1d5db;
+	--color-neutral-400: #9ca3af; /* Muted tekst (mørkt tema) */
+	--color-neutral-500: #6b7280; /* Muted tekst (lyst tema) */
+	--color-neutral-600: #374151;
+	--color-neutral-700: #1f2937;
+	--color-neutral-800: #1c1d1f; /* Mørk ramme */
+	--color-neutral-900: #0d0e10; /* Mørkegrå (mørk sidebar) */
+	--color-neutral-950: #030403; /* Den matte sorte baggrund */
 
-  /* Default (Mørkt) Tema */
-  --color-bg-main: var(--color-neutral-950);
-  --color-bg-primary: var(--color-neutral-950); /* Understøtter bg-bg-primary anvendt i layouts */
-  --color-bg-sidebar: var(--color-neutral-900);
-  --color-text-base: var(--color-neutral-100);
-  --color-text-muted: var(--color-neutral-400);
-  --color-border-subtle: var(--color-neutral-800);
-  --color-accent: var(--color-brand-500);
+	/* Default (Mørkt) Tema */
+	--color-bg-main: var(--color-neutral-950);
+	--color-bg-primary: var(--color-neutral-950); /* Understøtter bg-bg-primary anvendt i layouts */
+	--color-bg-sidebar: var(--color-neutral-900);
+	--color-text-base: var(--color-neutral-100);
+	--color-text-muted: var(--color-neutral-400);
+	--color-border-subtle: var(--color-neutral-800);
+	--color-accent: var(--color-brand-500);
 }
 
 /* Lyst Tema Overrides */
 :root.light {
-  --color-bg-main: var(--color-neutral-50);
-  --color-bg-primary: var(--color-neutral-50);
-  --color-bg-sidebar: var(--color-neutral-100);
-  --color-text-base: var(--color-neutral-900);
-  --color-text-muted: var(--color-neutral-500);
-  --color-border-subtle: var(--color-neutral-200);
-  --color-accent: var(--color-brand-600);
+	--color-bg-main: var(--color-neutral-50);
+	--color-bg-primary: var(--color-neutral-50);
+	--color-bg-sidebar: var(--color-neutral-100);
+	--color-text-base: var(--color-neutral-900);
+	--color-text-muted: var(--color-neutral-500);
+	--color-border-subtle: var(--color-neutral-200);
+	--color-accent: var(--color-brand-600);
 }
 
 @layer base {
-  body {
-    background-color: var(--color-bg-main);
-    color: var(--color-text-base);
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    @apply transition-colors duration-300;
-  }
+	body {
+		background-color: var(--color-bg-main);
+		color: var(--color-text-base);
+		font-family:
+			"Inter",
+			-apple-system,
+			BlinkMacSystemFont,
+			sans-serif;
+		-webkit-font-smoothing: antialiased;
+		@apply transition-colors duration-300;
+	}
 
-  nav {
-    background-color: var(--color-bg-sidebar);
-  }
+	nav {
+		background-color: var(--color-bg-sidebar);
+	}
 }

@@ -1,0 +1,2 @@
+cd awayinvault-refactor
+npm run format:check && npm run check && npm run test

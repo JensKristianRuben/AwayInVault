@@ -1,47 +1,46 @@
 <script lang="ts">
-  import "../app.css";
-  import favicon from "$lib/assets/favicon.png";
-  import { Toaster } from "svelte-sonner";
-  import { onMount } from "svelte";
+	import "../app.css";
+	import favicon from "$lib/assets/favicon.png";
+	import { Toaster } from "svelte-sonner";
+	import { onMount } from "svelte";
 
-  let { children } = $props();
+	let { children } = $props();
 
-  let toasterTheme = $state<"dark" | "light">("dark");
+	let toasterTheme = $state<"dark" | "light">("dark");
 
-  onMount(() => {
-    const updateTheme = () => {
-      toasterTheme = document.documentElement.classList.contains("light") ? "light" : "dark";
-    };
-    
-    updateTheme();
+	onMount(() => {
+		const updateTheme = () => {
+			toasterTheme = document.documentElement.classList.contains("light") ? "light" : "dark";
+		};
 
-    const observer = new MutationObserver((mutations) => {
-      for (const mutation of mutations) {
-        if (mutation.attributeName === "class") {
-          updateTheme();
-        }
-      }
-    });
+		updateTheme();
 
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["class"]
-    });
+		const observer = new MutationObserver((mutations) => {
+			for (const mutation of mutations) {
+				if (mutation.attributeName === "class") {
+					updateTheme();
+				}
+			}
+		});
 
-    return () => {
-      observer.disconnect();
-    };
-  });
+		observer.observe(document.documentElement, {
+			attributes: true,
+			attributeFilter: ["class"],
+		});
+
+		return () => {
+			observer.disconnect();
+		};
+	});
 </script>
 
 <svelte:head>
-  <link rel="icon" href={favicon} />
-  <title>Awayinvault</title>
+	<link rel="icon" href={favicon} />
+	<title>Awayinvault</title>
 </svelte:head>
 <Toaster richColors position="bottom-right" theme={toasterTheme} />
 
 <div class="flex">
-  <!-- Main Content -->
-    {@render children()}
-
+	<!-- Main Content -->
+	{@render children()}
 </div>

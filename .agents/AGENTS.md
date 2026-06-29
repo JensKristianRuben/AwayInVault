@@ -19,5 +19,10 @@
     * List items in a specific project: `gh project item-list <project-number> --owner <owner>` (optionally add `--format json` for detailed data)
     * View a specific issue's details: `gh issue view <issue-number>`
 * **GitHub Issues**: Always write GitHub issues (titles, bodies, and labels) in English.
+* **Project Guardrails**: Before concluding any task or marking it as "done", you MUST run the validation checks to prevent regression and ensure code quality:
+  * Run the type check: `npm run check`
+  * Run the unit/integration tests: `npm run test` (or `npm run test:crypto` if applicable)
+  * Run code formatting validation: `npm run format:check`
+  You must ensure all checks are 100% green and fix any errors before submitting the work.
 
 
