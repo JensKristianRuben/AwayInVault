@@ -91,3 +91,34 @@ export async function decryptLocal(encryptedValue: string | null, key: CryptoKey
 	const [iv, ciphertext] = parts;
 	return await decryptData(ciphertext, key, iv);
 }
+
+export interface AppUserMetadata {
+	salt?: string;
+	verifier_ciphertext?: string;
+	verifier_iv?: string;
+	[key: string]: any;
+}
+
+export async function verifyMasterPassword(
+	masterPasswordInput: string,
+	userMetadata: AppUserMetadata,
+): Promise<CryptoKey | null> {
+	try {
+		const { salt, verifier_ciphertext, verifier_iv } = userMetadata;
+		if (!salt || !verifier_ciphertext || !verifier_iv) {
+			throw new Error("Missing verification metadata");
+		}
+
+		const key = await deriveKey(masterPasswordInput, salt);
+		const decryptedVal = await decryptData(verifier_ciphertext, key, verifier_iv);
+
+		if (decryptedVal === "vaulten-er-lukket-og-du-kan-ikke-komme-ind-uden-masterpassword") {
+			return key;
+		}
+
+		throw new Error("Verification value mismatch");
+	} catch (err) {
+		console.error("Master password verification failed:", err);
+		return null;
+	}
+}
