@@ -122,3 +122,104 @@ export async function verifyMasterPassword(
 		return null;
 	}
 }
+
+export async function getBiometricMasterKey(
+	userMetadata: AppUserMetadata,
+): Promise<CryptoKey | null> {
+	try {
+		let credentialId = localStorage.getItem("awayinvault_bio_credential_id");
+		let encryptedKey = localStorage.getItem("awayinvault_bio_encrypted_key");
+
+		const dbCredentials = userMetadata?.biometric_credentials || [];
+		let selectedCred: any = null;
+		let rawPrfKey: ArrayBuffer | null = null;
+
+		// Setup PRF details
+		const challenge = crypto.getRandomValues(new Uint8Array(32));
+		const prfSalt = new Uint8Array(32);
+		const encoder = new TextEncoder();
+		const saltSource = encoder.encode("awayinvault-biometric-salt-v1-key");
+		prfSalt.set(saltSource.slice(0, 32));
+
+		if (credentialId && encryptedKey) {
+			// Standard flow: we have it locally
+			const credIdBytes = Uint8Array.from(atob(credentialId), (c) => c.charCodeAt(0));
+			const options: CredentialRequestOptions = {
+				publicKey: {
+					challenge,
+					allowCredentials: [{ type: "public-key", id: credIdBytes }],
+					userVerification: "required",
+					extensions: {
+						prf: { eval: { first: prfSalt } },
+					} as any,
+				},
+			};
+
+			const assertion = (await navigator.credentials.get(options)) as PublicKeyCredential;
+			if (!assertion) return null;
+
+			const extensionResults = assertion.getClientExtensionResults() as any;
+			rawPrfKey = extensionResults.prf?.results?.first;
+			selectedCred = { credential_id: credentialId, encrypted_key: encryptedKey };
+		} else if (dbCredentials.length > 0) {
+			// Fallback: Restore from Supabase metadata
+			const allowCredentials = dbCredentials.map((c: any) => ({
+				type: "public-key" as const,
+				id: Uint8Array.from(atob(c.credential_id), (x) => x.charCodeAt(0)),
+			}));
+
+			const options: CredentialRequestOptions = {
+				publicKey: {
+					challenge,
+					allowCredentials,
+					userVerification: "required",
+					extensions: {
+						prf: { eval: { first: prfSalt } },
+					} as any,
+				},
+			};
+
+			const assertion = (await navigator.credentials.get(options)) as PublicKeyCredential;
+			if (!assertion) return null;
+
+			const selectedIdBase64 = btoa(String.fromCharCode(...new Uint8Array(assertion.rawId)));
+			const matched = dbCredentials.find((c: any) => c.credential_id === selectedIdBase64);
+			if (!matched) {
+				throw new Error("Selected credential not registered in user metadata");
+			}
+
+			const extensionResults = assertion.getClientExtensionResults() as any;
+			rawPrfKey = extensionResults.prf?.results?.first;
+			selectedCred = matched;
+
+			// Restore to local cache
+			localStorage.setItem("awayinvault_bio_credential_id", matched.credential_id);
+			localStorage.setItem("awayinvault_bio_encrypted_key", matched.encrypted_key);
+		} else {
+			throw new Error("Biometric unlock is not configured");
+		}
+
+		if (!rawPrfKey || !selectedCred) {
+			throw new Error("Failed to retrieve biometric PRF key or credentials");
+		}
+
+		const biometricKey = await crypto.subtle.importKey(
+			"raw",
+			rawPrfKey,
+			{ name: "AES-GCM" },
+			false,
+			["decrypt"],
+		);
+
+		const masterPassword = await decryptLocal(selectedCred.encrypted_key, biometricKey);
+		const salt = userMetadata?.salt;
+		if (!salt) {
+			throw new Error("Salt not found in user metadata");
+		}
+
+		return await deriveKey(masterPassword, salt);
+	} catch (err) {
+		console.error("Biometric master key derivation failed:", err);
+		return null;
+	}
+}

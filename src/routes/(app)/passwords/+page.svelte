@@ -2,7 +2,7 @@
 	import { onMount } from "svelte";
 	import { supabase } from "$lib/utils/supabaseClient";
 	import { cryptoSession } from "$lib/stores/cryptoSession.svelte";
-	import { decryptLocal } from "$lib/utils/crypto";
+	import { decryptLocal, getBiometricMasterKey, verifyMasterPassword } from "$lib/utils/crypto";
 	import { toast } from "svelte-sonner";
 	import type { VaultItem } from "$lib/types/vault";
 
@@ -83,6 +83,127 @@
 		}
 	}
 
+	let hasBiometrics = $state(false);
+
+	// Password prompt modal states
+	let showPasswordPrompt = $state(false);
+	let masterPasswordPromptInput = $state("");
+	let itemToUnlock = $state<VaultItem | null>(null);
+	let onPromptSubmit = $state<((password: string) => void) | null>(null);
+	let onPromptCancel = $state<(() => void) | null>(null);
+
+	function promptForMasterPassword(
+		item: VaultItem,
+		onSubmit: (password: string) => void,
+		onCancel: () => void,
+	) {
+		itemToUnlock = item;
+		masterPasswordPromptInput = "";
+		onPromptSubmit = onSubmit;
+		onPromptCancel = onCancel;
+		showPasswordPrompt = true;
+	}
+
+	function handlePromptSubmit(e: SubmitEvent) {
+		e.preventDefault();
+		if (!masterPasswordPromptInput) {
+			toast.error("Indtast venligst dit Master Password.");
+			return;
+		}
+		const submitCb = onPromptSubmit;
+		showPasswordPrompt = false;
+		if (submitCb) submitCb(masterPasswordPromptInput);
+	}
+
+	function handlePromptCancel() {
+		showPasswordPrompt = false;
+		const cancelCb = onPromptCancel;
+		if (cancelCb) cancelCb();
+	}
+
+	function handleUnlockItem(item: VaultItem): Promise<boolean> {
+		return new Promise<boolean>(async (resolve) => {
+			// 1. Prøv biometri hvis aktiveret
+			if (hasBiometrics) {
+				try {
+					const {
+						data: { user },
+						error,
+					} = await supabase.auth.getUser();
+					if (error || !user) throw new Error("Ikke logget ind.");
+
+					const key = await getBiometricMasterKey(user.user_metadata);
+					if (key) {
+						const decryptedUsername = await decryptLocal(item.username_encrypted, key);
+						const decryptedPassword = await decryptLocal(item.password_encrypted, key);
+
+						decryptedItems = decryptedItems.map((d) => {
+							if (d.id === item.id) {
+								return {
+									...d,
+									username: decryptedUsername,
+									password: decryptedPassword,
+									isDecrypted: true,
+								};
+							}
+							return d;
+						});
+
+						toast.success("Element dekrypteret med biometri!");
+						resolve(true);
+						return;
+					}
+				} catch (err) {
+					console.warn("Biometrisk oplåsning afbrudt eller fejlet. Prøver password...", err);
+				}
+			}
+
+			// 2. Fallback til at spørge efter Master Password
+			promptForMasterPassword(
+				item,
+				async (password) => {
+					try {
+						const {
+							data: { user },
+						} = await supabase.auth.getUser();
+						if (!user) throw new Error("Du skal være logget ind.");
+
+						const key = await verifyMasterPassword(password, user.user_metadata);
+						if (!key) {
+							toast.error("Forkert Master Password.");
+							resolve(false);
+							return;
+						}
+
+						const decryptedUsername = await decryptLocal(item.username_encrypted, key);
+						const decryptedPassword = await decryptLocal(item.password_encrypted, key);
+
+						decryptedItems = decryptedItems.map((d) => {
+							if (d.id === item.id) {
+								return {
+									...d,
+									username: decryptedUsername,
+									password: decryptedPassword,
+									isDecrypted: true,
+								};
+							}
+							return d;
+						});
+
+						toast.success("Element dekrypteret!");
+						resolve(true);
+					} catch (err: any) {
+						toast.error("Kunne ikke dekryptere: " + err.message);
+						resolve(false);
+					}
+				},
+				() => {
+					resolve(false);
+				},
+			);
+		});
+	}
+
 	// Delete an item with sonner confirmation toast styled to match theme
 	function handleDelete(item: VaultItem) {
 		toast(`Vil du slette adgangskoden til "${item.title}" permanent?`, {
@@ -143,7 +264,20 @@
 		}
 	});
 
-	onMount(() => {
+	onMount(async () => {
+		const localBio = !!localStorage.getItem("awayinvault_bio_credential_id");
+
+		try {
+			const {
+				data: { user },
+			} = await supabase.auth.getUser();
+			const dbBio = (user?.user_metadata?.biometric_credentials || []).length > 0;
+			hasBiometrics = localBio || dbBio;
+		} catch (err) {
+			console.error("Failed to load user biometric metadata:", err);
+			hasBiometrics = localBio;
+		}
+
 		loadAndDecryptVaultItems();
 	});
 </script>
@@ -161,8 +295,7 @@
 			<!-- Add Password Button -->
 			<button
 				onclick={() => (showCreateModal = true)}
-				disabled={!cryptoSession.cryptoKey}
-				class="py-2 px-4 border-2 border-accent text-accent font-semibold text-xs rounded-none hover:bg-accent hover:text-bg-sidebar transition-all duration-300 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-1.5"
+				class="py-2 px-4 border-2 border-accent text-accent font-semibold text-xs rounded-none hover:bg-accent hover:text-bg-sidebar transition-all duration-300 cursor-pointer flex items-center gap-1.5"
 			>
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
@@ -228,32 +361,6 @@
 				</svg>
 				<p class="text-xs tracking-wide">Henter og dekrypterer elementer...</p>
 			</div>
-		{:else if !cryptoSession.cryptoKey}
-			<div
-				class="flex flex-col items-center justify-center py-20 bg-bg-sidebar border border-border-subtle text-text-muted text-center p-6 space-y-4"
-			>
-				<div
-					class="w-12 h-12 rounded-full bg-red-500/5 flex items-center justify-center border border-red-500/10"
-				>
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						stroke-width="1.5"
-						class="w-6 h-6 text-red-500"
-					>
-						<rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-						<path d="M7 11V7a5 5 0 0 1 10 0v4" />
-					</svg>
-				</div>
-				<div>
-					<h3 class="text-text-base font-semibold text-sm">Boksen er låst</h3>
-					<p class="text-xs text-text-muted mt-1 max-w-sm">
-						Indtast venligst dit Master Password i modal-vinduet for at hente din boks-nøgle.
-					</p>
-				</div>
-			</div>
 		{:else if filteredItems.length === 0}
 			<div
 				class="flex flex-col items-center justify-center py-20 bg-bg-sidebar border border-border-subtle text-text-muted text-center p-6 space-y-2"
@@ -277,7 +384,7 @@
 		{:else}
 			<div class="space-y-4">
 				{#each filteredItems as item (item.id)}
-					<PasswordCard {item} onDelete={handleDelete} />
+					<PasswordCard {item} onDelete={handleDelete} onUnlock={handleUnlockItem} />
 				{/each}
 			</div>
 		{/if}
@@ -287,4 +394,54 @@
 <!-- Modal for creating a new vault item -->
 {#if showCreateModal}
 	<CreatePasswordModal onClose={() => (showCreateModal = false)} onSuccess={handleCreateSuccess} />
+{/if}
+
+<!-- Inline modal for password fallback decryption -->
+{#if showPasswordPrompt}
+	<div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+		<div
+			class="bg-bg-sidebar border border-border-subtle p-6 max-w-sm w-full shadow-2xl relative animate-in fade-in zoom-in-95 duration-200"
+		>
+			<h3 class="text-sm font-bold text-text-base mb-1">Lås op</h3>
+			<p class="text-[11px] text-text-muted mb-4">
+				Indtast dit Master Password for at dekryptere adgangskoden til "{itemToUnlock?.title}".
+			</p>
+
+			<form onsubmit={handlePromptSubmit} class="space-y-4">
+				<div class="space-y-1.5">
+					<label
+						for="modal-master-password"
+						class="text-[9px] font-semibold uppercase tracking-widest text-text-muted ml-1"
+					>
+						Master Password
+					</label>
+					<input
+						id="modal-master-password"
+						type="password"
+						bind:value={masterPasswordPromptInput}
+						placeholder="Indtast adgangskode"
+						class="w-full px-4 py-2.5 bg-bg-primary border border-border-subtle text-text-base text-sm focus:outline-none focus:border-accent transition-all placeholder:text-text-base/20"
+						required
+						autofocus
+					/>
+				</div>
+
+				<div class="flex justify-end gap-3 pt-2">
+					<button
+						type="button"
+						onclick={handlePromptCancel}
+						class="px-4 py-2 text-xs border border-border-subtle text-text-muted hover:text-text-base transition-colors duration-200 cursor-pointer"
+					>
+						Annuller
+					</button>
+					<button
+						type="submit"
+						class="px-4 py-2 text-xs border-2 border-accent text-accent font-semibold hover:bg-accent hover:text-bg-sidebar transition-all duration-300 cursor-pointer"
+					>
+						Bekræft
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
 {/if}

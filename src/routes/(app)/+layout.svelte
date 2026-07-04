@@ -19,6 +19,8 @@
 	let showModal = $state(false);
 	let isNewUser = $state(false);
 	let userMetadata = $state<any>(null);
+	let encryptedPasskeyId = $state<any>("");
+	let encryptedMasterpassword = $state<any>("");
 
 	onMount(() => {
 		// Lyt efter logout/sessionsudløb og ryd nøglen med det samme
@@ -45,14 +47,24 @@
 
 			userMetadata = user.user_metadata;
 
-			// 3. Tjek om brugeren har sat et Master Password før (salt og verifier gemt i metadata)
-			if (!userMetadata?.salt || !userMetadata?.verifier_ciphertext) {
-				isNewUser = true;
-			} else {
-				isNewUser = false;
+			// 3. Tjek om biometri er aktiveret enten lokalt eller i databasen
+			const hasLocalBiometrics = !!localStorage.getItem("awayinvault_bio_credential_id");
+			const hasDbBiometrics = (userMetadata?.biometric_credentials || []).length > 0;
+			if (hasLocalBiometrics || hasDbBiometrics) {
+				return; // Hvis biometri er aktiveret, blokerer vi ikke siden ved opstart
 			}
 
-			showModal = true;
+			// 4. Tjek om brugeren har sat et Master Password før (salt og verifier gemt i metadata)
+			if (!userMetadata?.salt || !userMetadata?.verifier_ciphertext) {
+				isNewUser = true;
+				showModal = true; // Ny bruger skal oprette master password
+			} else {
+				isNewUser = false;
+				showModal = false; // Eksisterende brugere blokeres aldrig ved opstart
+			}
+
+			encryptedPasskeyId = localStorage.getItem("awayinvault_bio_credential_id");
+			encryptedMasterpassword = localStorage.getItem("awayinvault_bio_encrypted_key");
 		}
 
 		initSession();

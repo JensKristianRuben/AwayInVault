@@ -4,11 +4,14 @@
 	import { encryptLocal, verifyMasterPassword } from "$lib/utils/crypto";
 	import { onMount } from "svelte";
 
-	let isBiometricsEnabled = $state(true);
+	let isBiometricsEnabled = $state(false);
 	let masterPassword = $state("");
 	let userMetadata = $state<any>(null);
 
 	onMount(async () => {
+		// Initialize biometric status from localStorage
+		isBiometricsEnabled = !!localStorage.getItem("awayinvault_bio_credential_id");
+
 		try {
 			const {
 				data: { user },
@@ -20,23 +23,52 @@
 			}
 
 			userMetadata = user.user_metadata;
-			console.log(userMetadata);
 		} catch (err: any) {
 			console.log(err);
 			toast.error(`couldnt get user: ${err.message}`);
 		}
 	});
 
-	async function handleLock() {
-		try {
-			const key = await verifyMasterPassword(masterPassword, userMetadata);
+	async function verifyPassword(): Promise<boolean> {
+		if (!masterPassword) {
+			toast.error("Indtast venligst dit Master Password.");
+			return false;
+		}
+		const key = await verifyMasterPassword(masterPassword, userMetadata);
+		if (!key) {
+			toast.error("Forkert Master Password.");
+			return false;
+		}
+		return true;
+	}
 
-			if (!key) {
-				throw new Error("Wrong masterpassword");
+	async function disableBiometricLock() {
+		try {
+			const currentCredId = localStorage.getItem("awayinvault_bio_credential_id");
+			if (currentCredId && userMetadata) {
+				const credentialsList = (userMetadata.biometric_credentials || []).filter(
+					(c: any) => c.credential_id !== currentCredId,
+				);
+
+				const { error } = await supabase.auth.updateUser({
+					data: {
+						...userMetadata,
+						biometric_credentials: credentialsList,
+					},
+				});
+
+				if (error) throw error;
+
+				userMetadata.biometric_credentials = credentialsList;
 			}
+
+			localStorage.removeItem("awayinvault_bio_credential_id");
+			localStorage.removeItem("awayinvault_bio_encrypted_key");
+			isBiometricsEnabled = false;
+			toast.success("Biometrisk lås deaktiveret på denne enhed.");
 		} catch (err: any) {
-			console.log(err);
-			toast.error(`couldnt get user: ${err.message}`);
+			console.error(err);
+			toast.error("Kunne ikke deaktivere biometri: " + err.message);
 		}
 	}
 
@@ -46,12 +78,16 @@
 				throw new Error("WebAuthn er ikke understøttet i denne browser.");
 			}
 
-			handleLock();
+			// Verificer adgangskode først (og afvent resultatet!)
+			const isPasswordCorrect = await verifyPassword();
+			if (!isPasswordCorrect) return;
 
 			const challenge = crypto.getRandomValues(new Uint8Array(32));
 			const userId = crypto.getRandomValues(new Uint8Array(16));
 			const prfSalt = new Uint8Array(32);
-			crypto.getRandomValues(prfSalt);
+			const encoder = new TextEncoder();
+			const saltSource = encoder.encode("awayinvault-biometric-salt-v1-key");
+			prfSalt.set(saltSource.slice(0, 32));
 
 			const options: CredentialCreationOptions = {
 				publicKey: {
@@ -62,8 +98,8 @@
 					},
 					user: {
 						id: userId,
-						name: userMetadata.email,
-						displayName: userMetadata.user_name,
+						name: userMetadata?.email || "user@awayinvault.dk",
+						displayName: userMetadata?.display_name || "Boksejer",
 					},
 					pubKeyCredParams: [{ type: "public-key", alg: -7 }],
 					authenticatorSelection: {
@@ -79,6 +115,7 @@
 				},
 			};
 
+			toast.info("Scan dit fingeraftryk eller ansigt for at registrere...");
 			const credential = (await navigator.credentials.create(options)) as PublicKeyCredential;
 			if (!credential) throw new Error("Handling afbrudt af brugeren.");
 
@@ -93,18 +130,43 @@
 					rawPrfKey,
 					{ name: "AES-GCM" },
 					false,
-					["encrypt", "decrypt"],
+					["encrypt"],
 				);
 
 				const encryptedPassword = await encryptLocal(masterPassword, biometricCryptoKey);
 				const credentialIdBase64 = btoa(String.fromCharCode(...new Uint8Array(credential.rawId)));
 
+				// Synkroniser til Supabase Bruger Metadata
+				const credentialsList = userMetadata?.biometric_credentials || [];
+				if (!credentialsList.some((c: any) => c.credential_id === credentialIdBase64)) {
+					const deviceName = `${navigator.userAgent.includes("Windows") ? "Windows" : navigator.userAgent.includes("Mac") ? "Mac" : "Enhed"} (${window.location.hostname})`;
+					credentialsList.push({
+						credential_id: credentialIdBase64,
+						encrypted_key: encryptedPassword,
+						device_name: deviceName,
+					});
+				}
+
+				const { error: updateError } = await supabase.auth.updateUser({
+					data: {
+						...userMetadata,
+						biometric_credentials: credentialsList,
+					},
+				});
+
+				if (updateError) throw updateError;
+
+				// Opdater lokal metadata tilstand
+				if (userMetadata) {
+					userMetadata.biometric_credentials = credentialsList;
+				}
+
 				localStorage.setItem("awayinvault_bio_credential_id", credentialIdBase64);
 				localStorage.setItem("awayinvault_bio_encrypted_key", encryptedPassword);
 
 				isBiometricsEnabled = true;
-				toast.success("Biometrisk lås aktiveret på denne enhed!");
 				masterPassword = "";
+				toast.success("Biometrisk lås aktiveret på denne enhed!");
 			} else {
 				throw new Error("Din enhed understøtter ikke PRF-udvidelsen (krypteringsnøgler).");
 			}
@@ -164,25 +226,27 @@
 
 					<!-- Toggle / Action Button -->
 					<div class="flex-shrink-0 flex flex-col items-end gap-3 w-full md:w-auto">
-						<div class="w-full md:w-80 space-y-1.5">
-							<label
-								for="settings-master-password"
-								class="text-[10px] font-semibold uppercase tracking-widest text-text-muted ml-1"
-							>
-								Master Password
-							</label>
-							<input
-								id="settings-master-password"
-								type="password"
-								placeholder="Indtast adgangskode"
-								bind:value={masterPassword}
-								class="w-full px-4 py-2.5 bg-bg-primary border border-border-subtle text-text-base text-sm focus:outline-none focus:border-accent transition-all placeholder:text-text-base/20"
-							/>
-						</div>
+						{#if !isBiometricsEnabled}
+							<div class="w-full md:w-80 space-y-1.5">
+								<label
+									for="settings-master-password"
+									class="text-[10px] font-semibold uppercase tracking-widest text-text-muted ml-1"
+								>
+									Master Password
+								</label>
+								<input
+									id="settings-master-password"
+									type="password"
+									placeholder="Indtast adgangskode"
+									bind:value={masterPassword}
+									class="w-full px-4 py-2.5 bg-bg-primary border border-border-subtle text-text-base text-sm focus:outline-none focus:border-accent transition-all placeholder:text-text-base/20"
+								/>
+							</div>
+						{/if}
 
 						{#if isBiometricsEnabled}
 							<button
-								onclick={enableBiometricLock}
+								onclick={disableBiometricLock}
 								class="w-full md:w-auto py-2.5 px-5 border border-red-500/30 text-red-400 font-medium rounded-none hover:bg-red-500/10 transition-all duration-200 cursor-pointer text-sm"
 							>
 								Deaktiver biometrisk lås

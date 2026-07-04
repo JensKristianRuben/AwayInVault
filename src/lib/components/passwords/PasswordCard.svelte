@@ -2,21 +2,35 @@
 	import { toast } from "svelte-sonner";
 	import type { VaultItem } from "$lib/types/vault";
 
-	let { item, onDelete } = $props<{
+	let { item, onDelete, onUnlock } = $props<{
 		item: VaultItem;
 		onDelete: (item: VaultItem) => void;
+		onUnlock: (item: VaultItem) => Promise<boolean>;
 	}>();
 
 	let isPasswordVisible = $state(false);
-
-	function toggleVisibility() {
-		isPasswordVisible = !isPasswordVisible;
-	}
 
 	function copyText(text: string, label: string) {
 		if (!text) return;
 		navigator.clipboard.writeText(text);
 		toast.success(`${label} kopieret til udklipsholder!`);
+	}
+
+	async function handleAction(action: "show" | "copy_username" | "copy_password") {
+		if (!item.isDecrypted) {
+			const success = await onUnlock(item);
+			if (!success) return;
+		}
+
+		if (item.isDecrypted) {
+			if (action === "show") {
+				isPasswordVisible = !isPasswordVisible;
+			} else if (action === "copy_username") {
+				copyText(item.username, "Brugernavn");
+			} else if (action === "copy_password") {
+				copyText(item.password, "Adgangskode");
+			}
+		}
 	}
 </script>
 
@@ -61,27 +75,31 @@
 				<span class="text-text-muted font-light">Brugernavn:</span>
 				<div class="flex items-center gap-2 min-w-0">
 					<span class="text-text-base truncate font-medium max-w-[150px] md:max-w-[200px]">
-						{item.username || "(ingen)"}
-					</span>
-					{#if item.username && item.isDecrypted}
-						<button
-							onclick={() => copyText(item.username, "Brugernavn")}
-							class="p-1 hover:text-accent text-text-muted transition-colors cursor-pointer"
-							title="Kopier brugernavn"
-						>
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								viewBox="0 0 24 24"
-								fill="none"
-								stroke="currentColor"
-								stroke-width="2"
-								class="w-3.5 h-3.5"
+						{#if !item.isDecrypted}
+							<span class="text-text-muted font-mono tracking-widest text-[8px] select-none"
+								>••••••••</span
 							>
-								<rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-								<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-							</svg>
-						</button>
-					{/if}
+						{:else}
+							{item.username || "(ingen)"}
+						{/if}
+					</span>
+					<button
+						onclick={() => handleAction("copy_username")}
+						class="p-1 hover:text-accent text-text-muted transition-colors cursor-pointer"
+						title="Kopier brugernavn"
+					>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							class="w-3.5 h-3.5"
+						>
+							<rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+							<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+						</svg>
+					</button>
 				</div>
 			</div>
 
@@ -89,68 +107,23 @@
 			<div class="flex items-center justify-between gap-2 text-xs">
 				<span class="text-text-muted font-light">Adgangskode:</span>
 				<div class="flex items-center gap-2 min-w-0">
-					{#if !item.isDecrypted}
-						<span
-							class="text-red-500/80 font-medium font-mono text-[10px] uppercase tracking-wider"
-						>
-							{item.password}
-						</span>
-					{:else if isPasswordVisible}
-						<span class="text-text-base font-mono tracking-wide font-medium">
-							{item.password}
-						</span>
-					{:else}
+					{#if !item.isDecrypted || !isPasswordVisible}
 						<span class="text-text-muted font-mono tracking-widest text-[8px] select-none">
 							••••••••••••••••
 						</span>
+					{:else}
+						<span class="text-text-base font-mono tracking-wide font-medium">
+							{item.password}
+						</span>
 					{/if}
 
-					{#if item.isDecrypted}
-						<!-- Toggle Visibility Button -->
-						<button
-							onclick={toggleVisibility}
-							class="p-1 hover:text-accent text-text-muted transition-colors cursor-pointer"
-							title={isPasswordVisible ? "Skjul adgangskode" : "Vis adgangskode"}
-						>
-							{#if isPasswordVisible}
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									viewBox="0 0 24 24"
-									fill="none"
-									stroke="currentColor"
-									stroke-width="2"
-									class="w-3.5 h-3.5"
-								>
-									<path
-										d="M17.94 17.94A10.07 10.07 0 0 1 12 19c-7 0-10-7-10-7a13.19 13.19 0 0 1 2.18-3.18L2 2l22 22-2.06-2.06"
-									/>
-									<path
-										d="M6.61 6.61A13.52 13.52 0 0 1 12 5c7 0 10 7 10 7a13.17 13.17 0 0 1-2.18 3.18"
-									/>
-									<path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
-									<line x1="2" y1="2" x2="22" y2="22" />
-								</svg>
-							{:else}
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									viewBox="0 0 24 24"
-									fill="none"
-									stroke="currentColor"
-									stroke-width="2"
-									class="w-3.5 h-3.5"
-								>
-									<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-									<circle cx="12" cy="12" r="3" />
-								</svg>
-							{/if}
-						</button>
-
-						<!-- Copy Password Button -->
-						<button
-							onclick={() => copyText(item.password, "Adgangskode")}
-							class="p-1 hover:text-accent text-text-muted transition-colors cursor-pointer"
-							title="Kopier adgangskode"
-						>
+					<!-- Toggle Visibility Button -->
+					<button
+						onclick={() => handleAction("show")}
+						class="p-1 hover:text-accent text-text-muted transition-colors cursor-pointer"
+						title={isPasswordVisible ? "Skjul adgangskode" : "Vis adgangskode"}
+					>
+						{#if isPasswordVisible && item.isDecrypted}
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
 								viewBox="0 0 24 24"
@@ -159,11 +132,48 @@
 								stroke-width="2"
 								class="w-3.5 h-3.5"
 							>
-								<rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-								<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+								<path
+									d="M17.94 17.94A10.07 10.07 0 0 1 12 19c-7 0-10-7-10-7a13.19 13.19 0 0 1 2.18-3.18L2 2l22 22-2.06-2.06"
+								/>
+								<path
+									d="M6.61 6.61A13.52 13.52 0 0 1 12 5c7 0 10 7 10 7a13.17 13.17 0 0 1-2.18 3.18"
+								/>
+								<path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
+								<line x1="2" y1="2" x2="22" y2="22" />
 							</svg>
-						</button>
-					{/if}
+						{:else}
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								class="w-3.5 h-3.5"
+							>
+								<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+								<circle cx="12" cy="12" r="3" />
+							</svg>
+						{/if}
+					</button>
+
+					<!-- Copy Password Button -->
+					<button
+						onclick={() => handleAction("copy_password")}
+						class="p-1 hover:text-accent text-text-muted transition-colors cursor-pointer"
+						title="Kopier adgangskode"
+					>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							class="w-3.5 h-3.5"
+						>
+							<rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+							<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+						</svg>
+					</button>
 				</div>
 			</div>
 		</div>

@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { supabase } from "$lib/utils/supabaseClient";
 	import { cryptoSession } from "$lib/stores/cryptoSession.svelte";
-	import { encryptLocal } from "$lib/utils/crypto";
+	import { encryptLocal, getBiometricMasterKey, verifyMasterPassword } from "$lib/utils/crypto";
 	import { toast } from "svelte-sonner";
+	import { onMount } from "svelte";
 
 	let { onClose, onSuccess } = $props<{
 		onClose: () => void;
@@ -16,6 +17,22 @@
 	let passwordInput = $state("");
 	let showPassword = $state(false);
 	let isSaving = $state(false);
+
+	let hasBiometrics = $state(false);
+	let confirmMasterPassword = $state("");
+
+	onMount(async () => {
+		const localBio = !!localStorage.getItem("awayinvault_bio_credential_id");
+		try {
+			const {
+				data: { user },
+			} = await supabase.auth.getUser();
+			const dbBio = (user?.user_metadata?.biometric_credentials || []).length > 0;
+			hasBiometrics = localBio || dbBio;
+		} catch (err) {
+			hasBiometrics = localBio;
+		}
+	});
 
 	// Generate a random strong password
 	function generateRandomPassword() {
@@ -42,12 +59,6 @@
 			return;
 		}
 
-		const key = cryptoSession.cryptoKey;
-		if (!key) {
-			toast.error("Vaulten er låst. Lås venligst op først.");
-			return;
-		}
-
 		isSaving = true;
 		try {
 			const {
@@ -55,7 +66,30 @@
 			} = await supabase.auth.getUser();
 			if (!user) {
 				toast.error("Session udløbet. Log ind igen.");
+				isSaving = false;
 				return;
+			}
+
+			let key = cryptoSession.cryptoKey;
+			if (!key) {
+				if (hasBiometrics) {
+					toast.info("Verificer din biometri for at kryptere og gemme...");
+					key = await getBiometricMasterKey(user.user_metadata);
+				}
+
+				if (!key) {
+					if (!confirmMasterPassword) {
+						toast.error("Indtast venligst dit Master Password for at bekræfte.");
+						isSaving = false;
+						return;
+					}
+					key = await verifyMasterPassword(confirmMasterPassword, user.user_metadata);
+					if (!key) {
+						toast.error("Forkert Master Password.");
+						isSaving = false;
+						return;
+					}
+				}
 			}
 
 			// Encrypt sensitive fields locally
@@ -264,6 +298,29 @@
 					</button>
 				</div>
 			</div>
+
+			<!-- Confirm with Master Password if not in session -->
+			{#if !cryptoSession.cryptoKey}
+				<div class="space-y-1.5 pt-4 border-t border-border-subtle/30">
+					<label
+						for="modal-confirm-master-password"
+						class="text-[10px] font-semibold uppercase tracking-widest text-text-muted ml-1"
+					>
+						Bekræft med Master Password
+					</label>
+					<input
+						id="modal-confirm-master-password"
+						type="password"
+						placeholder={hasBiometrics
+							? "Indtast Master Password (valgfrit hvis biometri bruges)"
+							: "Indtast Master Password for at kryptere"}
+						bind:value={confirmMasterPassword}
+						required={!hasBiometrics}
+						disabled={isSaving}
+						class="w-full px-4 py-2.5 bg-bg-primary border border-border-subtle text-text-base text-sm focus:outline-none focus:border-accent transition-all placeholder:text-text-base/20"
+					/>
+				</div>
+			{/if}
 
 			<!-- Action Buttons -->
 			<div class="flex gap-4 pt-4">
