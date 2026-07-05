@@ -6,7 +6,7 @@
 	import { goto } from "$app/navigation";
 
 	// State variabler
-	let simMode = $state("flock"); // 'flock', 'key', 'shield'
+	let simMode = $state("flock"); // 'flock', 'key', 'scatter'
 	let assemblyComplete = $state(false);
 	let logoElement = $state<HTMLHeadingElement | null>(null);
 	let isMobile = $state(false);
@@ -52,6 +52,13 @@
 				simMode = "flock";
 				runCycle();
 			}, 4000);
+		}
+	}
+
+	function scrollToContent() {
+		const nextSection = document.querySelector(".zero-knowledge-section");
+		if (nextSection) {
+			nextSection.scrollIntoView({ behavior: "smooth" });
 		}
 	}
 
@@ -132,7 +139,7 @@
 					<button
 						class="btn btn-primary"
 						onmouseenter={() => {
-							if (!isMobile) simMode = "shield";
+							if (!isMobile) simMode = "scatter";
 						}}
 						onmouseleave={() => {
 							if (!isMobile) simMode = defaultMode;
@@ -144,6 +151,27 @@
 				</div>
 			</div>
 		</div>
+
+		<!-- Diskret pil der peger nedad for at indikere mere indhold -->
+		<button
+			class="scroll-indicator"
+			onclick={scrollToContent}
+			aria-label="Rul ned for at læse mere"
+			transition:fade={{ duration: 300, delay: 600 }}
+		>
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="currentColor"
+				stroke-width="1.5"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				class="scroll-arrow"
+			>
+				<polyline points="6 9 12 15 18 9" />
+			</svg>
+		</button>
 	</div>
 
 	<!-- Zero-Knowledge Sektion (Full View) -->
@@ -431,6 +459,49 @@
 		background: rgba(255, 255, 255, 0.08);
 		border-color: rgba(255, 255, 255, 0.25);
 		transform: translateY(-1px);
+	}
+
+	/* Rulle-indikator (pil ned) */
+	.scroll-indicator {
+		position: absolute;
+		bottom: 30px;
+		left: 50%;
+		transform: translateX(-50%);
+		z-index: 3;
+		background: transparent;
+		border: none;
+		outline: none;
+		cursor: pointer;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		padding: 8px;
+		opacity: 0.45;
+		transition:
+			opacity 0.3s ease,
+			transform 0.3s ease;
+	}
+
+	.scroll-indicator:hover {
+		opacity: 0.95;
+		transform: translateX(-50%) scale(1.15);
+	}
+
+	.scroll-arrow {
+		width: 26px;
+		height: 26px;
+		color: #ffffff;
+		animation: scroll-indicator-bounce 2s infinite ease-in-out;
+	}
+
+	@keyframes scroll-indicator-bounce {
+		0%,
+		100% {
+			transform: translateY(0);
+		}
+		50% {
+			transform: translateY(6px);
+		}
 	}
 
 	/* Toast Notifikation */

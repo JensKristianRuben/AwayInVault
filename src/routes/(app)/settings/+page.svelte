@@ -3,35 +3,88 @@
 	import { supabase } from "$lib/utils/supabaseClient";
 	import { encryptLocal, verifyMasterPassword } from "$lib/utils/crypto";
 	import { onMount } from "svelte";
+	import {
+		getBiometricCredentials,
+		setBiometricCredentials,
+		clearBiometricCredentials,
+	} from "$lib/utils/indexedDB";
+	import type { AppUserMetadata } from "$lib/types";
 
 	let isBiometricsEnabled = $state(false);
 	let masterPassword = $state("");
-	let userMetadata = $state<any>(null);
+	let userMetadata = $state<AppUserMetadata | null>(null);
+	let isDark = $state(true);
 
-	onMount(async () => {
-		// Initialize biometric status from localStorage
-		isBiometricsEnabled = !!localStorage.getItem("awayinvault_bio_credential_id");
+	onMount(() => {
+		// Initialize biometric status from IndexedDB
+		getBiometricCredentials().then((credentials) => {
+			isBiometricsEnabled = !!credentials;
+		});
 
-		try {
-			const {
-				data: { user },
-				error,
-			} = await supabase.auth.getUser();
+		// Initialize theme status
+		const checkTheme = () => {
+			isDark = !document.documentElement.classList.contains("light");
+		};
+		checkTheme();
 
-			if (error || !user) {
-				throw new Error(`No user: ${error?.message || "User session not found"}`);
+		const observer = new MutationObserver(checkTheme);
+		observer.observe(document.documentElement, {
+			attributes: true,
+			attributeFilter: ["class"],
+		});
+
+		async function loadUser() {
+			try {
+				const {
+					data: { user },
+					error,
+				} = await supabase.auth.getUser();
+
+				if (error || !user) {
+					throw new Error(`No user: ${error?.message || "User session not found"}`);
+				}
+
+				userMetadata = user.user_metadata;
+			} catch (err: any) {
+				console.log(err);
+				toast.error(`couldnt get user: ${err.message}`);
 			}
-
-			userMetadata = user.user_metadata;
-		} catch (err: any) {
-			console.log(err);
-			toast.error(`couldnt get user: ${err.message}`);
 		}
+		loadUser();
+
+		return () => {
+			observer.disconnect();
+		};
 	});
+
+	async function toggleTheme() {
+		isDark = !isDark;
+		const newTheme = isDark ? "dark" : "light";
+
+		localStorage.setItem("theme", newTheme);
+		if (isDark) {
+			document.documentElement.classList.remove("light");
+		} else {
+			document.documentElement.classList.add("light");
+		}
+
+		const {
+			data: { user },
+		} = await supabase.auth.getUser();
+		if (user) {
+			await supabase.auth.updateUser({
+				data: { theme: newTheme },
+			});
+		}
+	}
 
 	async function verifyPassword(): Promise<boolean> {
 		if (!masterPassword) {
 			toast.error("Indtast venligst dit Master Password.");
+			return false;
+		}
+		if (!userMetadata) {
+			toast.error("Brugeroplysninger er ikke indlæst endnu.");
 			return false;
 		}
 		const key = await verifyMasterPassword(masterPassword, userMetadata);
@@ -44,7 +97,8 @@
 
 	async function disableBiometricLock() {
 		try {
-			const currentCredId = localStorage.getItem("awayinvault_bio_credential_id");
+			const credentials = await getBiometricCredentials();
+			const currentCredId = credentials?.credentialId || null;
 			if (currentCredId && userMetadata) {
 				const credentialsList = (userMetadata.biometric_credentials || []).filter(
 					(c: any) => c.credential_id !== currentCredId,
@@ -62,8 +116,7 @@
 				userMetadata.biometric_credentials = credentialsList;
 			}
 
-			localStorage.removeItem("awayinvault_bio_credential_id");
-			localStorage.removeItem("awayinvault_bio_encrypted_key");
+			await clearBiometricCredentials();
 			isBiometricsEnabled = false;
 			toast.success("Biometrisk lås deaktiveret på denne enhed.");
 		} catch (err: any) {
@@ -161,8 +214,7 @@
 					userMetadata.biometric_credentials = credentialsList;
 				}
 
-				localStorage.setItem("awayinvault_bio_credential_id", credentialIdBase64);
-				localStorage.setItem("awayinvault_bio_encrypted_key", encryptedPassword);
+				await setBiometricCredentials(credentialIdBase64, encryptedPassword);
 
 				isBiometricsEnabled = true;
 				masterPassword = "";
@@ -186,79 +238,176 @@
 				Administrer dine sikkerhedsindstillinger og præferencer for Awayinvault.
 			</p>
 		</div>
+		<!-- Settings Sections -->
+		<div class="space-y-10">
+			<!-- Section: Sikkerhed -->
+			<div class="space-y-4">
+				<h2
+					class="text-xl font-semibold tracking-tight text-text-base border-b border-border-subtle pb-2"
+				>
+					Sikkerhed
+				</h2>
+				<div class="grid grid-cols-1 gap-6">
+					<!-- Biometrics Block -->
+					<div
+						class="bg-bg-sidebar border border-border-subtle p-6 md:p-8 shadow-md relative overflow-hidden transition-all duration-300 hover:shadow-lg"
+					>
+						<!-- Top decorative layout element -->
+						<div
+							class="absolute top-0 right-0 w-32 h-32 bg-accent/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"
+						></div>
 
-		<!-- Settings Grid / Blocks -->
-		<div class="grid grid-cols-1 gap-6">
-			<!-- Biometrics Block -->
-			<div
-				class="bg-bg-sidebar border border-border-subtle p-6 md:p-8 shadow-md relative overflow-hidden transition-all duration-300 hover:shadow-lg"
-			>
-				<!-- Top decorative layout element -->
-				<div
-					class="absolute top-0 right-0 w-32 h-32 bg-accent/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"
-				></div>
+						<div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+							<!-- Info -->
+							<div class="space-y-1">
+								<h3 class="text-lg font-semibold tracking-tight text-text-base">Biometrisk lås</h3>
+								<p class="text-sm text-text-muted max-w-xl">
+									Lås din adgangskodeboks hurtigt og sikkert op med Windows Hello, Touch ID eller
+									Face ID direkte på denne enhed.
+								</p>
+								<div class="flex items-center gap-2 pt-2">
+									<!-- Enabled Badge -->
+									{#if isBiometricsEnabled}
+										<span
+											class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-accent/10 text-accent border border-accent/20"
+										>
+											Aktiv
+										</span>
+									{:else}
+										<span
+											class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-neutral-500/10 text-text-muted border border-neutral-500/20"
+										>
+											Inaktiv
+										</span>
+									{/if}
+								</div>
+							</div>
 
-				<div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
-					<!-- Info -->
-					<div class="space-y-1">
-						<h3 class="text-lg font-semibold tracking-tight text-text-base">Biometrisk lås</h3>
-						<p class="text-sm text-text-muted max-w-xl">
-							Lås din adgangskodeboks hurtigt og sikkert op med Windows Hello, Touch ID eller Face
-							ID direkte på denne enhed.
-						</p>
-						<div class="flex items-center gap-2 pt-2">
-							<!-- Enabled Badge -->
-							{#if isBiometricsEnabled}
-								<span
-									class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-accent/10 text-accent border border-accent/20"
-								>
-									Aktiv
-								</span>
-							{:else}
-								<span
-									class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-neutral-500/10 text-text-muted border border-neutral-500/20"
-								>
-									Inaktiv
-								</span>
-							{/if}
+							<!-- Toggle / Action Button -->
+							<div class="flex-shrink-0 flex flex-col items-end gap-3 w-full md:w-auto">
+								{#if !isBiometricsEnabled}
+									<div class="w-full md:w-80 space-y-1.5">
+										<label
+											for="settings-master-password"
+											class="text-[10px] font-semibold uppercase tracking-widest text-text-muted ml-1"
+										>
+											Master Password
+										</label>
+										<input
+											id="settings-master-password"
+											type="password"
+											placeholder="Indtast adgangskode"
+											bind:value={masterPassword}
+											class="w-full px-4 py-2.5 bg-bg-primary border border-border-subtle text-text-base text-sm focus:outline-none focus:border-accent transition-all placeholder:text-text-base/20"
+										/>
+									</div>
+								{/if}
+
+								{#if isBiometricsEnabled}
+									<button
+										onclick={disableBiometricLock}
+										class="w-full md:w-auto py-2.5 px-5 border border-red-500/30 text-red-400 font-medium rounded-none hover:bg-red-500/10 transition-all duration-200 cursor-pointer text-sm"
+									>
+										Deaktiver biometrisk lås
+									</button>
+								{:else}
+									<button
+										onclick={enableBiometricLock}
+										class="w-full md:w-auto py-2.5 px-5 border-2 border-accent text-accent font-semibold rounded-none hover:bg-accent hover:text-bg-sidebar transition-all duration-300 cursor-pointer text-sm"
+									>
+										Aktiver biometrisk lås
+									</button>
+								{/if}
+							</div>
 						</div>
 					</div>
+				</div>
+			</div>
 
-					<!-- Toggle / Action Button -->
-					<div class="flex-shrink-0 flex flex-col items-end gap-3 w-full md:w-auto">
-						{#if !isBiometricsEnabled}
-							<div class="w-full md:w-80 space-y-1.5">
-								<label
-									for="settings-master-password"
-									class="text-[10px] font-semibold uppercase tracking-widest text-text-muted ml-1"
-								>
-									Master Password
-								</label>
-								<input
-									id="settings-master-password"
-									type="password"
-									placeholder="Indtast adgangskode"
-									bind:value={masterPassword}
-									class="w-full px-4 py-2.5 bg-bg-primary border border-border-subtle text-text-base text-sm focus:outline-none focus:border-accent transition-all placeholder:text-text-base/20"
-								/>
+			<!-- Section: Udseende -->
+			<div class="space-y-4">
+				<h2
+					class="text-xl font-semibold tracking-tight text-text-base border-b border-border-subtle pb-2"
+				>
+					Brugerflade
+				</h2>
+				<div class="grid grid-cols-1 gap-6">
+					<!-- Theme Toggle Block -->
+					<div
+						class="bg-bg-sidebar border border-border-subtle p-6 md:p-8 shadow-md relative overflow-hidden transition-all duration-300 hover:shadow-lg"
+					>
+						<!-- Top decorative layout element -->
+						<div
+							class="absolute top-0 right-0 w-32 h-32 bg-accent/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"
+						></div>
+
+						<div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+							<!-- Info -->
+							<div class="space-y-1">
+								<h3 class="text-lg font-semibold tracking-tight text-text-base">Farvetema</h3>
+								<p class="text-sm text-text-muted max-w-xl">
+									Vælg dit foretrukne udseende for Awayinvault. Du kan skifte mellem et mørkt og et
+									lyst tema.
+								</p>
 							</div>
-						{/if}
 
-						{#if isBiometricsEnabled}
-							<button
-								onclick={disableBiometricLock}
-								class="w-full md:w-auto py-2.5 px-5 border border-red-500/30 text-red-400 font-medium rounded-none hover:bg-red-500/10 transition-all duration-200 cursor-pointer text-sm"
-							>
-								Deaktiver biometrisk lås
-							</button>
-						{:else}
-							<button
-								onclick={enableBiometricLock}
-								class="w-full md:w-auto py-2.5 px-5 border-2 border-accent text-accent font-semibold rounded-none hover:bg-accent hover:text-bg-sidebar transition-all duration-300 cursor-pointer text-sm"
-							>
-								Aktiver biometrisk lås
-							</button>
-						{/if}
+							<!-- Toggle Selection Buttons -->
+							<div class="flex-shrink-0 flex items-center gap-3 w-full md:w-auto">
+								<button
+									onclick={() => {
+										if (!isDark) toggleTheme();
+									}}
+									class="flex-1 md:flex-initial px-5 py-2.5 text-sm font-medium border border-border-subtle cursor-pointer transition-all duration-200 flex items-center justify-center gap-2
+										{isDark
+										? 'bg-accent/10 text-accent border-accent/30 font-semibold'
+										: 'text-text-muted hover:text-text-base hover:bg-accent/5'}"
+								>
+									<!-- Moon Icon -->
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										fill="none"
+										viewBox="0 0 24 24"
+										stroke-width="1.5"
+										stroke="currentColor"
+										class="w-4 h-4"
+									>
+										<path
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"
+										/>
+									</svg>
+									Mørk
+								</button>
+
+								<button
+									onclick={() => {
+										if (isDark) toggleTheme();
+									}}
+									class="flex-1 md:flex-initial px-5 py-2.5 text-sm font-medium border border-border-subtle cursor-pointer transition-all duration-200 flex items-center justify-center gap-2
+										{!isDark
+										? 'bg-accent/10 text-accent border-accent/30 font-semibold'
+										: 'text-text-muted hover:text-text-base hover:bg-accent/5'}"
+								>
+									<!-- Sun Icon -->
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										fill="none"
+										viewBox="0 0 24 24"
+										stroke-width="1.5"
+										stroke="currentColor"
+										class="w-4 h-4"
+									>
+										<path
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											d="M12 3v2.25m0 13.5V21m8.966-8.966h-2.25m-13.5 0h-2.25m15.356-6.356l-1.591 1.591M6.783 17.217l-1.591 1.591m12.728 0l-1.591-1.591M6.783 6.783L5.192 5.192M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"
+										/>
+									</svg>
+									Lys
+								</button>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>

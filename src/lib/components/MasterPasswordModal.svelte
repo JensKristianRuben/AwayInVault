@@ -2,12 +2,21 @@
 	import { toast } from "svelte-sonner";
 	import { supabase } from "$lib/utils/supabaseClient";
 	import { cryptoSession } from "$lib/stores/cryptoSession.svelte";
-	import { generateSalt, deriveKey, encryptData, decryptData } from "$lib/utils/crypto";
+	import {
+		generateSalt,
+		deriveKey,
+		encryptData,
+		decryptData,
+		getBiometricMasterKey,
+	} from "$lib/utils/crypto";
+	import { onMount } from "svelte";
+	import { getBiometricCredentials } from "$lib/utils/indexedDB";
+	import type { AppUserMetadata } from "$lib/types";
 
 	// Svelte 5 Props destructuring
 	let { isNewUser, userMetadata, onSuccess } = $props<{
 		isNewUser: boolean;
-		userMetadata: any;
+		userMetadata: AppUserMetadata;
 		onSuccess: () => void;
 	}>();
 
@@ -18,6 +27,36 @@
 	let showConfirmPassword = $state(false);
 	let errorMessage = $state("");
 	let isProcessing = $state(false);
+	let hasBiometrics = $state(false);
+
+	onMount(async () => {
+		if (isNewUser) return;
+		const credentials = await getBiometricCredentials();
+		const hasLocal = !!credentials;
+		const hasDb = (userMetadata?.biometric_credentials || []).length > 0;
+		hasBiometrics = hasLocal || hasDb;
+	});
+
+	async function handleBiometricUnlock() {
+		errorMessage = "";
+		isProcessing = true;
+		try {
+			const key = await getBiometricMasterKey(userMetadata);
+			if (key) {
+				const salt = userMetadata.salt;
+				cryptoSession.setSession(key, salt);
+				toast.success("Boksen er låst op med biometri!");
+				onSuccess();
+			} else {
+				throw new Error("Biometrisk login mislykkedes.");
+			}
+		} catch (err: any) {
+			console.error(err);
+			errorMessage = err.message || "Biometrisk login mislykkedes.";
+		} finally {
+			isProcessing = false;
+		}
+	}
 
 	async function handleSubmit(e: SubmitEvent) {
 		e.preventDefault();
@@ -139,6 +178,40 @@
 					: "Indtast dit Master Password for at generere din private krypteringsnøgle og hente dine koder."}
 			</p>
 		</div>
+
+		{#if hasBiometrics && !isNewUser}
+			<div class="mb-4">
+				<button
+					type="button"
+					onclick={handleBiometricUnlock}
+					disabled={isProcessing}
+					class="w-full py-3 px-4 bg-accent/10 border border-accent/30 text-accent font-semibold hover:bg-accent hover:text-bg-sidebar transition-all duration-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center justify-center gap-2"
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="1.8"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						class="w-5 h-5 text-accent animate-[pulse_2s_infinite]"
+					>
+						<path d="M12 10a2 2 0 0 0-2 2v3" />
+						<path d="M14 10a4 4 0 0 0-8 0v4" />
+						<path d="M8 10a6 6 0 0 1 12 0v3" />
+						<path d="M12 2a10 10 0 0 0-10 10v3" />
+						<path d="M12 22a10 10 0 0 0 10-10V9" />
+					</svg>
+					Unlock with Biometrics
+				</button>
+				<div class="flex items-center my-4">
+					<div class="flex-grow border-t border-border-subtle/50"></div>
+					<span class="px-3 text-[10px] text-text-muted uppercase tracking-widest">eller</span>
+					<div class="flex-grow border-t border-border-subtle/50"></div>
+				</div>
+			</div>
+		{/if}
 
 		<!-- Form -->
 		<form onsubmit={handleSubmit} class="space-y-5">

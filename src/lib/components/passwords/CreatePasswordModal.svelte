@@ -2,6 +2,7 @@
 	import { supabase } from "$lib/utils/supabaseClient";
 	import { cryptoSession } from "$lib/stores/cryptoSession.svelte";
 	import { encryptLocal, getBiometricMasterKey, verifyMasterPassword } from "$lib/utils/crypto";
+	import { getBiometricCredentials } from "$lib/utils/indexedDB";
 	import { toast } from "svelte-sonner";
 	import { onMount } from "svelte";
 
@@ -22,7 +23,8 @@
 	let confirmMasterPassword = $state("");
 
 	onMount(async () => {
-		const localBio = !!localStorage.getItem("awayinvault_bio_credential_id");
+		const credentials = await getBiometricCredentials();
+		const localBio = !!credentials;
 		try {
 			const {
 				data: { user },

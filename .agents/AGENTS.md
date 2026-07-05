@@ -24,3 +24,7 @@
   - Run the unit/integration tests: `npm run test` (or `npm run test:crypto` if applicable)
   - Run code formatting validation: `npm run format:check`
     You must ensure all checks are 100% green and fix any errors before submitting the work.
+- **Type Definitions & Structuring**:
+  - Always organize shared type/interface definitions into dedicated files under `src/lib/types/` matching their domain (e.g. `user.ts`, `vault.ts`, etc.).
+  - Always export all domain types from a central barrel file at `src/lib/types/index.ts`.
+  - Always import types using the clean `$lib/types` path instead of relative imports or defining them locally within utilities.

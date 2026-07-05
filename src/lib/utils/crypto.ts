@@ -1,3 +1,6 @@
+import { getBiometricCredentials, setBiometricCredentials } from "./indexedDB";
+import type { AppUserMetadata } from "../types";
+
 function bytesToBase64(bytes: Uint8Array): string {
 	return btoa(String.fromCodePoint(...bytes));
 }
@@ -92,13 +95,6 @@ export async function decryptLocal(encryptedValue: string | null, key: CryptoKey
 	return await decryptData(ciphertext, key, iv);
 }
 
-export interface AppUserMetadata {
-	salt?: string;
-	verifier_ciphertext?: string;
-	verifier_iv?: string;
-	[key: string]: any;
-}
-
 export async function verifyMasterPassword(
 	masterPasswordInput: string,
 	userMetadata: AppUserMetadata,
@@ -127,8 +123,9 @@ export async function getBiometricMasterKey(
 	userMetadata: AppUserMetadata,
 ): Promise<CryptoKey | null> {
 	try {
-		let credentialId = localStorage.getItem("awayinvault_bio_credential_id");
-		let encryptedKey = localStorage.getItem("awayinvault_bio_encrypted_key");
+		const credentials = await getBiometricCredentials();
+		let credentialId = credentials?.credentialId || null;
+		let encryptedKey = credentials?.encryptedKey || null;
 
 		const dbCredentials = userMetadata?.biometric_credentials || [];
 		let selectedCred: any = null;
@@ -192,9 +189,8 @@ export async function getBiometricMasterKey(
 			rawPrfKey = extensionResults.prf?.results?.first;
 			selectedCred = matched;
 
-			// Restore to local cache
-			localStorage.setItem("awayinvault_bio_credential_id", matched.credential_id);
-			localStorage.setItem("awayinvault_bio_encrypted_key", matched.encrypted_key);
+			// Restore to local cache (IndexedDB)
+			await setBiometricCredentials(matched.credential_id, matched.encrypted_key);
 		} else {
 			throw new Error("Biometric unlock is not configured");
 		}

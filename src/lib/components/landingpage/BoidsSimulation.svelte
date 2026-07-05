@@ -163,6 +163,8 @@
 		shieldY = 0;
 		lockX = 0;
 		lockY = 0;
+		scatterX = 0;
+		scatterY = 0;
 
 		constructor(id: number) {
 			this.id = id;
@@ -356,6 +358,11 @@
 			}
 			boid.lockX = lx + (Math.random() - 0.5) * 4;
 			boid.lockY = ly + (Math.random() - 0.5) * 4;
+
+			// --- Beregn Scatter Targets ---
+			const scatterMargin = width < 768 ? 20 : 60;
+			boid.scatterX = scatterMargin + Math.random() * (width - scatterMargin * 2);
+			boid.scatterY = scatterMargin + Math.random() * (height - scatterMargin * 2);
 		});
 	}
 
@@ -422,7 +429,7 @@
 
 				boid.boundaries();
 			} else {
-				// En af formationerne er aktiv ('key', 'shield', 'lock')
+				// En af formationerne er aktiv ('key', 'shield', 'lock', 'scatter')
 				let tx = boid.x;
 				let ty = boid.y;
 
@@ -435,6 +442,9 @@
 				} else if (mode === "lock") {
 					tx = boid.lockX;
 					ty = boid.lockY;
+				} else if (mode === "scatter") {
+					tx = boid.scatterX;
+					ty = boid.scatterY;
 				}
 
 				const dx = tx - boid.x;

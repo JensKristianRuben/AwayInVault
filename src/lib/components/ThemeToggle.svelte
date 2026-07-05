@@ -1,18 +1,45 @@
 <script lang="ts">
 	import { onMount } from "svelte";
+	import { supabase } from "$lib/utils/supabaseClient";
 
 	let isDark = $state(true);
 
 	onMount(() => {
-		isDark = !document.documentElement.classList.contains("light");
+		const checkTheme = () => {
+			isDark = !document.documentElement.classList.contains("light");
+		};
+
+		checkTheme();
+
+		const observer = new MutationObserver(checkTheme);
+		observer.observe(document.documentElement, {
+			attributes: true,
+			attributeFilter: ["class"],
+		});
+
+		return () => {
+			observer.disconnect();
+		};
 	});
 
-	function toggleTheme() {
+	async function toggleTheme() {
 		isDark = !isDark;
+		const newTheme = isDark ? "dark" : "light";
+
+		localStorage.setItem("theme", newTheme);
 		if (isDark) {
 			document.documentElement.classList.remove("light");
 		} else {
 			document.documentElement.classList.add("light");
+		}
+
+		const {
+			data: { user },
+		} = await supabase.auth.getUser();
+		if (user) {
+			await supabase.auth.updateUser({
+				data: { theme: newTheme },
+			});
 		}
 	}
 </script>

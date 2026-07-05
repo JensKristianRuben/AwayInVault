@@ -1,11 +1,6 @@
 import { describe, it, expect, beforeAll, afterEach, vi } from "vitest";
-import {
-	getBiometricMasterKey,
-	deriveKey,
-	encryptLocal,
-	generateSalt,
-	type AppUserMetadata,
-} from "../utils/crypto";
+import { getBiometricMasterKey, deriveKey, encryptLocal, generateSalt } from "../utils/crypto";
+import type { AppUserMetadata } from "../types";
 
 // --- Mocking Setup ---
 
@@ -36,6 +31,27 @@ const navigatorMock = {
 	credentials: credentialsMock,
 	userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
 };
+
+vi.mock("../utils/indexedDB", () => {
+	return {
+		getBiometricCredentials: vi.fn(async () => {
+			const credentialId = localStorageStore["awayinvault_bio_credential_id"];
+			const encryptedKey = localStorageStore["awayinvault_bio_encrypted_key"];
+			if (credentialId && encryptedKey) {
+				return { credentialId, encryptedKey };
+			}
+			return null;
+		}),
+		setBiometricCredentials: vi.fn(async (credentialId: string, encryptedKey: string) => {
+			localStorageStore["awayinvault_bio_credential_id"] = credentialId;
+			localStorageStore["awayinvault_bio_encrypted_key"] = encryptedKey;
+		}),
+		clearBiometricCredentials: vi.fn(async () => {
+			delete localStorageStore["awayinvault_bio_credential_id"];
+			delete localStorageStore["awayinvault_bio_encrypted_key"];
+		}),
+	};
+});
 
 beforeAll(() => {
 	// Stub globals for Vitest Node.js environment
