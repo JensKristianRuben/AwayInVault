@@ -178,41 +178,6 @@
 			>
 		</a>
 
-		<!-- About Link -->
-		<a
-			href="/about"
-			class="relative flex items-center p-3 rounded-lg transition-all duration-200
-             {isActive('/about')
-				? 'bg-accent/10 text-accent font-semibold'
-				: 'text-text-muted hover:bg-accent/5 hover:text-text-base'}"
-		>
-			<!-- Active indicator line -->
-			{#if isActive("/about")}
-				<div class="absolute left-0 top-1/4 bottom-1/4 w-1 bg-accent rounded-r-md"></div>
-			{/if}
-
-			<div class="w-10 flex-shrink-0 flex justify-center">
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					viewBox="0 0 24 24"
-					fill="none"
-					stroke="currentColor"
-					stroke-width="2"
-					stroke-linecap="round"
-					stroke-linejoin="round"
-					class="w-6 h-6"
-				>
-					<circle cx="12" cy="12" r="10" />
-					<path d="M12 16v-4" />
-					<path d="M12 8h.01" />
-				</svg>
-			</div>
-			<span
-				class="ml-4 text-text-base font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-				>About</span
-			>
-		</a>
-
 		<!-- Settings Link -->
 		<a
 			href="/settings"
@@ -394,33 +359,6 @@
 					</svg>
 				</div>
 				<span class="ml-4 text-lg font-medium text-text-base">Notes</span>
-			</a>
-
-			<!-- About Link -->
-			<a
-				href="/about"
-				class="flex items-center p-4 rounded-lg transition-all duration-200
-					{isActive('/about')
-					? 'bg-accent/10 text-accent font-semibold'
-					: 'text-text-muted hover:bg-accent/5 hover:text-text-base'}"
-			>
-				<div class="w-8 flex justify-center text-accent">
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						stroke-width="2"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						class="w-6 h-6"
-					>
-						<circle cx="12" cy="12" r="10" />
-						<path d="M12 16v-4" />
-						<path d="M12 8h.01" />
-					</svg>
-				</div>
-				<span class="ml-4 text-lg font-medium text-text-base">About</span>
 			</a>
 
 			<!-- Settings Link -->
