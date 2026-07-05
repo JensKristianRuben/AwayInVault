@@ -2,8 +2,16 @@
 	import { onMount } from "svelte";
 	import { limitSpeed, applyBrownianDrift, setupCanvas } from "./particles";
 
+	// Svelte 5 Props (styret af landingssiden udefra)
+	let {
+		mode = "flock",
+		textAssembled = $bindable(false),
+		logoElement = null,
+		numBoids = 400,
+	} = $props();
+
 	// Antal partikler i simulationen
-	const NUM_BOIDS = 400;
+	const NUM_BOIDS = $derived(numBoids);
 
 	// Simulation indstillinger for rolig drift
 	const maxSpeed = 1.4;
@@ -83,8 +91,6 @@
 	let width = $state(800);
 	let height = $state(600);
 
-	// Svelte 5 Props (styret af landingssiden udefra)
-	let { mode = "flock", textAssembled = $bindable(false), logoElement = null } = $props();
 	let particleOpacity = $state(1.0);
 	let canvasTextOpacity = $state(0.0);
 	let kcx = $state(0);
