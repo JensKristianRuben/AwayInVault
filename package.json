@@ -1,5 +1,5 @@
 {
-	"name": "@jenskristianruben/aiv",
+	"name": "awayinvault",
 	"version": "0.0.1",
 	"type": "module",
 	"bin": {
@@ -8,9 +8,6 @@
 	"files": [
 		"dist"
 	],
-	"publishConfig": {
-		"registry": "https://npm.pkg.github.com"
-	},
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
