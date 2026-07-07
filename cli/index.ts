@@ -46,6 +46,11 @@ function saveSession(session: any) {
 	const dir = path.dirname(SESSION_FILE);
 	if (!fs.existsSync(dir)) {
 		fs.mkdirSync(dir, { recursive: true, mode: 0o700 });
+		if (process.platform !== "win32") {
+			try {
+				fs.chmodSync(dir, 0o700);
+			} catch {}
+		}
 	}
 	fs.writeFileSync(SESSION_FILE, JSON.stringify(session, null, 2), {
 		mode: 0o600,
