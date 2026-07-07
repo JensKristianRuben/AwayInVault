@@ -11,6 +11,14 @@
 	// Beholder eksisterende login logik
 	let loginEmail = $state("");
 	let loginPassword = $state("");
+
+	// Dynamisk videresendelse af query-parametre (som f.eks. ?next=...)
+	let formActionLogin = $derived(
+		"/login?/login" + (page.url.search ? "&" + page.url.search.slice(1) : ""),
+	);
+	let formActionGithub = $derived(
+		"/login?/loginWithGithub" + (page.url.search ? "&" + page.url.search.slice(1) : ""),
+	);
 </script>
 
 <div class="min-h-screen w-full flex items-center justify-center bg-bg-primary p-4">
@@ -36,7 +44,7 @@
 				<form
 					class="space-y-6"
 					method="POST"
-					action="/login?/login"
+					action={formActionLogin}
 					use:enhance={() => {
 						return async ({ result, update }) => {
 							if (result.type === "failure") {
@@ -102,7 +110,7 @@
 					</button>
 				</form>
 
-				<form method="POST" action="/login?/loginWithGithub" class="mt-4">
+				<form method="POST" action={formActionGithub} class="mt-4">
 					<button
 						type="submit"
 						class="w-full flex items-center justify-center gap-2 bg-bg-primary border border-border-subtle text-text-base p-3 rounded-none hover:bg-bg-sidebar transition-colors cursor-pointer text-sm font-semibold"

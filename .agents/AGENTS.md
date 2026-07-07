@@ -28,3 +28,7 @@
   - Always organize shared type/interface definitions into dedicated files under `src/lib/types/` matching their domain (e.g. `user.ts`, `vault.ts`, etc.).
   - Always export all domain types from a central barrel file at `src/lib/types/index.ts`.
   - Always import types using the clean `$lib/types` path instead of relative imports or defining them locally within utilities.
+- **Documentation Guidelines**:
+  - Write all documentation (README files, code guides, comments) without using emojis.
+  - Maintain a straightforward, professional, and dry developer tone, avoiding generic AI-like hype, conversational filler, or excessive formatting fluff.
+  - Use the lowercase abbreviation `aiv` (representing AwayInVault) when referencing the application, vault, or CLI tool.

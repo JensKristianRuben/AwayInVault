@@ -19,7 +19,8 @@ export const actions: Actions = {
 		if (result.error) {
 			return fail(400, { message: result.error.message });
 		}
-		throw redirect(303, "/passwords");
+		const next = event.url.searchParams.get("next") || "/passwords";
+		throw redirect(303, next);
 	},
 	logout: async (event) => {
 		await event.locals.supabase.auth.signOut();
@@ -27,10 +28,11 @@ export const actions: Actions = {
 	},
 
 	loginWithGithub: async (event) => {
+		const next = event.url.searchParams.get("next") || "/passwords";
 		const result = await event.locals.supabase.auth.signInWithOAuth({
 			provider: "github",
 			options: {
-				redirectTo: `${event.url.origin}/auth/callback`,
+				redirectTo: `${event.url.origin}/auth/callback?next=${encodeURIComponent(next)}`,
 			},
 		});
 

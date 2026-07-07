@@ -41,13 +41,18 @@ export const authHandle: Handle = async ({ event, resolve }) => {
 
 	const path = event.url.pathname;
 	const isPublicPage =
-		path === "/" || path === "/login" || path === "/register" || path === "/auth/callback";
+		path === "/" ||
+		path === "/login" ||
+		path === "/register" ||
+		path === "/auth/callback" ||
+		path === "/cli-login";
 
 	if (!session && !isPublicPage) {
-		throw redirect(303, "/login");
+		const nextParam = event.url.pathname + event.url.search;
+		throw redirect(303, `/login?next=${encodeURIComponent(nextParam)}`);
 	}
 
-	if (session && isPublicPage && event.request.method === "GET") {
+	if (session && isPublicPage && path !== "/cli-login" && event.request.method === "GET") {
 		throw redirect(303, "/passwords");
 	}
 

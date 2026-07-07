@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { toast } from "svelte-sonner";
 	import type { VaultItem } from "$lib/types/vault";
+	import { getDomain } from "$lib/utils/url";
 
 	let { item, onDelete, onUnlock } = $props<{
 		item: VaultItem;
@@ -9,6 +10,13 @@
 	}>();
 
 	let isPasswordVisible = $state(false);
+	let imageFailed = $state(false);
+
+	$effect(() => {
+		// Reset image failure state if the website changes
+		item.website;
+		imageFailed = false;
+	});
 
 	function copyText(text: string, label: string) {
 		if (!text) return;
@@ -41,6 +49,38 @@
 	<div class="space-y-1 min-w-0 flex-1">
 		<!-- Header: Title & Website URL Link -->
 		<div class="flex items-center gap-3">
+			<!-- Favicon or Fallback Icon -->
+			<div
+				class="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-bg-primary border border-border-subtle/50 rounded-sm overflow-hidden"
+			>
+				{#if item.website && getDomain(item.website) && !imageFailed}
+					<img
+						src="https://www.google.com/s2/favicons?sz=64&domain={getDomain(item.website)}"
+						alt=""
+						class="w-full h-full object-contain p-0.5"
+						onerror={() => {
+							imageFailed = true;
+						}}
+					/>
+				{:else}
+					<!-- Globe/Website SVG Fallback -->
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						class="w-3.5 h-3.5 text-text-muted"
+					>
+						<circle cx="12" cy="12" r="10" />
+						<line x1="2" y1="12" x2="22" y2="12" />
+						<path
+							d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
+						/>
+					</svg>
+				{/if}
+			</div>
+
 			<h3 class="text-text-base font-semibold truncate text-sm tracking-tight">{item.title}</h3>
 			{#if item.website}
 				<a

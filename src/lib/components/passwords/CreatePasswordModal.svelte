@@ -5,6 +5,7 @@
 	import { getBiometricCredentials } from "$lib/utils/indexedDB";
 	import { toast } from "svelte-sonner";
 	import { onMount } from "svelte";
+	import { getDomain } from "$lib/utils/url";
 
 	let { onClose, onSuccess } = $props<{
 		onClose: () => void;
@@ -18,6 +19,13 @@
 	let passwordInput = $state("");
 	let showPassword = $state(false);
 	let isSaving = $state(false);
+	let modalImageFailed = $state(false);
+
+	$effect(() => {
+		// Reset image failure state if the website input changes
+		websiteInput;
+		modalImageFailed = false;
+	});
 
 	let hasBiometrics = $state(false);
 	let confirmMasterPassword = $state("");
@@ -197,14 +205,46 @@
 				>
 					Website URL
 				</label>
-				<input
-					id="modal-website"
-					type="text"
-					placeholder="https://github.com"
-					bind:value={websiteInput}
-					disabled={isSaving}
-					class="w-full px-4 py-3 rounded-none bg-bg-primary border border-border-subtle text-text-base text-sm focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/10 transition-all placeholder:text-text-base/20"
-				/>
+				<div class="relative flex items-center">
+					<div
+						class="absolute left-3 w-5 h-5 flex items-center justify-center pointer-events-none bg-bg-primary border border-border-subtle/50 rounded-sm overflow-hidden"
+					>
+						{#if websiteInput && getDomain(websiteInput) && !modalImageFailed}
+							<img
+								src="https://www.google.com/s2/favicons?sz=64&domain={getDomain(websiteInput)}"
+								alt=""
+								class="w-full h-full object-contain p-0.5"
+								onerror={() => {
+									modalImageFailed = true;
+								}}
+							/>
+						{:else}
+							<!-- Fallback Globe Icon -->
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								class="w-3.5 h-3.5 text-text-muted"
+							>
+								<circle cx="12" cy="12" r="10" />
+								<line x1="2" y1="12" x2="22" y2="12" />
+								<path
+									d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
+								/>
+							</svg>
+						{/if}
+					</div>
+					<input
+						id="modal-website"
+						type="text"
+						placeholder="https://github.com"
+						bind:value={websiteInput}
+						disabled={isSaving}
+						class="w-full pl-10 pr-4 py-3 rounded-none bg-bg-primary border border-border-subtle text-text-base text-sm focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/10 transition-all placeholder:text-text-base/20"
+					/>
+				</div>
 			</div>
 
 			<!-- Username -->

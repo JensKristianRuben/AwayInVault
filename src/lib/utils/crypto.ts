@@ -1,5 +1,5 @@
-import { getBiometricCredentials, setBiometricCredentials } from "./indexedDB";
-import type { AppUserMetadata } from "../types";
+import { getBiometricCredentials, setBiometricCredentials } from "./indexedDB.js";
+import type { AppUserMetadata } from "../types/index.js";
 
 function bytesToBase64(bytes: Uint8Array): string {
 	return btoa(String.fromCodePoint(...bytes));
