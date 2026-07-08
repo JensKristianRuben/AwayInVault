@@ -133,7 +133,7 @@
 						}}
 						onclick={() => goto("/login")}
 					>
-						Log ind
+						Sign In
 					</button>
 
 					<button
@@ -146,7 +146,7 @@
 						}}
 						onclick={() => goto("/register")}
 					>
-						Opret konto
+						Sign Up
 					</button>
 				</div>
 			</div>
