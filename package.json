@@ -1,6 +1,6 @@
 {
 	"name": "awayinvault",
-	"version": "0.0.6",
+	"version": "0.0.7",
 	"type": "module",
 	"bin": {
 		"aiv": "./dist/cli/index.js"

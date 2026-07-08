@@ -24,23 +24,38 @@ if (
 
 // Load .env from project root
 dotenv.config({ path: path.join(projectRoot, ".env") });
+// Also load from current working directory
+dotenv.config({ path: path.join(process.cwd(), ".env") });
 
-const SUPABASE_URL = process.env.PUBLIC_SUPABASE_URL;
-const SUPABASE_ANON_KEY = process.env.PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+// Session cache and config configurations
+const SESSION_DIR = path.join(os.homedir(), ".awayinvault");
+const SESSION_FILE = process.env.AWAYINVAULT_SESSION_FILE || path.join(SESSION_DIR, "session.json");
+const CONFIG_FILE = path.join(SESSION_DIR, "config.json");
+
+let SUPABASE_URL = process.env.PUBLIC_SUPABASE_URL;
+let SUPABASE_ANON_KEY = process.env.PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+
+// Fallback: load config from global configuration file in home directory
+if ((!SUPABASE_URL || !SUPABASE_ANON_KEY) && fs.existsSync(CONFIG_FILE)) {
+	try {
+		const config = JSON.parse(fs.readFileSync(CONFIG_FILE, "utf-8"));
+		if (!SUPABASE_URL) SUPABASE_URL = config.PUBLIC_SUPABASE_URL;
+		if (!SUPABASE_ANON_KEY) SUPABASE_ANON_KEY = config.PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+	} catch {}
+}
+
+// Fallback: default production Supabase instance
+const DEFAULT_SUPABASE_URL = "https://hekbxulfxbznntuahtqx.supabase.co";
+const DEFAULT_SUPABASE_ANON_KEY =
+	"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhla2J4dWxmeGJ6bm50dWFodHF4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0ODE2MjcsImV4cCI6MjA3OTA1NzYyN30.U6PcjO7DbT17c0kuwIJm0v3M070DrpUZ4RD_s1cVrBM";
 
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-	console.error(
-		"❌ Error: Missing PUBLIC_SUPABASE_URL or PUBLIC_SUPABASE_PUBLISHABLE_KEY in your .env file.",
-	);
-	process.exit(1);
+	SUPABASE_URL = DEFAULT_SUPABASE_URL;
+	SUPABASE_ANON_KEY = DEFAULT_SUPABASE_ANON_KEY;
 }
 
 // Reuse existing crypto logic
 import { verifyMasterPassword, encryptLocal, decryptLocal } from "../src/lib/utils/crypto.js";
-
-// Session cache configurations
-const SESSION_DIR = path.join(os.homedir(), ".awayinvault");
-const SESSION_FILE = process.env.AWAYINVAULT_SESSION_FILE || path.join(SESSION_DIR, "session.json");
 
 function saveSession(session: any) {
 	const dir = path.dirname(SESSION_FILE);
@@ -232,6 +247,54 @@ program
 	.description("Check if the CLI connection is active")
 	.action(() => {
 		console.log("Pong! AwayInVault CLI is active and ready. 🚀");
+	});
+
+// 1.5. init
+program
+	.command("init")
+	.description("Configure custom Supabase credentials for the CLI")
+	.action(async () => {
+		const answers = await prompts([
+			{
+				type: "text",
+				name: "url",
+				message: "Enter your Supabase Project URL:",
+				initial: SUPABASE_URL || "",
+			},
+			{
+				type: "password",
+				name: "anonKey",
+				message: "Enter your Supabase Anon Key:",
+				initial: SUPABASE_ANON_KEY || "",
+			},
+		]);
+
+		if (!answers.url || !answers.anonKey) {
+			console.log("Configuration cancelled.");
+			process.exit(0);
+		}
+
+		const dir = path.dirname(CONFIG_FILE);
+		if (!fs.existsSync(dir)) {
+			fs.mkdirSync(dir, { recursive: true, mode: 0o700 });
+		}
+
+		fs.writeFileSync(
+			CONFIG_FILE,
+			JSON.stringify(
+				{
+					PUBLIC_SUPABASE_URL: answers.url.trim(),
+					PUBLIC_SUPABASE_PUBLISHABLE_KEY: answers.anonKey.trim(),
+				},
+				null,
+				2,
+			),
+			{ mode: 0o600, encoding: "utf-8" },
+		);
+
+		console.log(
+			"✅ Custom Supabase configuration saved successfully in ~/.awayinvault/config.json",
+		);
 	});
 
 // 2. generate

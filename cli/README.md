@@ -16,7 +16,17 @@ The aiv CLI is a command-line interface for managing and accessing your password
 ## Prerequisites
 
 - Node.js (v18.0.0 or higher)
-- Active Supabase credentials (loaded from the project's root .env file)
+- A Supabase database instance (uses the default production instance by default, or can be customized).
+
+---
+
+## Supabase Configuration
+
+By default, the CLI connects to the official production database. If you want to point the CLI to a custom Supabase instance (e.g. staging or local development), it resolves configuration in the following order:
+
+1. Environment variables (`PUBLIC_SUPABASE_URL` and `PUBLIC_SUPABASE_PUBLISHABLE_KEY`) in the current shell or a local `.env` file in your current working directory.
+2. Global configuration file located at `~/.awayinvault/config.json`.
+3. Default production database keys.
 
 ---
 
@@ -32,7 +42,15 @@ npx tsx cli/index.ts <command> [options]
 
 ## Command Reference
 
-### 1. Authentication (auth)
+### 1. Initialize Configuration (init)
+
+Configures a custom Supabase database URL and Anon Key for the CLI, saving them to `~/.awayinvault/config.json`.
+
+```bash
+npx tsx cli/index.ts init
+```
+
+### 2. Authentication (auth)
 
 Logs you into your aiv account.
 
@@ -45,7 +63,7 @@ npx tsx cli/index.ts auth [options]
   - -p, --password <password>: Login account password.
   - --sso: Triggers GitHub OAuth single sign-on via local browser integration.
 
-### 2. Status (status)
+### 3. Status (status)
 
 Displays your current authentication status, active user email, user ID, and last sign-in timestamp formatted inside a clean box-drawing layout.
 
@@ -53,7 +71,7 @@ Displays your current authentication status, active user email, user ID, and las
 npx tsx cli/index.ts status
 ```
 
-### 3. List Logins (list)
+### 4. List Logins (list)
 
 Lists all logins stored in your vault.
 
@@ -61,7 +79,7 @@ Lists all logins stored in your vault.
 npx tsx cli/index.ts list
 ```
 
-### 4. Fetch & Decrypt Login (get)
+### 5. Fetch & Decrypt Login (get)
 
 Retrieves and decrypts a specific login by its title. You will be prompted to securely type your Master Password.
 
@@ -72,7 +90,7 @@ npx tsx cli/index.ts get <title> [options]
 - **Options:**
   - -c, --copy: Safely copies the decrypted password to your clipboard and schedules it to be cleared automatically after 30 seconds. The password is not printed to the screen.
 
-### 5. Create & Encrypt Login (add)
+### 6. Create & Encrypt Login (add)
 
 Adds a new encrypted login to your vault. If run without options, it prompts you interactively for each field, shows a recap of your input (masking the password), and asks for final confirmation before saving.
 
@@ -85,7 +103,7 @@ npx tsx cli/index.ts add [title] [options]
   - -p, --password <password>: Password for the service.
   - -w, --website <website>: Website URL (optional).
 
-### 6. Generate Password (generate)
+### 7. Generate Password (generate)
 
 Generates a random password.
 
@@ -98,7 +116,7 @@ npx tsx cli/index.ts generate [options]
   - --no-numbers: Generate without numbers.
   - --no-symbols: Generate without symbols.
 
-### 7. Logout (logout)
+### 8. Logout (logout)
 
 Clears your local session data and logs out from Supabase.
 
@@ -106,7 +124,7 @@ Clears your local session data and logs out from Supabase.
 npx tsx cli/index.ts logout
 ```
 
-### 8. Ping (ping)
+### 9. Ping (ping)
 
 Tests connection and verifies CLI tool responsiveness.
 
