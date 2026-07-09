@@ -154,10 +154,15 @@
 						name: userMetadata?.email || "user@awayinvault.dk",
 						displayName: userMetadata?.display_name || "Boksejer",
 					},
-					pubKeyCredParams: [{ type: "public-key", alg: -7 }],
+					pubKeyCredParams: [
+						{ type: "public-key", alg: -7 }, // ES256
+						{ type: "public-key", alg: -257 }, // RS256
+					],
 					authenticatorSelection: {
 						authenticatorAttachment: "platform",
 						userVerification: "required",
+						residentKey: "required",
+						requireResidentKey: true,
 					},
 					timeout: 60000,
 					extensions: {
