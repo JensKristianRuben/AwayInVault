@@ -12,13 +12,13 @@
 		try {
 			port = new URLSearchParams(window.location.search).get("port") || "54321";
 
-			// Hent den nuværende session
+			// Get the current session
 			const { data, error } = await supabase.auth.getSession();
 			if (error) throw error;
 
 			session = data.session;
 
-			// Hvis der ikke er nogen session, redirecter vi til GitHub SSO med det samme
+			// If there is no session, redirect to GitHub SSO immediately
 			if (!session) {
 				const currentUrl = window.location.pathname + window.location.search;
 				const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(currentUrl)}`;
@@ -32,7 +32,7 @@
 				return;
 			}
 		} catch (err: any) {
-			errorText = "Fejl under autentificering: " + (err.message || err);
+			errorText = "Authentication error: " + (err.message || err);
 		} finally {
 			loading = false;
 		}
@@ -41,25 +41,25 @@
 	function handleApprove() {
 		if (!session) return;
 		isApproved = true;
-		// Send tokens tilbage til den lokale CLI server
+		// Send tokens back to the local CLI server
 		const redirectUrl = `http://localhost:${port}/callback?access_token=${session.access_token}&refresh_token=${session.refresh_token}&expires_at=${session.expires_at}`;
 		window.location.href = redirectUrl;
 	}
 
 	function handleDeny() {
-		// Send dem tilbage til adgangskoderne
+		// Send them back to the passwords page
 		window.location.href = "/passwords";
 	}
 </script>
 
 <svelte:head>
-	<title>Godkend CLI adgang - AwayInVault</title>
+	<title>Authorize CLI Access - AwayInVault</title>
 </svelte:head>
 
 <div
 	class="min-h-screen w-full flex items-center justify-center bg-bg-primary text-text-base relative overflow-hidden"
 >
-	<!-- Baggrunds-glød -->
+	<!-- Background glow -->
 	<div
 		class="absolute w-[500px] h-[500px] rounded-full bg-emerald-500/5 blur-[120px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
 	></div>
@@ -89,10 +89,10 @@
 			</div>
 		</div>
 
-		<h1 class="text-2xl font-bold tracking-tight mb-2">Forbind terminalen</h1>
+		<h1 class="text-2xl font-bold tracking-tight mb-2">Connect the Terminal</h1>
 
 		{#if loading}
-			<p class="text-text-base/80 text-sm mb-4">Verificerer din session...</p>
+			<p class="text-text-base/80 text-sm mb-4">Verifying your session...</p>
 			<div class="flex justify-center gap-1.5 mt-2">
 				<div
 					class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-bounce"
@@ -113,10 +113,10 @@
 				onclick={() => window.location.reload()}
 				class="mt-4 inline-block px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 transition-all font-medium text-sm cursor-pointer"
 			>
-				Prøv igen
+				Try again
 			</button>
 		{:else if isApproved}
-			<p class="text-emerald-400 text-sm mb-4">Overfører login-nøgler til din terminal...</p>
+			<p class="text-emerald-400 text-sm mb-4">Transferring login keys to your terminal...</p>
 			<div class="flex justify-center gap-1.5 mt-2">
 				<div
 					class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-bounce"
@@ -133,13 +133,13 @@
 			</div>
 		{:else}
 			<p class="text-text-base/80 text-sm mb-6 leading-relaxed">
-				CLI-værktøjet på din computer anmoder om adgang til dine krypterede data. Godkend kun, hvis
-				du startede denne anmodning fra din egen terminal.
+				The CLI tool on your computer is requesting access to your encrypted data. Only approve if
+				you initiated this request from your own terminal.
 			</p>
 
 			<div class="bg-bg-primary/50 border border-border-subtle/50 p-4 mb-6 rounded-none text-left">
 				<div class="text-xs text-text-muted uppercase tracking-wider mb-1 font-semibold">
-					Logget ind som
+					Logged in as
 				</div>
 				<div class="text-sm font-medium text-emerald-400 truncate">{session?.user?.email}</div>
 			</div>
@@ -149,14 +149,14 @@
 					onclick={handleApprove}
 					class="w-full py-3 px-4 bg-emerald-500 text-bg-primary font-bold hover:bg-emerald-400 transition-all duration-300 cursor-pointer text-sm shadow-[0_0_20px_rgba(16,185,129,0.2)]"
 				>
-					Godkend og giv adgang
+					Approve and Grant Access
 				</button>
 
 				<button
 					onclick={handleDeny}
 					class="w-full py-3 px-4 border border-border-subtle text-text-base hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/20 transition-all duration-300 cursor-pointer text-sm font-medium"
 				>
-					Afvis anmodning
+					Deny Request
 				</button>
 			</div>
 		{/if}

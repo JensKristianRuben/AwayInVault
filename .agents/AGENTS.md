@@ -6,6 +6,7 @@
   - Always ask for confirmation before making major code changes or refactorings.
   - Minor styling tweaks, layout corrections, and small bugs within the requested scope can be applied directly without asking.
   - Always ask for confirmation before running project build commands or terminal scripts (e.g. `npm run build`).
+  - Never modify, rewrite, or update any tests (unit, integration, or CLI tests) without explicit permission or requests from the user. Tests must remain strict guardrails. If a test fails, you must investigate and fix the implementation code rather than rewriting the test to fit the code.
 - **UI Styling**: When editing the UI, always use the shared Tailwind theme classes defined in [app.css](file:///C:/Users/Jensk/node-js-projects/login-form/src/app.css) (such as bg-bg-primary, bg-bg-sidebar, text-text-base, border-border-subtle, etc.) instead of hardcoding specific color values.
 - **Navigation & Routing**:
   - **One-Time Use Components**: For components that are built for single/specific use cases (such as the landing page, specific layouts, or dashboard headers), implement routing directly inside the component using SvelteKit's `goto` from `$app/navigation`.
@@ -32,3 +33,4 @@
   - Write all documentation (README files, code guides, comments) without using emojis.
   - Maintain a straightforward, professional, and dry developer tone, avoiding generic AI-like hype, conversational filler, or excessive formatting fluff.
   - Use the lowercase abbreviation `aiv` (representing AwayInVault) when referencing the application, vault, or CLI tool.
+  - Always use short dashes/hyphens (`-`) instead of long dashes (like em-dash `—` or en-dash `–`) in all text, comments, documentation, and user interfaces.

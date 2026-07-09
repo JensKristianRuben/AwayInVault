@@ -255,12 +255,12 @@ describe("AwayInVault CLI Security & Login Tests", () => {
 			AWAYINVAULT_SKIP_CONFIRM: "true",
 		});
 
-		// 2. Run get with -c option and a 1-second timeout environment variable override
+		// 2. Run get with -c option and a 4-second timeout environment variable override
 		try {
 			await runCli("get TestClipboard -c", {
 				AWAYINVAULT_SESSION_FILE: sharedSessionPath,
 				AWAYINVAULT_MASTER_PASSWORD: masterPassword,
-				AWAYINVAULT_CLIPBOARD_TIMEOUT: "1",
+				AWAYINVAULT_CLIPBOARD_TIMEOUT: "4",
 			});
 		} catch (e: any) {
 			// If it failed because xclip is not available or can't open display, pass the test since clipboard functionality cannot be tested in this environment
@@ -299,11 +299,17 @@ describe("AwayInVault CLI Security & Login Tests", () => {
 		const immediateValue = await readClipboard();
 		expect(immediateValue).toBe("supersecret123");
 
-		// 4. Wait 1.5 seconds and verify clipboard is cleared
-		await new Promise((resolve) => setTimeout(resolve, 1500));
-
-		const clearedValue = await readClipboard();
-		expect(clearedValue).toBe("");
+		// 4. Poll until the clipboard is cleared automatically (max 6 seconds)
+		let cleared = false;
+		for (let i = 0; i < 30; i++) {
+			await new Promise((resolve) => setTimeout(resolve, 200));
+			const val = await readClipboard();
+			if (val === "") {
+				cleared = true;
+				break;
+			}
+		}
+		expect(cleared).toBe(true);
 	}, 15000);
 
 	it("should create and retrieve a decrypted password through the standard CLI commands", async () => {

@@ -33,7 +33,7 @@
 	});
 
 	onMount(() => {
-		// Lyt efter logout/sessionsudløb og ryd nøglen med det samme
+		// Listen for logout/session expiry and clear the key immediately
 		const {
 			data: { subscription },
 		} = supabase.auth.onAuthStateChange((event) => {
@@ -44,12 +44,12 @@
 		});
 
 		async function initSession() {
-			// 1. Tjek om vi allerede har en aktiv nøgle i vores in-memory store
+			// 1. Check if we already have an active key in our in-memory store
 			if (cryptoSession.cryptoKey) {
 				return;
 			}
 
-			// 2. Hent den aktuelle bruger
+			// 2. Fetch the current user
 			const {
 				data: { user },
 			} = await supabase.auth.getUser();
@@ -57,7 +57,7 @@
 
 			userMetadata = user.user_metadata;
 
-			// Synkroniser tema fra Supabase metadata hvis gemt
+			// Sync theme from Supabase metadata if saved
 			const dbTheme = userMetadata?.theme;
 			if (dbTheme) {
 				localStorage.setItem("theme", dbTheme);
@@ -68,21 +68,21 @@
 				}
 			}
 
-			// 3. Tjek om biometri er aktiveret enten lokalt (IndexedDB) eller i databasen
+			// 3. Check if biometrics is enabled either locally (IndexedDB) or in the database
 			const credentials = await getBiometricCredentials();
 			const hasLocalBiometrics = !!credentials;
 			const hasDbBiometrics = (userMetadata?.biometric_credentials || []).length > 0;
 			if (hasLocalBiometrics || hasDbBiometrics) {
-				return; // Hvis biometri er aktiveret, blokerer vi ikke siden ved opstart
+				return; // If biometrics is enabled, we do not block the page on startup
 			}
 
-			// 4. Tjek om brugeren har sat et Master Password før (salt og verifier gemt i metadata)
+			// 4. Check if the user has set a Master Password before (salt and verifier saved in metadata)
 			if (!userMetadata?.salt || !userMetadata?.verifier_ciphertext) {
 				isNewUser = true;
-				showModal = true; // Ny bruger skal oprette master password
+				showModal = true; // New user must create master password
 			} else {
 				isNewUser = false;
-				showModal = false; // Eksisterende brugere uden biometri blokeres ikke ved opstart
+				showModal = false; // Existing users without biometrics are not blocked on startup
 			}
 		}
 
@@ -244,7 +244,7 @@
 				<span
 					class="ml-4 text-sm font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300"
 				>
-					Log ud
+					Log out
 				</span>
 			</button>
 		</form>
@@ -254,7 +254,7 @@
 <!-- Mobile Floating Burger Menu Button -->
 <button
 	onclick={() => (isMobileMenuOpen = true)}
-	class="md:hidden fixed top-4 right-4 z-40 p-3 bg-bg-sidebar border border-border-subtle rounded-full shadow-lg text-text-muted hover:text-text-base focus:outline-none cursor-pointer"
+	class="md:hidden fixed top-4 right-4 z-40 p-2 bg-transparent text-text-muted hover:text-text-base focus:outline-none cursor-pointer"
 	aria-label="Open menu"
 >
 	<svg
@@ -416,14 +416,14 @@
 							<line x1="21" x2="9" y1="12" y2="12" />
 						</svg>
 					</div>
-					<span class="ml-4 text-lg font-medium text-text-base">Log ud</span>
+					<span class="ml-4 text-lg font-medium text-text-base">Log out</span>
 				</button>
 			</form>
 		</div>
 	</div>
 {/if}
 
-<main class="ml-0 md:ml-16 min-h-screen w-full bg-bg-primary">
+<main class="ml-0 md:ml-16 min-h-screen bg-bg-primary">
 	{@render children()}
 </main>
 

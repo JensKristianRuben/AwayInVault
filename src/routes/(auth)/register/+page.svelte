@@ -1,3 +1,3 @@
 <script lang="ts">
-	// Siden er tom da indholdet nu styres i det fælles layout.
+	// The page is empty as the content is now controlled in the shared layout.
 </script>

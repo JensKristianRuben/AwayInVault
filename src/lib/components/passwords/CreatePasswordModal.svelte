@@ -54,18 +54,18 @@
 		}
 		passwordInput = generated;
 		showPassword = true;
-		toast.success("Stærk adgangskode genereret!");
+		toast.success("Strong password generated!");
 	}
 
 	async function handleSubmit(e: SubmitEvent) {
 		e.preventDefault();
 
 		if (!titleInput.trim()) {
-			toast.error("Titel er påkrævet.");
+			toast.error("Title is required.");
 			return;
 		}
 		if (!passwordInput) {
-			toast.error("Adgangskode er påkrævet.");
+			toast.error("Password is required.");
 			return;
 		}
 
@@ -75,7 +75,7 @@
 				data: { user },
 			} = await supabase.auth.getUser();
 			if (!user) {
-				toast.error("Session udløbet. Log ind igen.");
+				toast.error("Session expired. Please log in again.");
 				isSaving = false;
 				return;
 			}
@@ -83,19 +83,19 @@
 			let key = cryptoSession.cryptoKey;
 			if (!key) {
 				if (hasBiometrics) {
-					toast.info("Verificer din biometri for at kryptere og gemme...");
+					toast.info("Verify your biometrics to encrypt and save...");
 					key = await getBiometricMasterKey(user.user_metadata);
 				}
 
 				if (!key) {
 					if (!confirmMasterPassword) {
-						toast.error("Indtast venligst dit Master Password for at bekræfte.");
+						toast.error("Please enter your Master Password to verify.");
 						isSaving = false;
 						return;
 					}
 					key = await verifyMasterPassword(confirmMasterPassword, user.user_metadata);
 					if (!key) {
-						toast.error("Forkert Master Password.");
+						toast.error("Incorrect Master Password.");
 						isSaving = false;
 						return;
 					}
@@ -118,11 +118,11 @@
 
 			if (error) throw error;
 
-			toast.success("Kode tilføjet og krypteret!");
+			toast.success("Credentials added and encrypted!");
 			onSuccess();
 		} catch (err: any) {
-			console.error("Fejl ved oprettelse:", err);
-			toast.error("Kunne ikke gemme koden: " + err.message);
+			console.error("Error during creation:", err);
+			toast.error("Could not save credentials: " + err.message);
 		} finally {
 			isSaving = false;
 		}
@@ -153,12 +153,12 @@
 					<circle cx="12" cy="16" r="1.5" />
 					<path d="M12 17.5V20" />
 				</svg>
-				Tilføj Nyt Element
+				Add New Item
 			</h2>
 			<button
 				onclick={onClose}
 				class="text-text-muted hover:text-text-base p-1.5 transition-colors cursor-pointer"
-				aria-label="Luk"
+				aria-label="Close"
 			>
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
@@ -184,12 +184,12 @@
 					for="modal-title"
 					class="text-[10px] font-semibold uppercase tracking-widest text-text-muted ml-1"
 				>
-					Titel / Tjeneste *
+					Title / Service *
 				</label>
 				<input
 					id="modal-title"
 					type="text"
-					placeholder="F.eks. Google, Github, Netflix"
+					placeholder="E.g. Google, GitHub, Netflix"
 					bind:value={titleInput}
 					required
 					disabled={isSaving}
@@ -253,12 +253,12 @@
 					for="modal-username"
 					class="text-[10px] font-semibold uppercase tracking-widest text-text-muted ml-1"
 				>
-					Brugernavn / E-mail
+					Username / Email
 				</label>
 				<input
 					id="modal-username"
 					type="text"
-					placeholder="navn@eksempel.dk"
+					placeholder="name@example.com"
 					bind:value={usernameInput}
 					disabled={isSaving}
 					class="w-full px-4 py-3 rounded-none bg-bg-primary border border-border-subtle text-text-base text-sm focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/10 transition-all placeholder:text-text-base/20"
@@ -272,7 +272,7 @@
 						for="modal-password"
 						class="text-[10px] font-semibold uppercase tracking-widest text-text-muted"
 					>
-						Adgangskode *
+						Password *
 					</label>
 					<button
 						type="button"
@@ -280,14 +280,14 @@
 						disabled={isSaving}
 						class="text-[10px] text-accent hover:underline focus:outline-none cursor-pointer disabled:opacity-50"
 					>
-						Generer kode
+						Generate password
 					</button>
 				</div>
 				<div class="relative">
 					<input
 						id="modal-password"
 						type={showPassword ? "text" : "password"}
-						placeholder="Indtast adgangskode"
+						placeholder="Enter password"
 						bind:value={passwordInput}
 						required
 						disabled={isSaving}
@@ -298,7 +298,7 @@
 						onclick={() => (showPassword = !showPassword)}
 						disabled={isSaving}
 						class="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-base transition-colors cursor-pointer disabled:opacity-50"
-						aria-label="Vis adgangskode"
+						aria-label="Show password"
 					>
 						{#if showPassword}
 							<!-- Eye off -->
@@ -348,14 +348,14 @@
 						for="modal-confirm-master-password"
 						class="text-[10px] font-semibold uppercase tracking-widest text-text-muted ml-1"
 					>
-						Bekræft med Master Password
+						Confirm with Master Password
 					</label>
 					<input
 						id="modal-confirm-master-password"
 						type="password"
 						placeholder={hasBiometrics
-							? "Indtast Master Password (valgfrit hvis biometri bruges)"
-							: "Indtast Master Password for at kryptere"}
+							? "Enter Master Password (optional if biometrics is used)"
+							: "Enter Master Password to encrypt"}
 						bind:value={confirmMasterPassword}
 						required={!hasBiometrics}
 						disabled={isSaving}
@@ -372,7 +372,7 @@
 					disabled={isSaving}
 					class="w-1/2 py-3 px-4 border border-border-subtle text-text-muted font-semibold rounded-none hover:text-text-base hover:border-text-base/30 transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed text-sm"
 				>
-					Annuller
+					Cancel
 				</button>
 				<button
 					type="submit"
@@ -380,9 +380,9 @@
 					class="w-1/2 py-3 px-4 border-2 border-accent text-accent font-semibold rounded-none hover:bg-accent hover:text-bg-sidebar transition-all duration-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center justify-center gap-2"
 				>
 					{#if isSaving}
-						Gemmer...
+						Saving...
 					{:else}
-						Krypter & Gem
+						Encrypt & Save
 					{/if}
 				</button>
 			</div>

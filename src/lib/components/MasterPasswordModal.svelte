@@ -45,14 +45,14 @@
 			if (key) {
 				const salt = userMetadata.salt;
 				cryptoSession.setSession(key, salt);
-				toast.success("Boksen er låst op med biometri!");
+				toast.success("The vault has been unlocked using biometrics!");
 				onSuccess();
 			} else {
-				throw new Error("Biometrisk login mislykkedes.");
+				throw new Error("Biometric login failed.");
 			}
 		} catch (err: any) {
 			console.error(err);
-			errorMessage = err.message || "Biometrisk login mislykkedes.";
+			errorMessage = err.message || "Biometric login failed.";
 		} finally {
 			isProcessing = false;
 		}
@@ -66,7 +66,7 @@
 		try {
 			if (isNewUser) {
 				if (masterPasswordInput !== confirmPasswordInput) {
-					errorMessage = "Adgangskoderne er ikke ens";
+					errorMessage = "Passwords do not match";
 					isProcessing = false;
 					return;
 				}
@@ -94,7 +94,7 @@
 
 				masterPasswordInput = "";
 				confirmPasswordInput = "";
-				toast.success("Masterpassword Oprettet");
+				toast.success("Master password created");
 				onSuccess();
 			} else {
 				const salt = userMetadata.salt;
@@ -107,15 +107,15 @@
 				if (decryptedKey === "vaulten-er-lukket-og-du-kan-ikke-komme-ind-uden-masterpassword") {
 					cryptoSession.setSession(key, salt);
 					masterPasswordInput = "";
-					toast.success("Boksen er klar!");
+					toast.success("The vault is ready!");
 					onSuccess();
 				} else {
-					throw new Error("Fejl under validering af nøglen");
+					throw new Error("Error validating the key");
 				}
 			}
 		} catch (err) {
 			console.error(err);
-			errorMessage = isNewUser ? "Fejl under oprettelse." : "Forkert Master Password.";
+			errorMessage = isNewUser ? "Error during creation." : "Incorrect Master Password.";
 		} finally {
 			isProcessing = false;
 		}
@@ -170,12 +170,12 @@
 			</div>
 
 			<h2 class="text-xl font-semibold tracking-tight text-text-base">
-				{isNewUser ? "Opret Master Password" : "Lås din Vault op"}
+				{isNewUser ? "Create Master Password" : "Unlock Your Vault"}
 			</h2>
 			<p class="text-text-muted text-xs font-light mt-2 max-w-sm">
 				{isNewUser
-					? "Dette password bruges til at kryptere dine data lokalt i browseren. Vi gemmer det aldrig på serveren, og det kan ikke genskabes!"
-					: "Indtast dit Master Password for at generere din private krypteringsnøgle og hente dine koder."}
+					? "This password is used to encrypt your data locally in the browser. We never store it on the server, and it cannot be recovered!"
+					: "Enter your Master Password to generate your private encryption key and retrieve your passwords."}
 			</p>
 		</div>
 
@@ -207,7 +207,7 @@
 				</button>
 				<div class="flex items-center my-4">
 					<div class="flex-grow border-t border-border-subtle/50"></div>
-					<span class="px-3 text-[10px] text-text-muted uppercase tracking-widest">eller</span>
+					<span class="px-3 text-[10px] text-text-muted uppercase tracking-widest">or</span>
 					<div class="flex-grow border-t border-border-subtle/50"></div>
 				</div>
 			</div>
@@ -227,7 +227,7 @@
 					<input
 						id="master-password"
 						type={showPassword ? "text" : "password"}
-						placeholder="Indtast adgangskode"
+						placeholder="Enter password"
 						bind:value={masterPasswordInput}
 						required
 						disabled={isProcessing}
@@ -287,13 +287,13 @@
 						for="confirm-password"
 						class="text-[10px] font-semibold uppercase tracking-widest text-text-muted ml-1"
 					>
-						Bekræft Password
+						Confirm Password
 					</label>
 					<div class="relative">
 						<input
 							id="confirm-password"
 							type={showConfirmPassword ? "text" : "password"}
-							placeholder="Gentag adgangskode"
+							placeholder="Repeat password"
 							bind:value={confirmPasswordInput}
 							required
 							disabled={isProcessing}
@@ -373,7 +373,7 @@
 				</div>
 			{/if}
 
-			<!-- Højteknologisk progress loader når vi afleder nøgler -->
+			<!-- High-tech progress loader when deriving keys -->
 			{#if isProcessing}
 				<div
 					class="text-xs text-accent bg-accent/5 border border-accent/10 p-3 flex flex-col gap-2"
@@ -400,9 +400,9 @@
 								d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
 							></path>
 						</svg>
-						<span class="font-medium">Afleder krypteringsnøgle...</span>
+						<span class="font-medium">Deriving encryption key...</span>
 					</div>
-					<div class="text-[10px] text-text-muted">Kører 600.000 PBKDF2-iterationer (SHA-256)</div>
+					<div class="text-[10px] text-text-muted">Running 600,000 PBKDF2 iterations (SHA-256)</div>
 				</div>
 			{/if}
 
@@ -413,9 +413,9 @@
 				class="w-full py-3 px-4 border-2 border-accent text-accent font-semibold rounded-none hover:bg-accent hover:text-bg-sidebar transition-all duration-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center justify-center gap-2"
 			>
 				{#if isProcessing}
-					Vent venligst...
+					Please wait...
 				{:else}
-					{isNewUser ? "Opret og Lås op" : "Lås Vault op"}
+					{isNewUser ? "Create and Unlock" : "Unlock Vault"}
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
 						viewBox="0 0 24 24"

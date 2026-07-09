@@ -27,13 +27,13 @@
 	let cycleTimer: any = null;
 
 	function runCycle() {
-		// Ryd eksisterende timer for at undgå dobbelte cyklusser
+		// Clear existing timer to avoid double cycles
 		if (cycleTimer) {
 			clearTimeout(cycleTimer);
 			cycleTimer = null;
 		}
 
-		// Timeren skal kun køre i mobil-visning
+		// The timer should only run in mobile view
 		if (!isMobile) {
 			return;
 		}
@@ -68,13 +68,13 @@
 			isMobile = window.matchMedia("(pointer: coarse)").matches || window.innerWidth < 768;
 
 			if (isMobile) {
-				// Hvis vi skifter til mobil, eller timeren ikke kører, starter vi cyklussen
+				// If we switch to mobile, or the timer is not running, we start the cycle
 				if (!wasMobile || !cycleTimer) {
 					simMode = defaultMode;
 					runCycle();
 				}
 			} else {
-				// På desktop/laptop fjerner vi timeren og nulstiller til standard flocking
+				// On desktop/laptop we remove the timer and reset to standard flocking
 				if (cycleTimer) {
 					clearTimeout(cycleTimer);
 					cycleTimer = null;
@@ -97,13 +97,13 @@
 <main>
 	<!-- Hero sektion med partikler og logo -->
 	<div class="hero-section">
-		<!-- Blød grøn glød centreret bag logoet -->
+		<!-- Soft green glow centered behind the logo -->
 		<div class="logo-glow"></div>
 
-		<!-- Partikelsimulationen i baggrunden (med tovejs-binding) -->
+		<!-- The particle simulation in the background (with two-way binding) -->
 		<BoidsSimulation mode={simMode} bind:textAssembled={assemblyComplete} {logoElement} />
 
-		<!-- Diskret, professionel notifikation i toppen -->
+		<!-- Discreet, professional notification at the top -->
 		{#if showAlert}
 			<div class="toast-notification" transition:fly={{ y: -30, duration: 300 }}>
 				<div class="toast-content">
@@ -113,10 +113,10 @@
 			</div>
 		{/if}
 
-		<!-- Centreret, ultra-minimalistisk UI Overlay -->
+		<!-- Centered, ultra-minimalistic UI Overlay -->
 		<div class="ui-overlay">
 			<div class="center-content" in:fade={{ duration: 400, delay: 200 }}>
-				<!-- Større, centreret brand logo -->
+				<!-- Larger, centered brand logo -->
 				<h1 bind:this={logoElement} class="brand-logo" class:hovered-key={simMode === "key"}>
 					AWAYINVAULT
 				</h1>
@@ -152,11 +152,11 @@
 			</div>
 		</div>
 
-		<!-- Diskret pil der peger nedad for at indikere mere indhold -->
+		<!-- Discreet arrow pointing downwards to indicate more content -->
 		<button
 			class="scroll-indicator"
 			onclick={scrollToContent}
-			aria-label="Rul ned for at læse mere"
+			aria-label="Scroll down to read more"
 			in:fade={{ duration: 300, delay: 600 }}
 		>
 			<svg
@@ -183,8 +183,8 @@
 
 				<h2 class="page-title">Zero-Knowledge</h2>
 				<p class="page-subtitle">
-					Dine data krypteres på din enhed, før de overhovedet forlader browseren. Vi kender aldrig
-					din hovedadgangskode.
+					Your data is encrypted on your device before it even leaves the browser. We never know
+					your master password.
 				</p>
 			</div>
 
@@ -212,7 +212,7 @@
 						<span class="text-cipher">x8B!9z#mQ2</span>
 					</div>
 
-					<!-- Hovednøgle (Krypterer kun lokalt, sendes ikke) -->
+					<!-- Master key (Encrypts locally only, never sent) -->
 					<div class="zk-key-overlay">
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -231,11 +231,11 @@
 					</div>
 				</div>
 
-				<!-- Sikker Forbindelseslinje -->
+				<!-- Secure Connection Line -->
 				<div class="zk-connector">
 					<div class="zk-line"></div>
 					<div class="zk-packet">
-						<!-- Krypteret datapakke symbol -->
+						<!-- Encrypted data packet symbol -->
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							viewBox="0 0 24 24"
@@ -251,7 +251,7 @@
 						</svg>
 					</div>
 
-					<!-- Sikkerhedsskjold som barriere i midten -->
+					<!-- Security shield as barrier in the middle -->
 					<div class="zk-shield-barrier">
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -268,7 +268,7 @@
 					</div>
 				</div>
 
-				<!-- Node 2: Krypteret Server Sky -->
+				<!-- Node 2: Encrypted Server Cloud -->
 				<div class="zk-node zk-server">
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -283,7 +283,7 @@
 						<path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z" />
 					</svg>
 
-					<!-- Database Hængelås -->
+					<!-- Database Padlock -->
 					<div class="zk-vault-status">
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -304,25 +304,69 @@
 		</div>
 	</section>
 
-	<!-- Biometrisk Login Sektion (Full View) -->
+	<!-- Biometric Login Section (Full View) -->
 	<section class="feature-page biometric-section">
 		<div class="container page-container">
-			<h2 class="page-title">Biometrisk login</h2>
+			<div class="biometric-title-wrapper">
+				<h2 class="page-title">Biometric Login</h2>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					fill="currentColor"
+					class="biometric-title-icon"
+					viewBox="0 0 16 16"
+				>
+					<path
+						d="M8.06 6.5a.5.5 0 0 1 .5.5v.776a11.5 11.5 0 0 1-.552 3.519l-1.331 4.14a.5.5 0 0 1-.952-.305l1.33-4.141a10.5 10.5 0 0 0 .504-3.213V7a.5.5 0 0 1 .5-.5Z"
+					/>
+					<path
+						d="M6.06 7a2 2 0 1 1 4 0 .5.5 0 1 1-1 0 1 1 0 1 0-2 0v.332q0 .613-.066 1.221A.5.5 0 0 1 6 8.447q.06-.555.06-1.115zm3.509 1a.5.5 0 0 1 .487.513 11.5 11.5 0 0 1-.587 3.339l-1.266 3.8a.5.5 0 0 1-.949-.317l1.267-3.8a10.5 10.5 0 0 0 .535-3.048A.5.5 0 0 1 9.569 8m-3.356 2.115a.5.5 0 0 1 .33.626L5.24 14.939a.5.5 0 1 1-.955-.296l1.303-4.199a.5.5 0 0 1 .625-.329"
+					/>
+					<path
+						d="M4.759 5.833A3.501 3.501 0 0 1 11.559 7a.5.5 0 0 1-1 0 2.5 2.5 0 0 0-4.857-.833.5.5 0 1 1-.943-.334m.3 1.67a.5.5 0 0 1 .449.546 10.7 10.7 0 0 1-.4 2.031l-1.222 4.072a.5.5 0 1 1-.958-.287L4.15 9.793a9.7 9.7 0 0 0 .363-1.842.5.5 0 0 1 .546-.449Zm6 .647a.5.5 0 0 1 .5.5c0 1.28-.213 2.552-.632 3.762l-1.09 3.145a.5.5 0 0 1-.944-.327l1.089-3.145c.382-1.105.578-2.266.578-3.435a.5.5 0 0 1 .5-.5Z"
+					/>
+					<path
+						d="M3.902 4.222a5 5 0 0 1 5.202-2.113.5.5 0 0 1-.208.979 4 4 0 0 0-4.163 1.69.5.5 0 0 1-.831-.556m6.72-.955a.5.5 0 0 1 .705-.052A4.99 4.99 0 0 1 13.059 7v1.5a.5.5 0 1 1-1 0V7a3.99 3.99 0 0 0-1.386-3.028.5.5 0 0 1-.051-.705M3.68 5.842a.5.5 0 0 1 .422.568q-.044.289-.044.59c0 .71-.1 1.417-.298 2.1l-1.14 3.923a.5.5 0 1 1-.96-.279L2.8 8.821A6.5 6.5 0 0 0 3.058 7q0-.375.054-.736a.5.5 0 0 1 .568-.422m8.882 3.66a.5.5 0 0 1 .456.54c-.084 1-.298 1.986-.64 2.934l-.744 2.068a.5.5 0 0 1-.941-.338l.745-2.07a10.5 10.5 0 0 0 .584-2.678.5.5 0 0 1 .54-.456"
+					/>
+					<path
+						d="M4.81 1.37A6.5 6.5 0 0 1 14.56 7a.5.5 0 1 1-1 0 5.5 5.5 0 0 0-8.25-4.765.5.5 0 0 1-.5-.865m-.89 1.257a.5.5 0 0 1 .04.706A5.48 5.48 0 0 0 2.56 7a.5.5 0 0 1-1 0c0-1.664.626-3.184 1.655-4.333a.5.5 0 0 1 .706-.04ZM1.915 8.02a.5.5 0 0 1 .346.616l-.779 2.767a.5.5 0 1 1-.962-.27l.778-2.767a.5.5 0 0 1 .617-.346m12.15.481a.5.5 0 0 1 .49.51c-.03 1.499-.161 3.025-.727 4.533l-.07.187a.5.5 0 0 1-.936-.351l.07-.187c.506-1.35.634-2.74.663-4.202a.5.5 0 0 1 .51-.49"
+					/>
+				</svg>
+			</div>
 			<p class="page-subtitle">
-				Hurtig og sikker adgang med Windows Hello, FaceID eller fingeraftryk direkte fra alle dine
-				enheder.
+				Fast and secure access with Windows Hello, FaceID, or fingerprint directly from all your
+				devices.
 			</p>
 		</div>
 	</section>
 
-	<!-- Auto-synkronisering Sektion (Full View) -->
+	<!-- Auto-Sync Section (Full View) -->
 	<section class="feature-page sync-section">
 		<div class="container page-container">
-			<h2 class="page-title">Auto-synkronisering</h2>
+			<div class="sync-title-wrapper">
+				<h2 class="page-title">Auto-Sync</h2>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					class="sync-title-icon"
+				>
+					<path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+					<path d="M3 3v5h5" />
+					<path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
+					<path d="M16 16h5v5" />
+				</svg>
+			</div>
 			<p class="page-subtitle">
-				Gem en adgangskode ét sted, og få den synkroniseret øjeblikkeligt til alle dine enheder
-				under fuld kryptering.
+				Save a password in one place, access it anywhere. Honestly, we didn't invent cross-device
+				magic - that's just the World Wide Web doing what it does best.
 			</p>
+			<div>
+				<a href="/how-it-works" class="read-more-link"> Read more </a>
+			</div>
 		</div>
 	</section>
 </main>
@@ -365,7 +409,7 @@
 		width: 320px;
 		height: 320px;
 		background-color: var(--color-accent);
-		opacity: 0.045; /* Meget svag og professionel glød */
+		opacity: 0.045; /* Very faint and professional glow */
 		filter: blur(100px);
 		pointer-events: none;
 		z-index: 1;
@@ -382,7 +426,7 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		pointer-events: none; /* Lad musen gå igennem til partiklerne */
+		pointer-events: none; /* Let the mouse pass through to the particles */
 		padding: 24px;
 		box-sizing: border-box;
 	}
@@ -393,22 +437,22 @@
 		flex-direction: column;
 		align-items: center;
 		text-align: center;
-		pointer-events: auto; /* Aktivér klik på elementer */
+		pointer-events: auto; /* Enable click on elements */
 		transform: translateY(
 			-8vh
-		); /* Trækker elementerne op for at give plads til formationer i bunden/midten */
+		); /* Pulls elements up to make space for formations at the bottom/middle */
 	}
 
 	.brand-logo {
-		font-size: 40px; /* Større brand overskrift */
+		font-size: 40px; /* Larger brand heading */
 		font-weight: 700;
 		letter-spacing: 6px;
-		color: #ffffff;
+		color: var(--color-text-base);
 		margin: 0 0 28px 0;
 		transition:
 			color 0.5s ease,
 			opacity 0.5s ease;
-		background: linear-gradient(to right, #ffffff, #ffffff);
+		background: linear-gradient(to right, var(--color-text-base), var(--color-accent));
 		-webkit-background-clip: text;
 		-webkit-text-fill-color: transparent;
 	}
@@ -450,18 +494,18 @@
 	}
 
 	.btn-secondary {
-		background: rgba(255, 255, 255, 0.03);
-		color: #ffffff;
-		border: 1px solid rgba(255, 255, 255, 0.12);
+		background: var(--color-bg-sidebar);
+		color: var(--color-text-base);
+		border: 1px solid var(--color-border-subtle);
 	}
 
 	.btn-secondary:hover {
-		background: rgba(255, 255, 255, 0.08);
-		border-color: rgba(255, 255, 255, 0.25);
+		background: var(--color-border-subtle);
+		border-color: var(--color-text-muted);
 		transform: translateY(-1px);
 	}
 
-	/* Rulle-indikator (pil ned) */
+	/* Scroll indicator (arrow down) */
 	.scroll-indicator {
 		position: absolute;
 		bottom: 30px;
@@ -490,7 +534,7 @@
 	.scroll-arrow {
 		width: 26px;
 		height: 26px;
-		color: #ffffff;
+		color: var(--color-text-base);
 		animation: scroll-indicator-bounce 2s infinite ease-in-out;
 	}
 
@@ -511,11 +555,11 @@
 		left: 50%;
 		transform: translateX(-50%);
 		z-index: 10;
-		background: rgba(20, 26, 23, 0.85);
-		border: 1px solid rgba(16, 185, 129, 0.4);
+		background: var(--color-bg-sidebar);
+		border: 1px solid var(--color-accent);
 		border-radius: 6px;
 		padding: 8px 18px;
-		box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
+		box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
 		pointer-events: none;
 	}
 
@@ -537,7 +581,7 @@
 		margin: 0;
 		font-size: 11px;
 		font-weight: 500;
-		color: #ffffff;
+		color: var(--color-text-base);
 		letter-spacing: 0.2px;
 	}
 
@@ -598,14 +642,14 @@
 		font-weight: 700;
 		letter-spacing: -1px;
 		margin: 0 0 10px 0;
-		background: linear-gradient(135deg, #ffffff 0%, #a7f3d0 100%);
+		background: linear-gradient(135deg, var(--color-text-base) 0%, var(--color-accent) 100%);
 		-webkit-background-clip: text;
 		-webkit-text-fill-color: transparent;
 	}
 
 	.page-subtitle {
 		font-size: 17px;
-		color: #9ca3af;
+		color: var(--color-text-muted);
 		max-width: 650px;
 		margin: 0 auto;
 		line-height: 1.6;
@@ -638,7 +682,7 @@
 	.node-icon {
 		width: 44px;
 		height: 44px;
-		color: #d1d5db;
+		color: var(--color-text-muted);
 		transition: color 0.5s ease;
 	}
 
@@ -690,7 +734,7 @@
 	}
 
 	.text-plain {
-		color: #ffffff;
+		color: var(--color-text-base);
 		animation: zk-text-plain 6s infinite ease-in-out;
 	}
 
@@ -717,7 +761,7 @@
 		right: 0;
 		height: 2px;
 		width: 100%;
-		background: rgba(255, 255, 255, 0.1);
+		background: var(--color-border-subtle);
 		animation: zk-line-glow 6s infinite ease-in-out;
 	}
 
@@ -750,7 +794,7 @@
 		background: var(--color-bg-main);
 		padding: 5px;
 		border-radius: 50%;
-		border: 1px solid rgba(255, 255, 255, 0.15);
+		border: 1px solid var(--color-border-subtle);
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -758,14 +802,13 @@
 		height: 28px;
 		box-sizing: border-box;
 		animation: zk-shield-glow 6s infinite ease-in-out;
-		color: #ffffff;
+		color: var(--color-text-base);
 	}
 
 	.barrier-icon {
 		width: 14px;
 		height: 14px;
 		color: inherit;
-		filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.15));
 	}
 
 	/* Cloud Vault Status */
@@ -779,7 +822,7 @@
 	.lock-icon {
 		width: 100%;
 		height: 100%;
-		color: #d1d5db;
+		color: var(--color-text-muted);
 		animation: zk-lock-glow 6s infinite ease-in-out;
 	}
 
@@ -799,7 +842,7 @@
 		}
 		48%,
 		94% {
-			color: #d1d5db;
+			color: var(--color-text-muted);
 			filter: none;
 		}
 		100% {
@@ -812,7 +855,7 @@
 	@keyframes zk-server-icon-glow {
 		0%,
 		73% {
-			color: #d1d5db;
+			color: var(--color-text-muted);
 			filter: none;
 		}
 		77%,
@@ -822,7 +865,7 @@
 		}
 		96%,
 		100% {
-			color: #d1d5db;
+			color: var(--color-text-muted);
 			filter: none;
 		}
 	}
@@ -831,14 +874,12 @@
 	@keyframes zk-key-pulse-drop {
 		0% {
 			opacity: 1;
-			color: #ffffff;
-			filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.15));
+			color: var(--color-text-base);
 			transform: translateY(0) scale(1);
 		}
 		18% {
 			opacity: 1;
-			color: #ffffff;
-			filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.15));
+			color: var(--color-text-base);
 			transform: translateY(-2px) scale(1);
 		}
 		25% {
@@ -863,14 +904,12 @@
 		}
 		96% {
 			opacity: 1;
-			color: #ffffff;
-			filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.15));
+			color: var(--color-text-base);
 			transform: translateY(0) scale(1);
 		}
 		100% {
 			opacity: 1;
-			color: #ffffff;
-			filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.15));
+			color: var(--color-text-base);
 			transform: translateY(0) scale(1);
 		}
 	}
@@ -995,7 +1034,7 @@
 	@keyframes zk-line-glow {
 		0%,
 		42% {
-			background: rgba(255, 255, 255, 0.1);
+			background: var(--color-border-subtle);
 			box-shadow: none;
 		}
 		45% {
@@ -1010,7 +1049,7 @@
 		}
 		80%,
 		100% {
-			background: rgba(255, 255, 255, 0.1);
+			background: var(--color-border-subtle);
 			box-shadow: none;
 		}
 	}
@@ -1019,11 +1058,11 @@
 	@keyframes zk-shield-glow {
 		0%,
 		52% {
-			border-color: rgba(255, 255, 255, 0.15);
+			border-color: var(--color-border-subtle);
 			background: var(--color-bg-main);
 			box-shadow: none;
 			transform: scale(1);
-			color: #ffffff;
+			color: var(--color-text-base);
 		}
 		58% {
 			border-color: var(--color-brand-400);
@@ -1033,18 +1072,18 @@
 			color: var(--color-accent);
 		}
 		64% {
-			border-color: rgba(255, 255, 255, 0.15);
+			border-color: var(--color-border-subtle);
 			background: var(--color-bg-main);
 			box-shadow: none;
 			transform: scale(1);
-			color: #ffffff;
+			color: var(--color-text-base);
 		}
 		100% {
-			border-color: rgba(255, 255, 255, 0.15);
+			border-color: var(--color-border-subtle);
 			background: var(--color-bg-main);
 			box-shadow: none;
 			transform: scale(1);
-			color: #ffffff;
+			color: var(--color-text-base);
 		}
 	}
 
@@ -1052,7 +1091,7 @@
 	@keyframes zk-lock-glow {
 		0%,
 		73% {
-			color: #d1d5db;
+			color: var(--color-text-muted);
 			filter: none;
 		}
 		77%,
@@ -1062,7 +1101,7 @@
 		}
 		96%,
 		100% {
-			color: #d1d5db;
+			color: var(--color-text-muted);
 			filter: none;
 		}
 	}
@@ -1107,7 +1146,7 @@
 			left: 50%;
 			right: auto;
 			transform: translateX(-50%);
-			background: rgba(255, 255, 255, 0.1);
+			background: var(--color-border-subtle);
 			animation: zk-line-glow 6s infinite ease-in-out;
 		}
 
@@ -1124,5 +1163,65 @@
 			transform: translate(-50%, -50%);
 			animation: zk-shield-glow 6s infinite ease-in-out;
 		}
+	}
+
+	.biometric-title-wrapper {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 16px;
+		margin: 0 auto;
+	}
+
+	.biometric-title-icon {
+		width: 38px;
+		height: 38px;
+		color: var(--color-accent);
+		filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.3));
+		flex-shrink: 0;
+		transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+	}
+
+	.biometric-title-icon:hover {
+		transform: scale(1.1);
+		filter: drop-shadow(0 0 12px rgba(16, 185, 129, 0.6));
+	}
+
+	.sync-title-wrapper {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 16px;
+		margin: 0 auto;
+	}
+
+	.sync-title-icon {
+		width: 38px;
+		height: 38px;
+		color: var(--color-accent);
+		filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.3));
+		flex-shrink: 0;
+		transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+	}
+
+	.sync-title-icon:hover {
+		transform: scale(1.1) rotate(180deg);
+		filter: drop-shadow(0 0 12px rgba(16, 185, 129, 0.6));
+	}
+
+	.read-more-link {
+		font-size: 20px;
+		color: var(--color-accent);
+		text-decoration: none;
+		transition:
+			color 0.2s ease,
+			filter 0.2s ease;
+		display: inline-block;
+		margin-top: 16px;
+	}
+
+	.read-more-link:hover {
+		text-decoration: underline;
+		filter: brightness(1.1);
 	}
 </style>

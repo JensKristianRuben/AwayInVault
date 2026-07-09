@@ -21,7 +21,7 @@
 	function copyText(text: string, label: string) {
 		if (!text) return;
 		navigator.clipboard.writeText(text);
-		toast.success(`${label} kopieret til udklipsholder!`);
+		toast.success(`${label} copied to clipboard!`);
 	}
 
 	async function handleAction(action: "show" | "copy_username" | "copy_password") {
@@ -34,9 +34,9 @@
 			if (action === "show") {
 				isPasswordVisible = !isPasswordVisible;
 			} else if (action === "copy_username") {
-				copyText(item.username, "Brugernavn");
+				copyText(item.username, "Username");
 			} else if (action === "copy_password") {
-				copyText(item.password, "Adgangskode");
+				copyText(item.password, "Password");
 			}
 		}
 	}
@@ -112,7 +112,7 @@
 		>
 			<!-- Username -->
 			<div class="flex items-center justify-between gap-2 text-xs">
-				<span class="text-text-muted font-light">Brugernavn:</span>
+				<span class="text-text-muted font-light">Username:</span>
 				<div class="flex items-center gap-2 min-w-0">
 					<span class="text-text-base truncate font-medium max-w-[150px] md:max-w-[200px]">
 						{#if !item.isDecrypted}
@@ -126,7 +126,7 @@
 					<button
 						onclick={() => handleAction("copy_username")}
 						class="p-1 hover:text-accent text-text-muted transition-colors cursor-pointer"
-						title="Kopier brugernavn"
+						title="Copy username"
 					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -145,7 +145,7 @@
 
 			<!-- Password -->
 			<div class="flex items-center justify-between gap-2 text-xs">
-				<span class="text-text-muted font-light">Adgangskode:</span>
+				<span class="text-text-muted font-light">Password:</span>
 				<div class="flex items-center gap-2 min-w-0">
 					{#if !item.isDecrypted || !isPasswordVisible}
 						<span class="text-text-muted font-mono tracking-widest text-[8px] select-none">
@@ -161,7 +161,7 @@
 					<button
 						onclick={() => handleAction("show")}
 						class="p-1 hover:text-accent text-text-muted transition-colors cursor-pointer"
-						title={isPasswordVisible ? "Skjul adgangskode" : "Vis adgangskode"}
+						title={isPasswordVisible ? "Hide password" : "Show password"}
 					>
 						{#if isPasswordVisible && item.isDecrypted}
 							<svg
@@ -200,7 +200,7 @@
 					<button
 						onclick={() => handleAction("copy_password")}
 						class="p-1 hover:text-accent text-text-muted transition-colors cursor-pointer"
-						title="Kopier adgangskode"
+						title="Copy password"
 					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -226,7 +226,7 @@
 		<button
 			onclick={() => onDelete(item)}
 			class="p-2 border border-border-subtle text-text-muted hover:text-red-500 hover:border-red-500/30 transition-all duration-200 cursor-pointer"
-			title="Slet"
+			title="Delete"
 		>
 			<svg
 				xmlns="http://www.w3.org/2000/svg"

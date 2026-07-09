@@ -44,8 +44,8 @@
 				// Vault is locked (e.g. modal is open), display encrypted placeholders
 				decryptedItems = (data || []).map((item) => ({
 					...item,
-					username: "(låst)",
-					password: "(låst - krypteret i database)",
+					username: "(locked)",
+					password: "(locked - encrypted in database)",
 					isDecrypted: false,
 				}));
 				return;
@@ -62,9 +62,9 @@
 						password = await decryptLocal(item.password_encrypted, key);
 						isDecrypted = true;
 					} catch (err) {
-						console.error("Fejl ved dekryptering af element:", item.id, err);
-						username = "(dekrypteringsfejl)";
-						password = "(dekrypteringsfejl)";
+						console.error("Error decrypting item:", item.id, err);
+						username = "(decryption error)";
+						password = "(decryption error)";
 					}
 					return {
 						...item,
@@ -77,8 +77,8 @@
 
 			decryptedItems = decrypted;
 		} catch (err: any) {
-			console.error("Fejl ved hentning af vault_items:", err);
-			toast.error("Kunne ikke hente eller dekryptere dine koder: " + err.message);
+			console.error("Error fetching vault_items:", err);
+			toast.error("Could not fetch or decrypt your passwords: " + err.message);
 		} finally {
 			isLoading = false;
 		}
@@ -108,7 +108,7 @@
 	function handlePromptSubmit(e: SubmitEvent) {
 		e.preventDefault();
 		if (!masterPasswordPromptInput) {
-			toast.error("Indtast venligst dit Master Password.");
+			toast.error("Please enter your Master Password.");
 			return;
 		}
 		const submitCb = onPromptSubmit;
@@ -124,14 +124,14 @@
 
 	function handleUnlockItem(item: VaultItem): Promise<boolean> {
 		return new Promise<boolean>(async (resolve) => {
-			// 1. Prøv biometri hvis aktiveret
+			// 1. Try biometrics if enabled
 			if (hasBiometrics) {
 				try {
 					const {
 						data: { user },
 						error,
 					} = await supabase.auth.getUser();
-					if (error || !user) throw new Error("Ikke logget ind.");
+					if (error || !user) throw new Error("Not logged in.");
 
 					const key = await getBiometricMasterKey(user.user_metadata);
 					if (key) {
@@ -150,16 +150,16 @@
 							return d;
 						});
 
-						toast.success("Element dekrypteret med biometri!");
+						toast.success("Item decrypted with biometrics!");
 						resolve(true);
 						return;
 					}
 				} catch (err) {
-					console.warn("Biometrisk oplåsning afbrudt eller fejlet. Prøver password...", err);
+					console.warn("Biometric unlock aborted or failed. Trying password...", err);
 				}
 			}
 
-			// 2. Fallback til at spørge efter Master Password
+			// 2. Fallback to prompting for Master Password
 			promptForMasterPassword(
 				item,
 				async (password) => {
@@ -167,11 +167,11 @@
 						const {
 							data: { user },
 						} = await supabase.auth.getUser();
-						if (!user) throw new Error("Du skal være logget ind.");
+						if (!user) throw new Error("You must be logged in.");
 
 						const key = await verifyMasterPassword(password, user.user_metadata);
 						if (!key) {
-							toast.error("Forkert Master Password.");
+							toast.error("Incorrect Master Password.");
 							resolve(false);
 							return;
 						}
@@ -191,10 +191,10 @@
 							return d;
 						});
 
-						toast.success("Element dekrypteret!");
+						toast.success("Item decrypted!");
 						resolve(true);
 					} catch (err: any) {
-						toast.error("Kunne ikke dekryptere: " + err.message);
+						toast.error("Could not decrypt: " + err.message);
 						resolve(false);
 					}
 				},
@@ -207,26 +207,26 @@
 
 	// Delete an item with sonner confirmation toast styled to match theme
 	function handleDelete(item: VaultItem) {
-		toast(`Vil du slette adgangskoden til "${item.title}" permanent?`, {
-			description: "Denne handling kan ikke fortrydes.",
+		toast(`Do you want to permanently delete the password for "${item.title}"?`, {
+			description: "This action cannot be undone.",
 			action: {
-				label: "Slet permanent",
+				label: "Delete permanently",
 				onClick: async () => {
 					try {
 						const { error } = await supabase.from("vault_items").delete().eq("id", item.id);
 
 						if (error) throw error;
 
-						toast.success(`"${item.title}" blev slettet!`);
+						toast.success(`"${item.title}" was deleted!`);
 						await loadAndDecryptVaultItems();
 					} catch (err: any) {
-						console.error("Fejl ved sletning:", err);
-						toast.error("Kunne ikke slette elementet: " + err.message);
+						console.error("Error during deletion:", err);
+						toast.error("Could not delete item: " + err.message);
 					}
 				},
 			},
 			cancel: {
-				label: "Annuller",
+				label: "Cancel",
 				onClick: () => {},
 			},
 			classes: {
@@ -310,7 +310,7 @@
 					<line x1="12" y1="5" x2="12" y2="19" />
 					<line x1="5" y1="12" x2="19" y2="12" />
 				</svg>
-				Tilføj kode
+				Add password
 			</button>
 		</div>
 	</div>
@@ -335,7 +335,7 @@
 				</svg>
 				<input
 					type="text"
-					placeholder="Søg efter tjeneste, URL eller brugernavn..."
+					placeholder="Search for service, URL, or username..."
 					bind:value={searchQuery}
 					class="w-full pl-9 pr-4 py-2 bg-bg-primary border border-border-subtle text-text-base text-sm focus:outline-none focus:border-accent transition-all placeholder:text-text-base/20"
 				/>
@@ -361,7 +361,7 @@
 						d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
 					></path>
 				</svg>
-				<p class="text-xs tracking-wide">Henter og dekrypterer elementer...</p>
+				<p class="text-xs tracking-wide">Fetching and decrypting items...</p>
 			</div>
 		{:else if filteredItems.length === 0}
 			<div
@@ -378,9 +378,9 @@
 					<circle cx="12" cy="12" r="10" />
 					<line x1="8" y1="12" x2="16" y2="12" />
 				</svg>
-				<p class="text-xs font-medium">Ingen koder fundet</p>
+				<p class="text-xs font-medium">No passwords found</p>
 				{#if searchQuery}
-					<p class="text-[10px] text-text-muted">Prøv at søge efter andre ord.</p>
+					<p class="text-[10px] text-text-muted">Try searching for other words.</p>
 				{/if}
 			</div>
 		{:else}
@@ -404,9 +404,9 @@
 		<div
 			class="bg-bg-sidebar border border-border-subtle p-6 max-w-sm w-full shadow-2xl relative animate-in fade-in zoom-in-95 duration-200"
 		>
-			<h3 class="text-sm font-bold text-text-base mb-1">Lås op</h3>
+			<h3 class="text-sm font-bold text-text-base mb-1">Unlock</h3>
 			<p class="text-[11px] text-text-muted mb-4">
-				Indtast dit Master Password for at dekryptere adgangskoden til "{itemToUnlock?.title}".
+				Enter your Master Password to decrypt the password for "{itemToUnlock?.title}".
 			</p>
 
 			<form onsubmit={handlePromptSubmit} class="space-y-4">
@@ -421,7 +421,7 @@
 						id="modal-master-password"
 						type="password"
 						bind:value={masterPasswordPromptInput}
-						placeholder="Indtast adgangskode"
+						placeholder="Enter password"
 						class="w-full px-4 py-2.5 bg-bg-primary border border-border-subtle text-text-base text-sm focus:outline-none focus:border-accent transition-all placeholder:text-text-base/20"
 						required
 						autofocus
@@ -434,13 +434,13 @@
 						onclick={handlePromptCancel}
 						class="px-4 py-2 text-xs border border-border-subtle text-text-muted hover:text-text-base transition-colors duration-200 cursor-pointer"
 					>
-						Annuller
+						Cancel
 					</button>
 					<button
 						type="submit"
 						class="px-4 py-2 text-xs border-2 border-accent text-accent font-semibold hover:bg-accent hover:text-bg-sidebar transition-all duration-300 cursor-pointer"
 					>
-						Bekræft
+						Confirm
 					</button>
 				</div>
 			</form>

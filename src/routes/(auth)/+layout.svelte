@@ -34,10 +34,8 @@
 			<div class="max-w-md w-full mx-auto">
 				<!-- Header -->
 				<div class="text-center mb-8">
-					<h1 class="text-2xl font-semibold tracking-tight text-text-base mb-2">
-						Velkommen tilbage
-					</h1>
-					<p class="text-text-muted text-xs font-light">Sign in for at få adgang til dine data</p>
+					<h1 class="text-2xl font-semibold tracking-tight text-text-base mb-2">Welcome Back</h1>
+					<p class="text-text-muted text-xs font-light">Sign in to access your data</p>
 				</div>
 
 				<!-- Form LOGIN -->
@@ -51,7 +49,7 @@
 								toast.error(String(result.data?.message || "Failure"));
 								await update();
 							} else if (result.type === "redirect") {
-								toast.success("Velkommen tilbage!");
+								toast.success("Welcome back!");
 								await update();
 							} else {
 								await update();
@@ -65,14 +63,14 @@
 							for="login-email"
 							class="text-xs font-semibold uppercase tracking-wider text-text-muted ml-1"
 						>
-							Email adresse
+							Email address
 						</label>
 						<input
 							name="email"
 							type="email"
 							id="login-email"
 							bind:value={loginEmail}
-							placeholder="navn@eksempel.dk"
+							placeholder="name@example.com"
 							required
 							class="w-full px-4 py-3 rounded-none bg-bg-primary border border-border-subtle text-text-base focus:outline-none focus:ring-2 focus:ring-accent/50 transition-all placeholder:text-text-base/30 text-sm"
 						/>
@@ -84,10 +82,10 @@
 								for="login-password"
 								class="text-xs font-semibold uppercase tracking-wider text-text-muted"
 							>
-								Adgangskode
+								Password
 							</label>
 							<a href="/forgot-password" class="text-xs text-accent hover:underline font-light">
-								Glemt adgangskode?
+								Forgot password?
 							</a>
 						</div>
 						<input
@@ -101,7 +99,7 @@
 						/>
 					</div>
 
-					<!-- Sign in knap uden fyld (outlined med border-2 border-accent og text-accent) -->
+					<!-- Sign in button without fill (outlined with border-2 border-accent and text-accent) -->
 					<button
 						type="submit"
 						class="w-full py-3 px-4 border-2 border-accent text-accent font-semibold rounded-none hover:bg-accent hover:text-bg-sidebar transition-all duration-300 cursor-pointer text-sm"
@@ -121,16 +119,16 @@
 								d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"
 							/>
 						</svg>
-						Sign In med GitHub
+						Sign In with GitHub
 					</button>
 				</form>
 
-				<!-- Skift-knap til mobil -->
+				<!-- Switch button for mobile -->
 				<div class="text-center mt-6 md:hidden">
 					<p class="text-sm text-text-base/60">
-						Har du ikke en konto?
+						Don't have an account?
 						<a href="/register" class="text-accent font-medium hover:underline font-light"
-							>Sign up her</a
+							>Sign up here</a
 						>
 					</p>
 				</div>
@@ -148,7 +146,9 @@
 				<!-- Header -->
 				<div class="text-center mb-8">
 					<h1 class="text-2xl font-semibold tracking-tight text-text-base mb-2">Sign Up</h1>
-					<p class="text-text-muted text-sm font-light">Gem dine adgangskoder sikkert ét sted</p>
+					<p class="text-text-muted text-sm font-light">
+						Save your passwords securely in one place
+					</p>
 				</div>
 
 				<!-- Form REGISTER -->
@@ -158,13 +158,13 @@
 							for="reg-email"
 							class="text-xs font-semibold uppercase tracking-wider text-text-muted ml-1"
 						>
-							Email adresse
+							Email address
 						</label>
 						<input
 							name="email"
 							type="email"
 							id="reg-email"
-							placeholder="navn@eksempel.dk"
+							placeholder="name@example.com"
 							required
 							class="w-full px-4 py-3 rounded-none bg-bg-primary border border-border-subtle text-text-base focus:outline-none focus:ring-2 focus:ring-accent/50 transition-all placeholder:text-text-base/30 text-sm"
 						/>
@@ -175,7 +175,7 @@
 							for="reg-password"
 							class="text-xs font-semibold uppercase tracking-wider text-text-muted ml-1"
 						>
-							Adgangskode
+							Password
 						</label>
 						<input
 							name="password"
@@ -192,7 +192,7 @@
 							for="reg-password-confirm"
 							class="text-xs font-semibold uppercase tracking-wider text-text-muted ml-1"
 						>
-							Bekræft adgangskode
+							Confirm password
 						</label>
 						<input
 							name="passwordConfirm"
@@ -204,7 +204,7 @@
 						/>
 					</div>
 
-					<!-- Sign up knap uden fyld (outlined med border-2 border-accent og text-accent) -->
+					<!-- Sign up button without fill (outlined with border-2 border-accent and text-accent) -->
 					<button
 						type="submit"
 						class="w-full py-3 px-4 border-2 border-accent text-accent font-semibold rounded-none hover:bg-accent hover:text-bg-sidebar transition-all duration-300 cursor-pointer text-sm"
@@ -213,12 +213,12 @@
 					</button>
 				</form>
 
-				<!-- Skift-knap til mobil -->
+				<!-- Switch button for mobile -->
 				<div class="text-center mt-6 md:hidden">
 					<p class="text-sm text-text-base/60">
-						Har du allerede en konto?
+						Already have an account?
 						<a href="/login" class="text-accent font-medium hover:underline font-light"
-							>Sign in her</a
+							>Sign in here</a
 						>
 					</p>
 				</div>
@@ -234,10 +234,10 @@
 		>
 			{#if isRegister}
 				<div class="space-y-6">
-					<h2 class="text-3xl font-light tracking-tight text-text-base">Velkommen tilbage!</h2>
+					<h2 class="text-3xl font-light tracking-tight text-text-base">Welcome back!</h2>
 					<p class="text-text-muted max-w-sm mx-auto leading-relaxed font-light text-sm">
-						For at holde forbindelsen med dine gemte koder skal du sign in med dine personlige
-						oplysninger.
+						To keep connected with your saved passwords, please sign in with your personal
+						information.
 					</p>
 					<a
 						href="/login"
@@ -248,10 +248,10 @@
 				</div>
 			{:else}
 				<div class="space-y-6">
-					<h2 class="text-3xl font-light tracking-tight text-text-base">Hej ven!</h2>
+					<h2 class="text-3xl font-light tracking-tight text-text-base">Hello, Friend!</h2>
 					<p class="text-text-muted max-w-sm mx-auto leading-relaxed font-light text-sm">
-						Sign up for en sikker konto og start din rejse mod bedre og stærkere beskyttelse af dine
-						adgangskoder.
+						Sign up for a secure account and start your journey towards better and stronger
+						protection of your passwords.
 					</p>
 					<a
 						href="/register"
@@ -265,7 +265,7 @@
 	</div>
 </div>
 
-<!-- SvelteKit placeholder for at rendere de tomme side-komponenter -->
+<!-- SvelteKit placeholder to render the empty page components -->
 <div class="hidden">
 	{@render children()}
 </div>

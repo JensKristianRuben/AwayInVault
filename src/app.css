@@ -2,7 +2,7 @@
 @import "tailwindcss";
 
 @theme {
-	/* Brand farver (Emerald skala til knapper og detaljer) */
+	/* Brand colors (Emerald scale for buttons and details) */
 	--color-brand-50: #ecfdf5;
 	--color-brand-100: #d1fae5;
 	--color-brand-200: #a7f3d0;
@@ -15,22 +15,22 @@
 	--color-brand-900: #064e3b;
 	--color-brand-950: #022c22;
 
-	/* Neutrale farver (Sorte og grå nuancer til layout) */
-	--color-neutral-50: #f9fafb; /* Næsten hvid */
-	--color-neutral-100: #f3f4f6; /* Lys grå (f.eks. lys sidebar) */
-	--color-neutral-200: #e5e7eb; /* Lys ramme */
+	/* Neutral colors (Black and gray shades for layout) */
+	--color-neutral-50: #f9fafb; /* Almost white */
+	--color-neutral-100: #f3f4f6; /* Light gray (e.g. light sidebar) */
+	--color-neutral-200: #e5e7eb; /* Light border */
 	--color-neutral-300: #d1d5db;
-	--color-neutral-400: #9ca3af; /* Muted tekst (mørkt tema) */
-	--color-neutral-500: #6b7280; /* Muted tekst (lyst tema) */
+	--color-neutral-400: #9ca3af; /* Muted text (dark theme) */
+	--color-neutral-500: #6b7280; /* Muted text (light theme) */
 	--color-neutral-600: #374151;
 	--color-neutral-700: #1f2937;
-	--color-neutral-800: #1c1d1f; /* Mørk ramme */
-	--color-neutral-900: #0d0e10; /* Mørkegrå (mørk sidebar) */
-	--color-neutral-950: #030403; /* Den matte sorte baggrund */
+	--color-neutral-800: #1c1d1f; /* Dark border */
+	--color-neutral-900: #0d0e10; /* Dark gray (dark sidebar) */
+	--color-neutral-950: #030403; /* The matte black background */
 
-	/* Default (Mørkt) Tema */
+	/* Default (Dark) Theme */
 	--color-bg-main: var(--color-neutral-950);
-	--color-bg-primary: var(--color-neutral-950); /* Understøtter bg-bg-primary anvendt i layouts */
+	--color-bg-primary: var(--color-neutral-950); /* Supports bg-bg-primary used in layouts */
 	--color-bg-sidebar: var(--color-neutral-900);
 	--color-text-base: var(--color-neutral-100);
 	--color-text-muted: var(--color-neutral-400);
@@ -38,7 +38,7 @@
 	--color-accent: var(--color-brand-500);
 }
 
-/* Lyst Tema Overrides */
+/* Light Theme Overrides */
 :root.light {
 	--color-bg-main: var(--color-neutral-50);
 	--color-bg-primary: var(--color-neutral-50);

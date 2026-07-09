@@ -4,9 +4,9 @@
 	import BoidsSimulation from "$lib/components/landingpage/BoidsSimulation.svelte";
 	import { fade } from "svelte/transition";
 
-	// Statuskode og fejlmeddelelse
+	// Status code and error message
 	const status = $derived(page.status || 404);
-	const message = $derived(page.error?.message || "Siden blev ikke fundet");
+	const message = $derived(page.error?.message || "Page not found");
 
 	function goBack() {
 		if (
@@ -22,13 +22,13 @@
 </script>
 
 <svelte:head>
-	<title>{status} - Side ikke fundet | AwayInVault</title>
+	<title>{status} - Page Not Found | AwayInVault</title>
 </svelte:head>
 
 <main
 	class="relative w-screen h-screen overflow-hidden bg-bg-main flex items-center justify-center font-sans text-text-base"
 >
-	<!-- Partikelsimulationen kører i baggrunden -->
+	<!-- The particle simulation runs in the background -->
 	<div class="absolute inset-0 pointer-events-none">
 		<BoidsSimulation mode="flock" numBoids={80} />
 	</div>
@@ -42,7 +42,7 @@
 			{status}
 		</h1>
 		<p class="text-lg text-text-muted mt-4 font-medium">
-			{status === 404 ? "Siden blev ikke fundet" : message}
+			{status === 404 ? "Page not found" : message}
 		</p>
 
 		<button
@@ -63,7 +63,7 @@
 				<line x1="19" y1="12" x2="5" y2="12"></line>
 				<polyline points="12 19 5 12 12 5"></polyline>
 			</svg>
-			Tag mig tilbage
+			Go back
 		</button>
 	</div>
 </main>

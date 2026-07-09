@@ -2,7 +2,7 @@
 	import { onMount } from "svelte";
 	import { limitSpeed, applyBrownianDrift, setupCanvas } from "./particles";
 
-	// Svelte 5 Props (styret af landingssiden udefra)
+	// Svelte 5 Props (controlled from the landing page)
 	let {
 		mode = "flock",
 		textAssembled = $bindable(false),
@@ -10,18 +10,18 @@
 		numBoids = 400,
 	} = $props();
 
-	// Antal partikler i simulationen
+	// Number of particles in the simulation
 	const NUM_BOIDS = $derived(numBoids);
 
-	// Simulation indstillinger for rolig drift
+	// Simulation settings for calm drift
 	const maxSpeed = 1.4;
 	const maxForce = 0.08;
 	const formationWeight = 2.2;
 
-	// Genbrugeligt canvas til tekst-sampling for at undgå garbage collection lag
+	// Reusable canvas for text sampling to avoid garbage collection lag
 	let tempCanvas: HTMLCanvasElement | null = null;
 
-	// Sampler pixelpunkter fra en tekststreng
+	// Samples pixel points from a text string
 	function sampleTextPoints(text: string, fontSize: number, numSamples: number) {
 		const points: Array<{ x: number; y: number }> = [];
 		if (typeof document === "undefined") {
@@ -34,7 +34,7 @@
 			const tempCtx = tempCanvas.getContext("2d");
 			if (!tempCtx) throw new Error("Could not get 2D context");
 
-			// Sæt midlertidig canvas størrelse stor nok til teksten
+			// Set temporary canvas size large enough for the text
 			tempCanvas.width = 1200;
 			tempCanvas.height = 160;
 
@@ -55,13 +55,13 @@
 			const data = imgData.data;
 
 			const pixelPoints: Array<{ x: number; y: number }> = [];
-			// Scan pixels med trin 2 for hurtig afvikling
+			// Scan pixels with step 2 for fast execution
 			for (let y = 0; y < tempCanvas.height; y += 2) {
 				for (let x = 0; x < tempCanvas.width; x += 2) {
 					const idx = (y * tempCanvas.width + x) * 4;
 					const alpha = data[idx + 3];
 					if (alpha > 110) {
-						// Tærskel for tekst-kant
+						// Threshold for text edge
 						pixelPoints.push({
 							x: x - cx,
 							y: y - cy,
@@ -74,13 +74,13 @@
 				return Array.from({ length: numSamples }, () => ({ x: 0, y: 0 }));
 			}
 
-			// Fordel punkterne jævnt over de scannede pixels
+			// Distribute points evenly over scanned pixels
 			for (let i = 0; i < numSamples; i++) {
 				const pixelIdx = Math.floor((i / numSamples) * pixelPoints.length);
 				points.push(pixelPoints[pixelIdx]);
 			}
 		} catch (e) {
-			console.error("Fejl under tekst-sampling:", e);
+			console.error("Error during text sampling:", e);
 			return Array.from({ length: numSamples }, () => ({ x: 0, y: 0 }));
 		}
 		return points;
@@ -129,7 +129,7 @@
 		const x = e.clientX - rect.left;
 		const y = e.clientY - rect.top;
 
-		// Opret en diskret, elegant ringbølge
+		// Create a discrete, elegant ring wave
 		clickThreats.push({
 			x,
 			y,
@@ -140,7 +140,7 @@
 		});
 	}
 
-	// Professionelle og dæmpede grønne nuancer (salvie, smaragd, skovgrøn)
+	// Professional and muted green shades (sage, emerald, forest green)
 	const greenShades = [
 		"rgba(16, 185, 129, 0.7)", // Emerald
 		"rgba(52, 211, 153, 0.7)", // Muted Mint
@@ -162,7 +162,7 @@
 		color: string;
 		size: number;
 
-		// Targets for de forskellige formationer
+		// Targets for the different formations
 		keyX = 0;
 		keyY = 0;
 		shieldX = 0;
@@ -181,24 +181,24 @@
 			this.ax = 0;
 			this.ay = 0;
 			this.color = greenShades[id % greenShades.length];
-			this.size = 1.2 + Math.random() * 1.0; // Meget små, fine partikler (mellem 1.2px og 2.2px)
+			this.size = 1.2 + Math.random() * 1.0; // Very small, fine particles (between 1.2px and 2.2px)
 		}
 
 		update(speedLimit = maxSpeed) {
-			// Opdater hastighed baseret på acceleration
+			// Update velocity based on acceleration
 			this.vx += this.ax;
 			this.vy += this.ay;
 
-			// Begræns hastighed vha. fælles math helper
+			// Limit speed using shared math helper
 			const limited = limitSpeed(this.vx, this.vy, speedLimit);
 			this.vx = limited.vx;
 			this.vy = limited.vy;
 
-			// Opdater position
+			// Update position
 			this.x += this.vx;
 			this.y += this.vy;
 
-			// Nulstil acceleration for næste frame
+			// Reset acceleration for next frame
 			this.ax = 0;
 			this.ay = 0;
 		}
@@ -208,7 +208,7 @@
 			this.ay += fy;
 		}
 
-		// Blød indramning, så partikler ikke forsvinder udenfor skærmen
+		// Soft boundaries, so particles do not disappear off-screen
 		boundaries() {
 			const margin = width < 768 ? 10 : 60;
 			let forceX = 0;
@@ -226,14 +226,14 @@
 		}
 	}
 
-	// Liste med alle boids
+	// List of all boids
 	let boids: Boid[] = [];
 
-	// Beregn formationstargets for alle boids (Responsiv nøgle, skjold og lås)
+	// Calculate formation targets for all boids (Responsive key, shield, and lock)
 	function updateFormationTargets() {
 		const scale = Math.min(width, height);
-		const cx = width * 0.5; // Midten for Shield og Lock
-		const cy = height * 0.65; // Flyttet ned under knapperne
+		const cx = width * 0.5; // Center for Shield and Lock
+		const cy = height * 0.65; // Moved down below the buttons
 
 		// --- 1. TEXT FORMATION (AWAYINVAULT) ---
 		if (logoElement) {
@@ -282,14 +282,14 @@
 					sx = cx + sw * (1 - t * t * 0.35);
 					sy = cy - sh + t * sh * 2.0;
 				}
-				// Juster toppen så den buer pænt indad
+				// Adjust the top so it curves nicely inward
 				if (index < numSOuter * 0.15) {
 					const t = (index / (numSOuter * 0.15)) * 2 - 1;
 					sx = cx + t * sw;
 					sy = cy - sh + (t * t - 1) * sh * 0.08;
 				}
 			} else if (index < numSOuter + numSInner) {
-				// Indre skjold outline
+				// Inner shield outline
 				const i = index - numSOuter;
 				const isw = sw * 0.72;
 				const ish = sh * 0.72;
@@ -304,7 +304,7 @@
 					sy = cy - ish + t * ish * 2.0;
 				}
 			} else {
-				// Checkmark ikon indeni skjoldet
+				// Checkmark icon inside the shield
 				const i = index - (numSOuter + numSInner);
 				const half = Math.floor(numSCheck * 0.3);
 				if (i < half) {
@@ -324,7 +324,7 @@
 			let lx = cx,
 				ly = cy;
 			if (index < numLBody) {
-				// Lock body (firkant)
+				// Lock body (rectangle)
 				const i = index;
 				const perimeter = i / numLBody;
 				if (perimeter < 0.25) {
@@ -341,14 +341,14 @@
 					ly = cy + lh * 0.8 - ((perimeter - 0.75) / 0.25) * lh * 0.95;
 				}
 			} else if (index < numLBody + numLArch) {
-				// Bue (shackle) på toppen af låsen
+				// Shackle on top of the lock
 				const i = index - numLBody;
 				const angle = -Math.PI + (i / numLArch) * Math.PI;
 				const ar = lw * 0.68;
 				lx = cx + Math.cos(angle) * ar;
 				ly = cy - lh * 0.15 + Math.sin(angle) * ar;
 			} else {
-				// Nøglehul i midten af låsen
+				// Keyhole in the center of the lock
 				const i = index - (numLBody + numLArch);
 				const half = Math.floor(numLKeyhole * 0.5);
 				if (i < half) {
@@ -378,14 +378,14 @@
 		}
 	});
 
-	// Fysik-trin (Rolig, tilfældig Brownian drift når tomgang)
+	// Physics step (Calm, random Brownian drift when idle)
 	function runSimulationStep() {
 		let arrivedCount = 0;
 
 		for (let i = 0; i < boids.length; i++) {
 			const boid = boids[i];
 
-			// Blødt frastød fra musen (kører i alle tilstande, diskret og professionel)
+			// Soft repulsion from the mouse (runs in all states, discrete and professional)
 			if (isMousePresent) {
 				const dx = boid.x - mouseX;
 				const dy = boid.y - mouseY;
@@ -401,7 +401,7 @@
 				}
 			}
 
-			// Blødt skub fra klik-impulser
+			// Soft push from click impulses
 			for (let j = clickThreats.length - 1; j >= 0; j--) {
 				const threat = clickThreats[j];
 				const dx = boid.x - threat.x;
@@ -421,7 +421,7 @@
 			}
 
 			if (mode === "flock") {
-				// Rolig Brownian drift vha. fælles helper
+				// Calm Brownian drift using shared helper
 				const drift = applyBrownianDrift(boid.vx, boid.vy, 0.12);
 				boid.vx = drift.vx;
 				boid.vy = drift.vy;
@@ -435,7 +435,7 @@
 
 				boid.boundaries();
 			} else {
-				// En af formationerne er aktiv ('key', 'shield', 'lock', 'scatter')
+				// One of the formations is active ('key', 'shield', 'lock', 'scatter')
 				let tx = boid.x;
 				let ty = boid.y;
 
@@ -457,7 +457,7 @@
 				const dy = ty - boid.y;
 				const dist = Math.sqrt(dx * dx + dy * dy);
 
-				// Tæl partikler der er ankommet til deres position (indenfor 3px)
+				// Count particles that have arrived at their position (within 3px)
 				if (dist < 3.0) {
 					arrivedCount++;
 				}
@@ -465,12 +465,12 @@
 				let steerX = 0;
 				let steerY = 0;
 
-				// Balanceret hastighed og acceleration for en blød 2.5s formation
+				// Balanced speed and acceleration for a smooth 2.5s formation
 				const formMaxSpeed = 8.5;
 				const formMaxForce = 0.65;
 
 				if (dist > 2) {
-					// Proportional acceleration for blød indflyvning
+					// Proportional acceleration for smooth arrival
 					const speedFactor = Math.min(formMaxSpeed, dist * 0.45);
 					const targetVx = (dx / dist) * speedFactor;
 					const targetVy = (dy / dist) * speedFactor;
@@ -484,13 +484,13 @@
 						steerY = (steerY / f) * formMaxForce;
 					}
 
-					// Magnetisk opbremsning tæt på målet for at modvirke jitter
+					// Magnetic braking close to the target to counteract jitter
 					if (dist < 25) {
 						boid.vx *= 0.82;
 						boid.vy *= 0.82;
 					}
 				} else {
-					// Snap præcist til målet og frys hastigheden fuldstændig
+					// Snap precisely to the target and freeze velocity completely
 					boid.x = tx;
 					boid.y = ty;
 					boid.vx = 0;
@@ -502,14 +502,14 @@
 				boid.applyForce(steerX * formationWeight, steerY * formationWeight);
 			}
 
-			// Tillad højere hastighed under formation (8.5) end i tilfældig drift (maxSpeed)
+			// Allow higher speed during formation (8.5) than in random drift (maxSpeed)
 			const limit = mode === "flock" ? maxSpeed : 8.5;
 			boid.update(limit);
 		}
 
-		// Opdater den bindbare prop baseret på om partiklerne er på plaved
+		// Update the bindable prop based on whether the particles are in place
 		if (mode === "key") {
-			// 98.5% svarer til at max 6 partikler ud af 400 er undervejs
+			// 98.5% corresponds to a maximum of 6 particles out of 400 still traveling
 			textAssembled = arrivedCount >= NUM_BOIDS * 0.985;
 		} else {
 			textAssembled = false;
@@ -524,18 +524,18 @@
 		let animationFrameId: number;
 		let isVisible = true;
 
-		// Brug den fælles setupCanvas funktion
+		// Use the shared setupCanvas function
 		const { resize, cleanup } = setupCanvas(canvasElement, (w, h) => {
 			width = w;
 			height = h;
 			updateFormationTargets();
 		});
 
-		// Initialiser boids (nu spredt ud over hele det faktiske vindue!)
+		// Initialize boids (now scattered across the actual window!)
 		boids = Array.from({ length: NUM_BOIDS }, (_, idx) => new Boid(idx));
-		resize(); // Sætter canvas-størrelse og beregner targets
+		resize(); // Sets canvas size and calculates targets
 
-		// Genberegn når Google Fonts (Inter) er færdigindlæst for at undgå forskydning
+		// Recalculate when Google Fonts (Inter) finishes loading to avoid offset
 		if (typeof document !== "undefined" && document.fonts) {
 			document.fonts.ready.then(() => {
 				updateFormationTargets();
@@ -546,13 +546,13 @@
 		const tick = () => {
 			if (!isVisible) return;
 
-			// Ryd canvas helt for at fjerne alle bevægelses-spor
+			// Clear canvas completely to remove all motion trails
 			ctx.clearRect(0, 0, width, height);
 
-			// Beregn fysik
+			// Calculate physics
 			runSimulationStep();
 
-			// Opdater partikel-opacitet og tekst-opacitet (melt-effekt)
+			// Update particle opacity and text opacity (melt effect)
 			if (mode === "key") {
 				if (textAssembled) {
 					particleOpacity = Math.max(0, particleOpacity - 0.04);
@@ -565,7 +565,7 @@
 				canvasTextOpacity = Math.max(0, 1.0 - particleOpacity);
 			}
 
-			// Tegn alle boids som grønne cirkler (meget små, uden shadow for ren stil)
+			// Draw all boids as green circles (very small, without shadow for clean style)
 			if (particleOpacity > 0) {
 				ctx.save();
 				ctx.globalAlpha = particleOpacity;
@@ -578,7 +578,7 @@
 				ctx.restore();
 			}
 
-			// Tegn den solide grønne tekst direkte på canvas (helt synkroniseret med partiklerne)
+			// Draw the solid green text directly on the canvas (fully synchronized with particles)
 			if (canvasTextOpacity > 0) {
 				ctx.save();
 				const grad = ctx.createLinearGradient(kcx - 180, 0, kcx + 180, 0);
@@ -602,7 +602,7 @@
 				ctx.restore();
 			}
 
-			// Opdater og tegn clickThreats (blide, lysegrønne/hvide bølger)
+			// Update and draw clickThreats (gentle, light green/white waves)
 			for (let j = clickThreats.length - 1; j >= 0; j--) {
 				const threat = clickThreats[j];
 				threat.radius += 2.8;
@@ -613,7 +613,7 @@
 					continue;
 				}
 
-				// Tegn chokbølgen (diskret, elegant hvid/grøn cirkel)
+				// Draw the shockwave (discrete, elegant white/green circle)
 				ctx.strokeStyle = `rgba(167, 243, 208, ${threat.alpha * 0.25})`;
 				ctx.lineWidth = 1.0;
 				ctx.beginPath();
@@ -629,14 +629,14 @@
 			animationFrameId = requestAnimationFrame(tick);
 		};
 
-		// IntersectionObserver til performance-optimering
+		// IntersectionObserver for performance optimization
 		const observer = new IntersectionObserver(
 			(entries) => {
 				entries.forEach((entry) => {
 					const wasVisible = isVisible;
 					isVisible = entry.isIntersecting;
 					if (isVisible && !wasVisible) {
-						tick(); // Genstart loopet når elementet ruller ind på skærmen
+						tick(); // Restart loop when element scrolls into view
 					}
 				});
 			},
