@@ -15,6 +15,11 @@
 		const from = navigation.from?.route.id;
 		const to = navigation.to?.route.id;
 
+		const slideRoutes = ["/", "/www", "/biometric", "/zero-knowledge"];
+		const isSlideTransition = slideRoutes.includes(from ?? "") && slideRoutes.includes(to ?? "");
+
+		if (!isSlideTransition) return;
+
 		// Determine slide direction
 		let isBack = false;
 		if (to === "/" && (from === "/www" || from === "/biometric" || from === "/zero-knowledge")) {
