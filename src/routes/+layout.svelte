@@ -3,10 +3,39 @@
 	import favicon from "$lib/assets/favicon.png";
 	import { Toaster } from "svelte-sonner";
 	import { onMount } from "svelte";
+	import { onNavigate } from "$app/navigation";
 
 	let { children } = $props();
 
 	let toasterTheme = $state<"dark" | "light">("dark");
+
+	onNavigate((navigation) => {
+		if (!(document as any).startViewTransition) return;
+
+		const from = navigation.from?.route.id;
+		const to = navigation.to?.route.id;
+
+		// Determine slide direction
+		let isBack = false;
+		if (to === "/" && from === "/how-it-works") {
+			isBack = true;
+		}
+
+		if (isBack) {
+			document.documentElement.classList.add("view-transition-back");
+			document.documentElement.classList.remove("view-transition-forward");
+		} else {
+			document.documentElement.classList.add("view-transition-forward");
+			document.documentElement.classList.remove("view-transition-back");
+		}
+
+		return new Promise<void>((resolve) => {
+			(document as any).startViewTransition(async () => {
+				resolve();
+				await navigation.complete;
+			});
+		});
+	});
 
 	onMount(() => {
 		const updateTheme = () => {
