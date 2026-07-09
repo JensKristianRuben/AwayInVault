@@ -17,7 +17,7 @@
 
 		// Determine slide direction
 		let isBack = false;
-		if (to === "/" && from === "/how-it-works") {
+		if (to === "/" && (from === "/www" || from === "/biometric" || from === "/zero-knowledge")) {
 			isBack = true;
 		}
 

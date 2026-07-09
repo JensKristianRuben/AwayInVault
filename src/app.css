@@ -106,7 +106,7 @@
 
 /* Forward transition (Slide left) */
 ::view-transition-group(root) {
-	animation-duration: 0.35s;
+	animation-duration: 1s;
 	animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
 }
 

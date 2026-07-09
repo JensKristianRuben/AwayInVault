@@ -186,6 +186,9 @@
 					Your data is encrypted on your device before it even leaves the browser. We never know
 					your master password.
 				</p>
+				<div>
+					<a href="/zero-knowledge" class="read-more-link"> Read more </a>
+				</div>
 			</div>
 
 			<!-- Minimalistisk Zero-Knowledge Animation Flow -->
@@ -336,6 +339,9 @@
 				Fast and secure access with Windows Hello, FaceID, or fingerprint directly from all your
 				devices.
 			</p>
+			<div>
+				<a href="/biometric" class="read-more-link"> Read more </a>
+			</div>
 		</div>
 	</section>
 
@@ -365,7 +371,7 @@
 				magic - that's just the World Wide Web doing what it does best.
 			</p>
 			<div>
-				<a href="/how-it-works" class="read-more-link"> Read more </a>
+				<a href="/www" class="read-more-link"> Read more </a>
 			</div>
 		</div>
 	</section>
