@@ -34,13 +34,15 @@ const CONFIG_FILE = path.join(SESSION_DIR, "config.json");
 
 let SUPABASE_URL = process.env.PUBLIC_SUPABASE_URL;
 let SUPABASE_ANON_KEY = process.env.PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+let APP_URL = process.env.PUBLIC_APP_URL;
 
 // Fallback: load config from global configuration file in home directory
-if ((!SUPABASE_URL || !SUPABASE_ANON_KEY) && fs.existsSync(CONFIG_FILE)) {
+if ((!SUPABASE_URL || !SUPABASE_ANON_KEY || !APP_URL) && fs.existsSync(CONFIG_FILE)) {
 	try {
 		const config = JSON.parse(fs.readFileSync(CONFIG_FILE, "utf-8"));
 		if (!SUPABASE_URL) SUPABASE_URL = config.PUBLIC_SUPABASE_URL;
 		if (!SUPABASE_ANON_KEY) SUPABASE_ANON_KEY = config.PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+		if (!APP_URL) APP_URL = config.PUBLIC_APP_URL;
 	} catch {}
 }
 
@@ -48,10 +50,15 @@ if ((!SUPABASE_URL || !SUPABASE_ANON_KEY) && fs.existsSync(CONFIG_FILE)) {
 const DEFAULT_SUPABASE_URL = "https://hekbxulfxbznntuahtqx.supabase.co";
 const DEFAULT_SUPABASE_ANON_KEY =
 	"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhla2J4dWxmeGJ6bm50dWFodHF4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0ODE2MjcsImV4cCI6MjA3OTA1NzYyN30.U6PcjO7DbT17c0kuwIJm0v3M070DrpUZ4RD_s1cVrBM";
+const DEFAULT_APP_URL = "http://localhost:5173";
 
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
 	SUPABASE_URL = DEFAULT_SUPABASE_URL;
 	SUPABASE_ANON_KEY = DEFAULT_SUPABASE_ANON_KEY;
+}
+
+if (!APP_URL) {
+	APP_URL = DEFAULT_APP_URL;
 }
 
 // Reuse existing crypto logic
@@ -252,7 +259,7 @@ program
 // 1.5. init
 program
 	.command("init")
-	.description("Configure custom Supabase credentials for the CLI")
+	.description("Configure custom credentials and App URL for the CLI")
 	.action(async () => {
 		const answers = await prompts([
 			{
@@ -266,6 +273,12 @@ program
 				name: "anonKey",
 				message: "Enter your Supabase Anon Key:",
 				initial: SUPABASE_ANON_KEY || "",
+			},
+			{
+				type: "text",
+				name: "appUrl",
+				message: "Enter your Frontend Web Application URL:",
+				initial: APP_URL || "",
 			},
 		]);
 
@@ -285,6 +298,7 @@ program
 				{
 					PUBLIC_SUPABASE_URL: answers.url.trim(),
 					PUBLIC_SUPABASE_PUBLISHABLE_KEY: answers.anonKey.trim(),
+					PUBLIC_APP_URL: answers.appUrl ? answers.appUrl.trim() : undefined,
 				},
 				null,
 				2,
@@ -292,9 +306,7 @@ program
 			{ mode: 0o600, encoding: "utf-8" },
 		);
 
-		console.log(
-			"✅ Custom Supabase configuration saved successfully in ~/.awayinvault/config.json",
-		);
+		console.log("✅ Custom configuration saved successfully in ~/.awayinvault/config.json");
 	});
 
 // 2. generate
@@ -368,7 +380,7 @@ program
 				console.log(`\n🌐 Starting local server at http://localhost:${port}...`);
 				console.log("Opening browser to authorize via your AwayInVault instance...");
 
-				const loginUrl = `http://localhost:5173/cli-login?port=${port}`;
+				const loginUrl = `${APP_URL}/cli-login?port=${port}`;
 				let cmd = "";
 				if (process.platform === "win32") {
 					cmd = `start "" "${loginUrl}"`;

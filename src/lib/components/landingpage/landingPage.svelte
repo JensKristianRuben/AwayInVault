@@ -157,7 +157,7 @@
 			class="scroll-indicator"
 			onclick={scrollToContent}
 			aria-label="Rul ned for at læse mere"
-			transition:fade={{ duration: 300, delay: 600 }}
+			in:fade={{ duration: 300, delay: 600 }}
 		>
 			<svg
 				xmlns="http://www.w3.org/2000/svg"

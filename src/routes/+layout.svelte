@@ -40,7 +40,7 @@
 </svelte:head>
 <Toaster richColors position="bottom-right" theme={toasterTheme} />
 
-<div class="flex">
+<div class="w-full">
 	<!-- Main Content -->
 	{@render children()}
 </div>
