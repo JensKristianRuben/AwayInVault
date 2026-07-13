@@ -8,6 +8,13 @@
 		encryptData,
 		decryptData,
 		getBiometricMasterKey,
+		generateSharingKeyPair,
+		exportPublicKey,
+		exportPrivateKey,
+		encryptLocal,
+		decryptLocal,
+		importPublicKey,
+		importPrivateKey,
 	} from "$lib/utils/crypto";
 	import { onMount } from "svelte";
 	import { getBiometricCredentials } from "$lib/utils/indexedDB";
@@ -45,6 +52,39 @@
 			if (key) {
 				const salt = userMetadata.salt;
 				cryptoSession.setSession(key, salt);
+
+				// Fetch and decrypt sharing keys
+				const { data: userData } = await supabase.auth.getUser();
+				if (userData?.user) {
+					const { data: profile } = await supabase
+						.from("profiles")
+						.select("public_key, encrypted_private_key")
+						.eq("id", userData.user.id)
+						.single();
+
+					if (profile?.encrypted_private_key && profile?.public_key) {
+						const privKeyBase64 = await decryptLocal(profile.encrypted_private_key, key);
+						const privateKeyObj = await importPrivateKey(privKeyBase64);
+						const publicKeyObj = await importPublicKey(profile.public_key);
+						cryptoSession.setSharingKeys(privateKeyObj, publicKeyObj);
+					} else {
+						// Fallback: Generate sharing keys if missing
+						const keyPair = await generateSharingKeyPair();
+						const pubKeyBase64 = await exportPublicKey(keyPair.publicKey);
+						const privKeyBase64 = await exportPrivateKey(keyPair.privateKey);
+						const encPrivKeyBase64 = await encryptLocal(privKeyBase64, key);
+
+						await supabase.from("profiles").upsert({
+							id: userData.user.id,
+							email: userData.user.email!,
+							public_key: pubKeyBase64,
+							encrypted_private_key: encPrivKeyBase64,
+						});
+
+						cryptoSession.setSharingKeys(keyPair.privateKey, keyPair.publicKey);
+					}
+				}
+
 				toast.success("The vault has been unlocked using biometrics!");
 				onSuccess();
 			} else {
@@ -92,6 +132,28 @@
 
 				cryptoSession.setSession(key, salt);
 
+				// Generate sharing keys
+				const keyPair = await generateSharingKeyPair();
+				const pubKeyBase64 = await exportPublicKey(keyPair.publicKey);
+				const privKeyBase64 = await exportPrivateKey(keyPair.privateKey);
+				const encPrivKeyBase64 = await encryptLocal(privKeyBase64, key);
+
+				const { data: userData, error: userError } = await supabase.auth.getUser();
+				if (userError || !userData.user) throw new Error("User session not found.");
+
+				const { error: profileError } = await supabase.from("profiles").upsert({
+					id: userData.user.id,
+					email: userData.user.email!,
+					public_key: pubKeyBase64,
+					encrypted_private_key: encPrivKeyBase64,
+				});
+
+				if (profileError) {
+					throw profileError;
+				}
+
+				cryptoSession.setSharingKeys(keyPair.privateKey, keyPair.publicKey);
+
 				masterPasswordInput = "";
 				confirmPasswordInput = "";
 				toast.success("Master password created");
@@ -106,6 +168,39 @@
 
 				if (decryptedKey === "vaulten-er-lukket-og-du-kan-ikke-komme-ind-uden-masterpassword") {
 					cryptoSession.setSession(key, salt);
+
+					// Fetch and decrypt/import sharing keys
+					const { data: userData, error: userError } = await supabase.auth.getUser();
+					if (userError || !userData.user) throw new Error("User session not found.");
+
+					const { data: profile } = await supabase
+						.from("profiles")
+						.select("public_key, encrypted_private_key")
+						.eq("id", userData.user.id)
+						.single();
+
+					if (profile?.encrypted_private_key && profile?.public_key) {
+						const privKeyBase64 = await decryptLocal(profile.encrypted_private_key, key);
+						const privateKeyObj = await importPrivateKey(privKeyBase64);
+						const publicKeyObj = await importPublicKey(profile.public_key);
+						cryptoSession.setSharingKeys(privateKeyObj, publicKeyObj);
+					} else {
+						// Fallback: Generate sharing keys if missing
+						const keyPair = await generateSharingKeyPair();
+						const pubKeyBase64 = await exportPublicKey(keyPair.publicKey);
+						const privKeyBase64 = await exportPrivateKey(keyPair.privateKey);
+						const encPrivKeyBase64 = await encryptLocal(privKeyBase64, key);
+
+						await supabase.from("profiles").upsert({
+							id: userData.user.id,
+							email: userData.user.email!,
+							public_key: pubKeyBase64,
+							encrypted_private_key: encPrivKeyBase64,
+						});
+
+						cryptoSession.setSharingKeys(keyPair.privateKey, keyPair.publicKey);
+					}
+
 					masterPasswordInput = "";
 					toast.success("The vault is ready!");
 					onSuccess();

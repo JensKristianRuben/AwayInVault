@@ -35,3 +35,6 @@
   - Maintain a straightforward, professional, and dry developer tone, avoiding generic AI-like hype, conversational filler, or excessive formatting fluff.
   - Use the lowercase abbreviation `aiv` (representing AwayInVault) when referencing the application, vault, or CLI tool.
   - Always use short dashes/hyphens (`-`) instead of long dashes (like em-dash `—` or en-dash `–`) in all text, comments, documentation, and user interfaces.
+- **Technical References Map**:
+  - Architectural designs, cryptographic flows, and domain references are stored under `.agents/references/`. Read them on-demand:
+    - [Sharing & Key Wrapping](file:///C:/Users/Jensk/node-js-projects/awayinVault/.agents/references/sharing-architecture.md): Zero-knowledge team sharing, RLS policies, trigger schema, and key wrapping workflows.

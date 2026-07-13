@@ -1,12 +1,13 @@
 <script lang="ts">
 	import { toast } from "svelte-sonner";
 	import type { VaultItem } from "$lib/types/vault";
+	import type { ProjectVaultItem } from "$lib/types/team";
 	import { getDomain } from "$lib/utils/url";
 
 	let { item, onDelete, onUnlock } = $props<{
-		item: VaultItem;
-		onDelete: (item: VaultItem) => void;
-		onUnlock: (item: VaultItem) => Promise<boolean>;
+		item: VaultItem | ProjectVaultItem;
+		onDelete?: (item: any) => void;
+		onUnlock: (item: any) => Promise<boolean>;
 	}>();
 
 	let isPasswordVisible = $state(false);
@@ -43,7 +44,7 @@
 </script>
 
 <div
-	class="bg-bg-sidebar border border-border-subtle p-5 hover:border-accent/40 hover:shadow-[0_0_30px_-10px_rgba(16,185,129,0.06)] transition-all duration-300 flex flex-col md:flex-row md:items-center justify-between gap-4 group"
+	class="bg-bg-sidebar border border-border-subtle p-4 hover:border-accent/40 hover:shadow-[0_0_30px_-10px_rgba(16,185,129,0.06)] transition-all duration-300 flex flex-col md:flex-row md:items-center justify-between gap-3 group"
 >
 	<!-- Main Info Section -->
 	<div class="space-y-1 min-w-0 flex-1">
@@ -108,7 +109,7 @@
 
 		<!-- Decrypted Credentials Grid -->
 		<div
-			class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2.5 mt-3 pt-3 border-t border-border-subtle/40"
+			class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1.5 mt-2.5 pt-2.5 border-t border-border-subtle/30"
 		>
 			<!-- Username -->
 			<div class="flex items-center justify-between gap-2 text-xs">
@@ -220,29 +221,33 @@
 	</div>
 
 	<!-- Actions Column -->
-	<div
-		class="flex items-center gap-2 self-end md:self-center opacity-70 group-hover:opacity-100 transition-opacity"
-	>
-		<button
-			onclick={() => onDelete(item)}
-			class="p-2 border border-border-subtle text-text-muted hover:text-red-500 hover:border-red-500/30 transition-all duration-200 cursor-pointer"
-			title="Delete"
+	{#if onDelete}
+		<div
+			class="flex items-center gap-2 self-end md:self-center opacity-70 group-hover:opacity-100 transition-opacity"
 		>
-			<svg
-				xmlns="http://www.w3.org/2000/svg"
-				viewBox="0 0 24 24"
-				fill="none"
-				stroke="currentColor"
-				stroke-width="2"
-				stroke-linecap="round"
-				stroke-linejoin="round"
-				class="w-4 h-4"
+			<button
+				onclick={() => onDelete!(item)}
+				class="p-1.5 border border-border-subtle text-text-muted hover:text-red-500 hover:border-red-500/30 transition-all duration-200 cursor-pointer"
+				title="Delete"
 			>
-				<polyline points="3 6 5 6 21 6" />
-				<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-				<line x1="10" y1="11" x2="10" y2="17" />
-				<line x1="14" y1="11" x2="14" y2="17" />
-			</svg>
-		</button>
-	</div>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					class="w-4 h-4"
+				>
+					<polyline points="3 6 5 6 21 6" />
+					<path
+						d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+					/>
+					<line x1="10" y1="11" x2="10" y2="17" />
+					<line x1="14" y1="11" x2="14" y2="17" />
+				</svg>
+			</button>
+		</div>
+	{/if}
 </div>

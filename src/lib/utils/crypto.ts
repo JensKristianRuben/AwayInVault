@@ -219,3 +219,112 @@ export async function getBiometricMasterKey(
 		return null;
 	}
 }
+
+// Generate a new RSA-OAEP keypair for team key sharing
+export async function generateSharingKeyPair(): Promise<CryptoKeyPair> {
+	return await crypto.subtle.generateKey(
+		{
+			name: "RSA-OAEP",
+			modulusLength: 2048,
+			publicExponent: new Uint8Array([1, 0, 1]),
+			hash: "SHA-256",
+		},
+		true,
+		["encrypt", "decrypt"],
+	);
+}
+
+// Export RSA public key to base64 SPKI
+export async function exportPublicKey(key: CryptoKey): Promise<string> {
+	const exported = await crypto.subtle.exportKey("spki", key);
+	return bytesToBase64(new Uint8Array(exported));
+}
+
+// Export RSA private key to base64 PKCS8
+export async function exportPrivateKey(key: CryptoKey): Promise<string> {
+	const exported = await crypto.subtle.exportKey("pkcs8", key);
+	return bytesToBase64(new Uint8Array(exported));
+}
+
+// Import RSA public key from base64 SPKI
+export async function importPublicKey(publicKeyBase64: string): Promise<CryptoKey> {
+	const bytes = base64ToBytes(publicKeyBase64);
+	return await crypto.subtle.importKey(
+		"spki",
+		bytes as unknown as ArrayBuffer,
+		{
+			name: "RSA-OAEP",
+			hash: "SHA-256",
+		},
+		true,
+		["encrypt"],
+	);
+}
+
+// Import RSA private key from base64 PKCS8
+export async function importPrivateKey(privateKeyBase64: string): Promise<CryptoKey> {
+	const bytes = base64ToBytes(privateKeyBase64);
+	return await crypto.subtle.importKey(
+		"pkcs8",
+		bytes as unknown as ArrayBuffer,
+		{
+			name: "RSA-OAEP",
+			hash: "SHA-256",
+		},
+		true,
+		["decrypt"],
+	);
+}
+
+// Wrap (encrypt) project key using RSA public key
+export async function wrapProjectKey(
+	projectKeyBase64: string,
+	publicKey: CryptoKey,
+): Promise<string> {
+	const projectKeyBytes = base64ToBytes(projectKeyBase64);
+	const encryptedBuffer = await crypto.subtle.encrypt(
+		{
+			name: "RSA-OAEP",
+		},
+		publicKey,
+		projectKeyBytes as unknown as ArrayBuffer,
+	);
+	return bytesToBase64(new Uint8Array(encryptedBuffer));
+}
+
+// Unwrap (decrypt) project key using RSA private key
+export async function unwrapProjectKey(
+	wrappedKeyBase64: string,
+	privateKey: CryptoKey,
+): Promise<string> {
+	const wrappedBytes = base64ToBytes(wrappedKeyBase64);
+	const decryptedBuffer = await crypto.subtle.decrypt(
+		{
+			name: "RSA-OAEP",
+		},
+		privateKey,
+		wrappedBytes as unknown as ArrayBuffer,
+	);
+	return bytesToBase64(new Uint8Array(decryptedBuffer));
+}
+
+// Generate random symmetric key for project (AES-GCM 256 bits)
+export function generateProjectKey(): string {
+	const bytes = crypto.getRandomValues(new Uint8Array(32));
+	return bytesToBase64(bytes);
+}
+
+// Import AES-GCM project key
+export async function importProjectKey(projectKeyBase64: string): Promise<CryptoKey> {
+	const bytes = base64ToBytes(projectKeyBase64);
+	return await crypto.subtle.importKey(
+		"raw",
+		bytes as unknown as ArrayBuffer,
+		{
+			name: "AES-GCM",
+			length: 256,
+		},
+		false,
+		["encrypt", "decrypt"],
+	);
+}

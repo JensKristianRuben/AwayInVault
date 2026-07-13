@@ -124,3 +124,61 @@
 .view-transition-back::view-transition-new(root) {
 	animation-name: slide-in-left;
 }
+
+/* Custom theme styling for svelte-sonner to match AwayInVault */
+html [data-sonner-toaster][data-sonner-theme="dark"] {
+	--normal-bg: var(--color-bg-sidebar) !important;
+	--normal-text: var(--color-text-base) !important;
+	--normal-border: var(--color-border-subtle) !important;
+
+	/* Success theme overrides match the page theme */
+	--success-bg: var(--color-bg-sidebar) !important;
+	--success-text: var(--color-text-base) !important;
+	--success-border: var(--color-border-subtle) !important;
+
+	/* Red-ish error/destructive overrides for dark theme */
+	--error-bg: color-mix(in srgb, var(--color-neutral-950) 85%, #ef4444) !important;
+	--error-text: #fca5a5 !important;
+	--error-border: color-mix(in srgb, var(--color-neutral-800) 60%, #ef4444) !important;
+
+	/* Info overrides */
+	--info-bg: color-mix(in srgb, var(--color-neutral-950) 85%, #3b82f6) !important;
+	--info-text: #93c5fd !important;
+	--info-border: color-mix(in srgb, var(--color-neutral-800) 60%, #3b82f6) !important;
+
+	/* Warning overrides */
+	--warning-bg: color-mix(in srgb, var(--color-neutral-950) 85%, #f59e0b) !important;
+	--warning-text: #fde047 !important;
+	--warning-border: color-mix(in srgb, var(--color-neutral-800) 60%, #f59e0b) !important;
+}
+
+html [data-sonner-toaster][data-sonner-theme="light"] {
+	--normal-bg: var(--color-bg-sidebar) !important;
+	--normal-text: var(--color-text-base) !important;
+	--normal-border: var(--color-border-subtle) !important;
+
+	/* Success theme overrides match the page theme */
+	--success-bg: var(--color-bg-sidebar) !important;
+	--success-text: var(--color-text-base) !important;
+	--success-border: var(--color-border-subtle) !important;
+
+	/* Red-ish error/destructive overrides for light theme */
+	--error-bg: color-mix(in srgb, var(--color-neutral-50) 90%, #ef4444) !important;
+	--error-text: #991b1b !important;
+	--error-border: color-mix(in srgb, var(--color-neutral-200) 70%, #ef4444) !important;
+
+	/* Info overrides */
+	--info-bg: color-mix(in srgb, var(--color-neutral-50) 90%, #3b82f6) !important;
+	--info-text: #1e40af !important;
+	--info-border: color-mix(in srgb, var(--color-neutral-200) 70%, #3b82f6) !important;
+
+	/* Warning overrides */
+	--warning-bg: color-mix(in srgb, var(--color-neutral-50) 90%, #f59e0b) !important;
+	--warning-text: #78350f !important;
+	--warning-border: color-mix(in srgb, var(--color-neutral-200) 70%, #f59e0b) !important;
+}
+
+/* Ensure toast styles inherit correct fonts and layouts */
+[data-sonner-toast] {
+	font-family: inherit !important;
+}

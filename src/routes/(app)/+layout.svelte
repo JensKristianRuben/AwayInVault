@@ -178,6 +178,42 @@
 			>
 		</a>
 
+		<!-- Teams Link -->
+		<a
+			href="/teams"
+			class="relative flex items-center p-3 rounded-lg transition-all duration-200
+             {isActive('/teams')
+				? 'bg-accent/10 text-accent font-semibold'
+				: 'text-text-muted hover:bg-accent/5 hover:text-text-base'}"
+		>
+			<!-- Active indicator line -->
+			{#if isActive("/teams")}
+				<div class="absolute left-0 top-1/4 bottom-1/4 w-1 bg-accent rounded-r-md"></div>
+			{/if}
+
+			<div class="w-10 flex-shrink-0 flex justify-center">
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					class="w-6 h-6"
+				>
+					<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+					<circle cx="9" cy="7" r="4" />
+					<path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+					<path d="M16 3.13a4 4 0 0 1 0 7.75" />
+				</svg>
+			</div>
+			<span
+				class="ml-4 text-text-base font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+				>Teams</span
+			>
+		</a>
+
 		<!-- Settings Link -->
 		<a
 			href="/settings"
@@ -359,6 +395,34 @@
 					</svg>
 				</div>
 				<span class="ml-4 text-lg font-medium text-text-base">Notes</span>
+			</a>
+
+			<!-- Teams Link -->
+			<a
+				href="/teams"
+				class="flex items-center p-4 rounded-lg transition-all duration-200
+					{isActive('/teams')
+					? 'bg-accent/10 text-accent font-semibold'
+					: 'text-text-muted hover:bg-accent/5 hover:text-text-base'}"
+			>
+				<div class="w-8 flex justify-center text-accent">
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						class="w-6 h-6"
+					>
+						<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+						<circle cx="9" cy="7" r="4" />
+						<path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+						<path d="M16 3.13a4 4 0 0 1 0 7.75" />
+					</svg>
+				</div>
+				<span class="ml-4 text-lg font-medium text-text-base">Teams</span>
 			</a>
 
 			<!-- Settings Link -->

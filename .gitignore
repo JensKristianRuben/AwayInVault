@@ -25,3 +25,6 @@ vite.config.ts.timestamp-*
 # Build outputs
 /dist
 
+
+# Temporary CLI test sessions
+cli/temp-*.json

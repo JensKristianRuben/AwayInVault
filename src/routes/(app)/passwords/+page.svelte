@@ -284,7 +284,7 @@
 	});
 </script>
 
-<div class="p-8 max-w-5xl mx-auto space-y-8">
+<div class="p-8 max-w-4xl mx-auto space-y-8">
 	<!-- Header with signature key/vault status -->
 	<div
 		class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6 border-b border-border-subtle"
