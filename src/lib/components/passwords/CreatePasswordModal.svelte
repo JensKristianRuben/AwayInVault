@@ -44,13 +44,21 @@
 		}
 	});
 
-	// Generate a random strong password
+	// Generate a random strong password using a CSPRNG (rejection-sampled to avoid modulo bias)
 	function generateRandomPassword() {
 		const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&*()_-+=";
 		const length = 18;
+		const maxValid = Math.floor(256 / chars.length) * chars.length;
 		let generated = "";
-		for (let i = 0; i < length; i++) {
-			generated += chars.charAt(Math.floor(Math.random() * chars.length));
+		const buffer = new Uint8Array(length * 2);
+		while (generated.length < length) {
+			crypto.getRandomValues(buffer);
+			for (const byte of buffer) {
+				if (generated.length >= length) break;
+				if (byte < maxValid) {
+					generated += chars.charAt(byte % chars.length);
+				}
+			}
 		}
 		passwordInput = generated;
 		showPassword = true;

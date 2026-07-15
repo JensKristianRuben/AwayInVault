@@ -108,7 +108,7 @@ describe("Supabase RLS Policies Integration Test", () => {
 			.select("*")
 			.eq("id", itemId)) as { data: VaultItem[] | null };
 		expect(verifyData).toHaveLength(0);
-	});
+	}, 15000);
 
 	it("should block User B from reading, updating, or deleting User A's vault items", async () => {
 		const title = `Private Item ${Date.now()}`;

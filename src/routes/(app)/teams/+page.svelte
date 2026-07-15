@@ -219,7 +219,10 @@
 
 		if (mems && mems.length > 0) {
 			const userIds = mems.map((m) => m.user_id);
-			const { data: profs } = await supabase.from("profiles").select("*").in("id", userIds);
+			const { data: profs } = await supabase
+				.from("public_profiles")
+				.select("id, email, public_key")
+				.in("id", userIds);
 
 			members = mems.map((m) => ({
 				...m,
@@ -456,8 +459,8 @@
 
 			// 1. Check if user is registered (look up in profiles)
 			const { data: inviteeProfile } = await supabase
-				.from("profiles")
-				.select("*")
+				.from("public_profiles")
+				.select("id, email, public_key")
 				.eq("email", inviteEmail)
 				.maybeSingle();
 

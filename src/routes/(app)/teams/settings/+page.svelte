@@ -59,14 +59,34 @@
 	let isDeleteTeamOpen = $state(false);
 	let deleteTeamConfirmInput = $state("");
 
-	onMount(async () => {
+	// User Actions Dropdown state
+	let openUserActionsId = $state<string>("");
+
+	function toggleUserActions(id: string, e: MouseEvent) {
+		e.stopPropagation();
+		if (openUserActionsId === id) {
+			openUserActionsId = "";
+		} else {
+			openUserActionsId = id;
+		}
+	}
+
+	onMount(() => {
 		if (!teamId) {
 			toast.error("No team selected.");
 			goto("/teams");
 			return;
 		}
 
-		await loadData();
+		loadData();
+
+		const closeMenus = () => {
+			openUserActionsId = "";
+		};
+		window.addEventListener("click", closeMenus);
+		return () => {
+			window.removeEventListener("click", closeMenus);
+		};
 	});
 
 	async function loadData() {
@@ -108,7 +128,10 @@
 
 			if (mems && mems.length > 0) {
 				const userIds = mems.map((m) => m.user_id);
-				const { data: profs } = await supabase.from("profiles").select("*").in("id", userIds);
+				const { data: profs } = await supabase
+					.from("public_profiles")
+					.select("id, email, public_key")
+					.in("id", userIds);
 
 				members = mems.map((m) => ({
 					...m,
@@ -250,8 +273,8 @@
 
 			// 2. Check if user is registered (look up in profiles)
 			const { data: inviteeProfile } = await supabase
-				.from("profiles")
-				.select("*")
+				.from("public_profiles")
+				.select("id, email, public_key")
 				.eq("email", emailLower)
 				.maybeSingle();
 
@@ -605,10 +628,12 @@
 		{:else}
 			<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 				<!-- Left Sidebar Menu -->
-				<div class="lg:col-span-3 space-y-2">
+				<div
+					class="lg:col-span-3 flex flex-row overflow-x-auto lg:flex-col gap-1 border-b border-border-subtle lg:border-none pb-4 lg:pb-0 scrollbar-none shrink-0"
+				>
 					<button
 						onclick={() => (activeTab = "members")}
-						class="w-full text-left px-4 py-2.5 text-sm font-medium border-l-2 transition-all cursor-pointer
+						class="whitespace-nowrap px-4 py-2.5 text-sm font-medium border-b-2 lg:border-b-0 lg:border-l-2 transition-all cursor-pointer
 							{activeTab === 'members'
 							? 'bg-accent/10 border-accent text-accent font-semibold'
 							: 'border-transparent text-text-muted hover:bg-bg-sidebar hover:text-text-base'}"
@@ -617,7 +642,7 @@
 					</button>
 					<button
 						onclick={() => (activeTab = "general")}
-						class="w-full text-left px-4 py-2.5 text-sm font-medium border-l-2 transition-all cursor-pointer
+						class="whitespace-nowrap px-4 py-2.5 text-sm font-medium border-b-2 lg:border-b-0 lg:border-l-2 transition-all cursor-pointer
 							{activeTab === 'general'
 							? 'bg-accent/10 border-accent text-accent font-semibold'
 							: 'border-transparent text-text-muted hover:bg-bg-sidebar hover:text-text-base'}"
@@ -626,7 +651,7 @@
 					</button>
 					<button
 						onclick={() => (activeTab = "projects")}
-						class="w-full text-left px-4 py-2.5 text-sm font-medium border-l-2 transition-all cursor-pointer
+						class="whitespace-nowrap px-4 py-2.5 text-sm font-medium border-b-2 lg:border-b-0 lg:border-l-2 transition-all cursor-pointer
 							{activeTab === 'projects'
 							? 'bg-accent/10 border-accent text-accent font-semibold'
 							: 'border-transparent text-text-muted hover:bg-bg-sidebar hover:text-text-base'}"
@@ -635,7 +660,7 @@
 					</button>
 					<button
 						onclick={() => (activeTab = "danger")}
-						class="w-full text-left px-4 py-2.5 text-sm font-medium border-l-2 transition-all cursor-pointer
+						class="whitespace-nowrap px-4 py-2.5 text-sm font-medium border-b-2 lg:border-b-0 lg:border-l-2 transition-all cursor-pointer
 							{activeTab === 'danger'
 							? 'bg-accent/10 border-accent text-accent font-semibold'
 							: 'border-transparent text-text-muted hover:bg-bg-sidebar hover:text-text-base'}"
@@ -790,32 +815,61 @@
 													{/if}
 												</div>
 
-												<!-- Actions -->
-												<div class="flex gap-2">
-													{#if mem.user_id !== currentUser.id && mem.status === "active"}
-														<button
-															onclick={() => handleManualDistributeKeys(mem)}
-															class="px-2.5 py-1 bg-accent/10 hover:bg-accent/20 text-accent text-xs font-semibold cursor-pointer border border-accent/20"
-															title="Distribute project keys to this member"
+												<!-- Actions Dropdown -->
+												<div class="relative">
+													<button
+														type="button"
+														onclick={(e) => toggleUserActions(mem.id, e)}
+														class="p-1.5 bg-bg-primary hover:bg-bg-primary/80 border border-border-subtle text-text-muted hover:text-text-base transition-colors cursor-pointer flex items-center justify-center"
+														title="Member Actions"
+													>
+														<svg
+															xmlns="http://www.w3.org/2000/svg"
+															viewBox="0 0 24 24"
+															fill="none"
+															stroke="currentColor"
+															stroke-width="2.5"
+															class="w-3.5 h-3.5"
 														>
-															Distribute keys
-														</button>
-													{/if}
+															<circle cx="12" cy="12" r="1" />
+															<circle cx="12" cy="5" r="1" />
+															<circle cx="12" cy="19" r="1" />
+														</svg>
+													</button>
 
-													{#if myRoleInSelectedTeam === "owner" && mem.user_id !== currentUser.id}
-														<button
-															onclick={() => handleRemoveMember(mem.id, mem.profiles?.email || "")}
-															class="px-2.5 py-1 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold cursor-pointer border border-red-500/20"
+													{#if openUserActionsId === mem.id}
+														<div
+															class="absolute right-0 mt-1 bg-bg-sidebar border border-border-subtle shadow-lg z-50 py-1 w-36"
 														>
-															Remove
-														</button>
-													{:else if mem.user_id === currentUser.id}
-														<button
-															onclick={() => handleRemoveMember(mem.id, "")}
-															class="px-2.5 py-1 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold cursor-pointer border border-red-500/20"
-														>
-															Leave Team
-														</button>
+															{#if mem.user_id !== currentUser.id && mem.status === "active"}
+																<button
+																	type="button"
+																	onclick={() => handleManualDistributeKeys(mem)}
+																	class="w-full text-left px-3 py-1.5 text-xs text-accent hover:bg-accent hover:text-bg-sidebar transition-colors cursor-pointer font-medium"
+																>
+																	Distribute Keys
+																</button>
+															{/if}
+
+															{#if myRoleInSelectedTeam === "owner" && mem.user_id !== currentUser.id}
+																<button
+																	type="button"
+																	onclick={() =>
+																		handleRemoveMember(mem.id, mem.profiles?.email || "")}
+																	class="w-full text-left px-3 py-1.5 text-xs text-red-400 hover:bg-red-500 hover:text-white transition-colors cursor-pointer font-medium"
+																>
+																	Remove Member
+																</button>
+															{:else if mem.user_id === currentUser.id}
+																<button
+																	type="button"
+																	onclick={() => handleRemoveMember(mem.id, "")}
+																	class="w-full text-left px-3 py-1.5 text-xs text-red-400 hover:bg-red-500 hover:text-white transition-colors cursor-pointer font-medium"
+																>
+																	Leave Team
+																</button>
+															{/if}
+														</div>
 													{/if}
 												</div>
 											</div>
@@ -870,8 +924,11 @@
 										</p>
 									</div>
 
-									<form onsubmit={handleCreateProject} class="flex gap-3 items-end">
-										<div class="flex-1 space-y-1">
+									<form
+										onsubmit={handleCreateProject}
+										class="flex flex-col sm:flex-row gap-3 sm:items-end"
+									>
+										<div class="flex-1 space-y-1 w-full">
 											<label
 												for="new-project-name"
 												class="text-[9px] font-semibold uppercase tracking-wider text-text-muted"
@@ -889,7 +946,7 @@
 
 										<button
 											type="submit"
-											class="px-4 py-2 bg-accent text-bg-sidebar text-xs font-semibold hover:bg-accent/90 cursor-pointer h-[34px]"
+											class="w-full sm:w-auto px-4 py-2 bg-accent text-bg-sidebar text-xs font-semibold hover:bg-accent/90 cursor-pointer h-[34px]"
 										>
 											+ Create Project
 										</button>

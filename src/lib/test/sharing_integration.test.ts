@@ -215,7 +215,7 @@ describe("Team Sharing & Zero-Knowledge Key Wrapping Integration Test", () => {
 
 		// 5. User A proactively wraps the project key for User B
 		const { data: profileB } = await clientA
-			.from("profiles")
+			.from("public_profiles")
 			.select("public_key")
 			.eq("id", userBId)
 			.single();
@@ -302,7 +302,7 @@ describe("Team Sharing & Zero-Knowledge Key Wrapping Integration Test", () => {
 		// Assertions: User B successfully decrypted User A's shared password!
 		expect(decryptedUserB).toBe(rawUsername);
 		expect(decryptedPassB).toBe(rawPassword);
-	});
+	}, 20000);
 
 	it("should verify that User B cannot decrypt passwords until User A distributes/upserts the project key", async () => {
 		// 1. User A creates a team
@@ -385,7 +385,7 @@ describe("Team Sharing & Zero-Knowledge Key Wrapping Integration Test", () => {
 
 			// 7. User A now distributes/upserts the project key for User B
 			const { data: profileB } = await clientA
-				.from("profiles")
+				.from("public_profiles")
 				.select("public_key")
 				.eq("id", userBId)
 				.single();
@@ -446,5 +446,5 @@ describe("Team Sharing & Zero-Knowledge Key Wrapping Integration Test", () => {
 				await clientA.from("teams").delete().eq("id", testTeamId);
 			}
 		}
-	});
+	}, 20000);
 });
