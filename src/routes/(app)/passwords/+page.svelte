@@ -1,25 +1,23 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { supabase } from "$lib/utils/supabaseClient";
-	import { cryptoSession } from "$lib/stores/cryptoSession.svelte";
-	import { decryptLocal, getBiometricMasterKey, verifyMasterPassword } from "$lib/utils/crypto";
-	import { getBiometricCredentials } from "$lib/utils/indexedDB";
 	import { toast } from "svelte-sonner";
 	import type { VaultItem } from "$lib/types/vault";
 
 	import CreatePasswordModal from "$lib/components/passwords/CreatePasswordModal.svelte";
-	import PasswordCard from "$lib/components/passwords/PasswordCard.svelte";
+	import PasswordListCard from "$lib/components/passwords/PasswordListCard.svelte";
 
 	// Data states
-	let decryptedItems = $state<VaultItem[]>([]);
+	let items = $state<VaultItem[]>([]);
 	let isLoading = $state(true);
 	let showCreateModal = $state(false);
 
 	// Search state
 	let searchQuery = $state("");
 
-	// Load items from Supabase and decrypt them locally
-	async function loadAndDecryptVaultItems() {
+	// Load items from Supabase. Titles & websites aren't encrypted, so no
+	// master password / decryption is needed just to list them.
+	async function loadVaultItems() {
 		isLoading = true;
 		try {
 			const {
@@ -39,248 +37,33 @@
 				throw error;
 			}
 
-			const key = cryptoSession.cryptoKey;
-			if (!key) {
-				// Vault is locked (e.g. modal is open), display encrypted placeholders
-				decryptedItems = (data || []).map((item) => ({
-					...item,
-					username: "(locked)",
-					password: "(locked - encrypted in database)",
-					isDecrypted: false,
-				}));
-				return;
-			}
-
-			// Decrypt items
-			const decrypted = await Promise.all(
-				(data || []).map(async (item) => {
-					let username = "";
-					let password = "";
-					let isDecrypted = false;
-					try {
-						username = await decryptLocal(item.username_encrypted, key);
-						password = await decryptLocal(item.password_encrypted, key);
-						isDecrypted = true;
-					} catch (err) {
-						console.error("Error decrypting item:", item.id, err);
-						username = "(decryption error)";
-						password = "(decryption error)";
-					}
-					return {
-						...item,
-						username,
-						password,
-						isDecrypted,
-					};
-				}),
-			);
-
-			decryptedItems = decrypted;
+			items = data || [];
 		} catch (err: any) {
 			console.error("Error fetching vault_items:", err);
-			toast.error("Could not fetch or decrypt your passwords: " + err.message);
+			toast.error("Could not fetch your passwords: " + err.message);
 		} finally {
 			isLoading = false;
 		}
 	}
 
-	let hasBiometrics = $state(false);
-
-	// Password prompt modal states
-	let showPasswordPrompt = $state(false);
-	let masterPasswordPromptInput = $state("");
-	let itemToUnlock = $state<VaultItem | null>(null);
-	let onPromptSubmit = $state<((password: string) => void) | null>(null);
-	let onPromptCancel = $state<(() => void) | null>(null);
-
-	function promptForMasterPassword(
-		item: VaultItem,
-		onSubmit: (password: string) => void,
-		onCancel: () => void,
-	) {
-		itemToUnlock = item;
-		masterPasswordPromptInput = "";
-		onPromptSubmit = onSubmit;
-		onPromptCancel = onCancel;
-		showPasswordPrompt = true;
-	}
-
-	function handlePromptSubmit(e: SubmitEvent) {
-		e.preventDefault();
-		if (!masterPasswordPromptInput) {
-			toast.error("Please enter your Master Password.");
-			return;
-		}
-		const submitCb = onPromptSubmit;
-		showPasswordPrompt = false;
-		if (submitCb) submitCb(masterPasswordPromptInput);
-	}
-
-	function handlePromptCancel() {
-		showPasswordPrompt = false;
-		const cancelCb = onPromptCancel;
-		if (cancelCb) cancelCb();
-	}
-
-	function handleUnlockItem(item: VaultItem): Promise<boolean> {
-		return new Promise<boolean>(async (resolve) => {
-			// 1. Try biometrics if enabled
-			if (hasBiometrics) {
-				try {
-					const {
-						data: { user },
-						error,
-					} = await supabase.auth.getUser();
-					if (error || !user) throw new Error("Not logged in.");
-
-					const key = await getBiometricMasterKey(user.user_metadata);
-					if (key) {
-						const decryptedUsername = await decryptLocal(item.username_encrypted, key);
-						const decryptedPassword = await decryptLocal(item.password_encrypted, key);
-
-						decryptedItems = decryptedItems.map((d) => {
-							if (d.id === item.id) {
-								return {
-									...d,
-									username: decryptedUsername,
-									password: decryptedPassword,
-									isDecrypted: true,
-								};
-							}
-							return d;
-						});
-
-						toast.success("Item decrypted with biometrics!");
-						resolve(true);
-						return;
-					}
-				} catch (err) {
-					console.warn("Biometric unlock aborted or failed. Trying password...", err);
-				}
-			}
-
-			// 2. Fallback to prompting for Master Password
-			promptForMasterPassword(
-				item,
-				async (password) => {
-					try {
-						const {
-							data: { user },
-						} = await supabase.auth.getUser();
-						if (!user) throw new Error("You must be logged in.");
-
-						const key = await verifyMasterPassword(password, user.user_metadata);
-						if (!key) {
-							toast.error("Incorrect Master Password.");
-							resolve(false);
-							return;
-						}
-
-						const decryptedUsername = await decryptLocal(item.username_encrypted, key);
-						const decryptedPassword = await decryptLocal(item.password_encrypted, key);
-
-						decryptedItems = decryptedItems.map((d) => {
-							if (d.id === item.id) {
-								return {
-									...d,
-									username: decryptedUsername,
-									password: decryptedPassword,
-									isDecrypted: true,
-								};
-							}
-							return d;
-						});
-
-						toast.success("Item decrypted!");
-						resolve(true);
-					} catch (err: any) {
-						toast.error("Could not decrypt: " + err.message);
-						resolve(false);
-					}
-				},
-				() => {
-					resolve(false);
-				},
-			);
-		});
-	}
-
-	// Delete an item with sonner confirmation toast styled to match theme
-	function handleDelete(item: VaultItem) {
-		toast(`Do you want to permanently delete the password for "${item.title}"?`, {
-			description: "This action cannot be undone.",
-			action: {
-				label: "Delete permanently",
-				onClick: async () => {
-					try {
-						const { error } = await supabase.from("vault_items").delete().eq("id", item.id);
-
-						if (error) throw error;
-
-						toast.success(`"${item.title}" was deleted!`);
-						await loadAndDecryptVaultItems();
-					} catch (err: any) {
-						console.error("Error during deletion:", err);
-						toast.error("Could not delete item: " + err.message);
-					}
-				},
-			},
-			cancel: {
-				label: "Cancel",
-				onClick: () => {},
-			},
-			classes: {
-				toast:
-					"!bg-bg-sidebar !border !border-border-subtle !rounded-none !text-text-base !p-4 !shadow-2xl !flex !flex-col !gap-3 !items-start",
-				title: "!text-sm !font-semibold !text-text-base",
-				description: "!text-xs !text-text-muted",
-				actionButton:
-					"!bg-red-500 hover:!bg-red-600 !text-white !text-xs !px-3 !py-1.5 !font-semibold !rounded-none !transition-colors !cursor-pointer",
-				cancelButton:
-					"!bg-transparent !border !border-border-subtle hover:!border-text-base/30 !text-text-muted hover:!text-text-base !text-xs !px-3 !py-1.5 !font-semibold !rounded-none !transition-all !cursor-pointer",
-			},
-		});
-	}
-
 	function handleCreateSuccess() {
 		showCreateModal = false;
-		loadAndDecryptVaultItems();
+		loadVaultItems();
 	}
 
-	// Computed filter of items based on search query
+	// Computed filter of items based on search query (title/website only —
+	// username/password stay encrypted until an item is opened)
 	let filteredItems = $derived(
-		decryptedItems.filter((item) => {
+		items.filter((item) => {
 			const query = searchQuery.toLowerCase();
 			const titleMatch = item.title?.toLowerCase().includes(query);
 			const websiteMatch = item.website?.toLowerCase().includes(query);
-			const usernameMatch = item.username?.toLowerCase().includes(query);
-			return titleMatch || websiteMatch || usernameMatch;
+			return titleMatch || websiteMatch;
 		}),
 	);
 
-	// Watch for changes in the key state to re-run decryption
-	$effect(() => {
-		if (cryptoSession.cryptoKey) {
-			loadAndDecryptVaultItems();
-		}
-	});
-
-	onMount(async () => {
-		const credentials = await getBiometricCredentials();
-		const localBio = !!credentials;
-
-		try {
-			const {
-				data: { user },
-			} = await supabase.auth.getUser();
-			const dbBio = (user?.user_metadata?.biometric_credentials || []).length > 0;
-			hasBiometrics = localBio || dbBio;
-		} catch (err) {
-			console.error("Failed to load user biometric metadata:", err);
-			hasBiometrics = localBio;
-		}
-
-		loadAndDecryptVaultItems();
+	onMount(() => {
+		loadVaultItems();
 	});
 </script>
 
@@ -335,7 +118,7 @@
 				</svg>
 				<input
 					type="text"
-					placeholder="Search for service, URL, or username..."
+					placeholder="Search for service or URL..."
 					bind:value={searchQuery}
 					class="w-full pl-9 pr-4 py-2 bg-bg-primary border border-border-subtle text-text-base text-sm focus:outline-none focus:border-accent transition-all placeholder:text-text-base/20"
 				/>
@@ -361,7 +144,7 @@
 						d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
 					></path>
 				</svg>
-				<p class="text-xs tracking-wide">Fetching and decrypting items...</p>
+				<p class="text-xs tracking-wide">Fetching your passwords...</p>
 			</div>
 		{:else if filteredItems.length === 0}
 			<div
@@ -384,9 +167,9 @@
 				{/if}
 			</div>
 		{:else}
-			<div class="space-y-4">
+			<div class="space-y-3">
 				{#each filteredItems as item (item.id)}
-					<PasswordCard {item} onDelete={handleDelete} onUnlock={handleUnlockItem} />
+					<PasswordListCard {item} />
 				{/each}
 			</div>
 		{/if}
@@ -396,54 +179,4 @@
 <!-- Modal for creating a new vault item -->
 {#if showCreateModal}
 	<CreatePasswordModal onClose={() => (showCreateModal = false)} onSuccess={handleCreateSuccess} />
-{/if}
-
-<!-- Inline modal for password fallback decryption -->
-{#if showPasswordPrompt}
-	<div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-		<div
-			class="bg-bg-sidebar border border-border-subtle p-6 max-w-sm w-full shadow-2xl relative animate-in fade-in zoom-in-95 duration-200"
-		>
-			<h3 class="text-sm font-bold text-text-base mb-1">Unlock</h3>
-			<p class="text-[11px] text-text-muted mb-4">
-				Enter your Master Password to decrypt the password for "{itemToUnlock?.title}".
-			</p>
-
-			<form onsubmit={handlePromptSubmit} class="space-y-4">
-				<div class="space-y-1.5">
-					<label
-						for="modal-master-password"
-						class="text-[9px] font-semibold uppercase tracking-widest text-text-muted ml-1"
-					>
-						Master Password
-					</label>
-					<input
-						id="modal-master-password"
-						type="password"
-						bind:value={masterPasswordPromptInput}
-						placeholder="Enter password"
-						class="w-full px-4 py-2.5 bg-bg-primary border border-border-subtle text-text-base text-sm focus:outline-none focus:border-accent transition-all placeholder:text-text-base/20"
-						required
-						autofocus
-					/>
-				</div>
-
-				<div class="flex justify-end gap-3 pt-2">
-					<button
-						type="button"
-						onclick={handlePromptCancel}
-						class="px-4 py-2 text-xs border border-border-subtle text-text-muted hover:text-text-base transition-colors duration-200 cursor-pointer"
-					>
-						Cancel
-					</button>
-					<button
-						type="submit"
-						class="px-4 py-2 text-xs border-2 border-accent text-accent font-semibold hover:bg-accent hover:text-bg-sidebar transition-all duration-300 cursor-pointer"
-					>
-						Confirm
-					</button>
-				</div>
-			</form>
-		</div>
-	</div>
 {/if}

@@ -153,7 +153,9 @@
 							••••••••••••••••
 						</span>
 					{:else}
-						<span class="text-text-base font-mono tracking-wide font-medium">
+						<span
+							class="text-text-base font-mono tracking-wide font-medium break-all max-w-[150px] md:max-w-[200px]"
+						>
 							{item.password}
 						</span>
 					{/if}
