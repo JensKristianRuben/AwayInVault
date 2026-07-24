@@ -25,5 +25,11 @@ export default defineConfig({
 	},
 	test: {
 		include: ["src/**/*.{test,spec}.{js,ts}"],
+		// Several integration test files share the same live TEST_USER_A/B fixture
+		// accounts (vault_items, profiles, teams). Running test files in parallel lets
+		// them race on that shared account state (e.g. one test's migration step running
+		// concurrently with another test's CLI calls against the same account). Running
+		// files sequentially avoids this without needing per-account locking.
+		fileParallelism: false,
 	},
 });

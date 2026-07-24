@@ -4,6 +4,7 @@
 	import { page } from "$app/state";
 	import { supabase } from "$lib/utils/supabaseClient";
 	import { decryptLocal, getBiometricMasterKey, verifyMasterPassword } from "$lib/utils/crypto";
+	import { resolveVaultKey } from "$lib/utils/vaultMigration";
 	import { getBiometricCredentials } from "$lib/utils/indexedDB";
 	import { toast } from "svelte-sonner";
 	import type { VaultItem } from "$lib/types/vault";
@@ -51,10 +52,10 @@
 		}
 	}
 
-	async function unlockWithKey(key: CryptoKey) {
+	async function unlockWithKey(vaultKey: CryptoKey) {
 		if (!item) return;
-		username = await decryptLocal(item.username_encrypted, key);
-		password = await decryptLocal(item.password_encrypted, key);
+		username = await decryptLocal(item.username_encrypted, vaultKey);
+		password = await decryptLocal(item.password_encrypted, vaultKey);
 		phase = "unlocked";
 	}
 
@@ -69,10 +70,11 @@
 			} = await supabase.auth.getUser();
 			if (error || !user) throw new Error("Not logged in.");
 
-			const key = await getBiometricMasterKey(user.user_metadata);
+			const key = await getBiometricMasterKey(user.user_metadata, user.id);
 			if (!key) throw new Error("Biometric unlock unavailable.");
 
-			await unlockWithKey(key);
+			const vaultKey = await resolveVaultKey(supabase, user.id, key);
+			await unlockWithKey(vaultKey);
 			toast.success("Item decrypted with biometrics!");
 		} catch (err) {
 			console.warn("Biometric unlock aborted or failed.", err);
@@ -101,7 +103,8 @@
 				return;
 			}
 
-			await unlockWithKey(key);
+			const vaultKey = await resolveVaultKey(supabase, user.id, key);
+			await unlockWithKey(vaultKey);
 			toast.success("Item decrypted!");
 		} catch (err: any) {
 			toast.error("Could not decrypt: " + err.message);
@@ -156,18 +159,16 @@
 	}
 
 	onMount(async () => {
-		const credentials = await getBiometricCredentials();
-		const localBio = !!credentials;
-
 		try {
 			const {
 				data: { user },
 			} = await supabase.auth.getUser();
+			const localBio = user ? !!(await getBiometricCredentials(user.id)) : false;
 			const dbBio = (user?.user_metadata?.biometric_credentials || []).length > 0;
 			hasBiometrics = localBio || dbBio;
 		} catch (err) {
 			console.error("Failed to load user biometric metadata:", err);
-			hasBiometrics = localBio;
+			hasBiometrics = false;
 		}
 
 		await loadItem();

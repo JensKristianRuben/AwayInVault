@@ -69,7 +69,7 @@
 			}
 
 			// 3. Check if biometrics is enabled either locally (IndexedDB) or in the database
-			const credentials = await getBiometricCredentials();
+			const credentials = await getBiometricCredentials(user.id);
 			const hasLocalBiometrics = !!credentials;
 			const hasDbBiometrics = (userMetadata?.biometric_credentials || []).length > 0;
 			if (hasLocalBiometrics || hasDbBiometrics) {

@@ -89,15 +89,14 @@
 
 	onMount(async () => {
 		try {
-			const credentials = await getBiometricCredentials();
-			hasBiometrics = !!credentials;
-
 			const {
 				data: { user },
 				error: userError,
 			} = await supabase.auth.getUser();
 			if (userError || !user) throw new Error("Please log in first.");
 			currentUser = user;
+
+			hasBiometrics = !!(await getBiometricCredentials(user.id));
 
 			await loadData();
 		} catch (err: any) {
@@ -822,7 +821,7 @@
 			// 1. Try biometrics if enabled
 			if (hasBiometrics) {
 				try {
-					const masterKey = await getBiometricMasterKey(user.user_metadata);
+					const masterKey = await getBiometricMasterKey(user.user_metadata, user.id);
 					if (masterKey) {
 						const success = await decryptAndCacheItem(item, masterKey);
 						if (success) {
@@ -934,7 +933,7 @@
 			// 1. Try biometrics if enabled
 			if (hasBiometrics) {
 				try {
-					const masterKey = await getBiometricMasterKey(user.user_metadata);
+					const masterKey = await getBiometricMasterKey(user.user_metadata, user.id);
 					if (masterKey) {
 						const success = await decryptAndCacheProjectKey(masterKey);
 						if (success) {

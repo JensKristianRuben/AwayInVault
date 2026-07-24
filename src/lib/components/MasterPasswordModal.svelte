@@ -15,9 +15,12 @@
 		decryptLocal,
 		importPublicKey,
 		importPrivateKey,
+		generateProjectKey,
+		importProjectKey,
 	} from "$lib/utils/crypto";
 	import { onMount } from "svelte";
 	import { getBiometricCredentials } from "$lib/utils/indexedDB";
+	import { migrateAccountToVaultKey } from "$lib/utils/vaultMigration";
 	import type { AppUserMetadata } from "$lib/types";
 
 	// Svelte 5 Props destructuring
@@ -38,8 +41,10 @@
 
 	onMount(async () => {
 		if (isNewUser) return;
-		const credentials = await getBiometricCredentials();
-		const hasLocal = !!credentials;
+		const {
+			data: { user },
+		} = await supabase.auth.getUser();
+		const hasLocal = user ? !!(await getBiometricCredentials(user.id)) : false;
 		const hasDb = (userMetadata?.biometric_credentials || []).length > 0;
 		hasBiometrics = hasLocal || hasDb;
 	});
@@ -48,7 +53,12 @@
 		errorMessage = "";
 		isProcessing = true;
 		try {
-			const key = await getBiometricMasterKey(userMetadata);
+			const {
+				data: { user: bioUser },
+			} = await supabase.auth.getUser();
+			if (!bioUser) throw new Error("User session not found.");
+
+			const key = await getBiometricMasterKey(userMetadata, bioUser.id);
 			if (key) {
 				const salt = userMetadata.salt;
 				cryptoSession.setSession(key, salt);
@@ -58,7 +68,7 @@
 				if (userData?.user) {
 					const { data: profile } = await supabase
 						.from("profiles")
-						.select("public_key, encrypted_private_key")
+						.select("public_key, encrypted_private_key, encrypted_vault_key")
 						.eq("id", userData.user.id)
 						.single();
 
@@ -82,6 +92,16 @@
 						});
 
 						cryptoSession.setSharingKeys(keyPair.privateKey, keyPair.publicKey);
+					}
+
+					// Unwrap the personal vault key (DEK), or upgrade legacy accounts that
+					// were created before this architecture existed.
+					if (profile?.encrypted_vault_key) {
+						const vaultKeyBase64 = await decryptLocal(profile.encrypted_vault_key, key);
+						cryptoSession.setVaultKey(await importProjectKey(vaultKeyBase64));
+					} else {
+						const vaultKeyObj = await migrateAccountToVaultKey(supabase, userData.user.id, key);
+						cryptoSession.setVaultKey(vaultKeyObj);
 					}
 				}
 
@@ -138,6 +158,11 @@
 				const privKeyBase64 = await exportPrivateKey(keyPair.privateKey);
 				const encPrivKeyBase64 = await encryptLocal(privKeyBase64, key);
 
+				// Generate the personal vault key (DEK) and wrap it with the master key (KEK)
+				const vaultKeyBase64 = generateProjectKey();
+				const vaultKeyObj = await importProjectKey(vaultKeyBase64);
+				const encVaultKeyBase64 = await encryptLocal(vaultKeyBase64, key);
+
 				const { data: userData, error: userError } = await supabase.auth.getUser();
 				if (userError || !userData.user) throw new Error("User session not found.");
 
@@ -146,6 +171,7 @@
 					email: userData.user.email!,
 					public_key: pubKeyBase64,
 					encrypted_private_key: encPrivKeyBase64,
+					encrypted_vault_key: encVaultKeyBase64,
 				});
 
 				if (profileError) {
@@ -153,6 +179,7 @@
 				}
 
 				cryptoSession.setSharingKeys(keyPair.privateKey, keyPair.publicKey);
+				cryptoSession.setVaultKey(vaultKeyObj);
 
 				masterPasswordInput = "";
 				confirmPasswordInput = "";
@@ -175,7 +202,7 @@
 
 					const { data: profile } = await supabase
 						.from("profiles")
-						.select("public_key, encrypted_private_key")
+						.select("public_key, encrypted_private_key, encrypted_vault_key")
 						.eq("id", userData.user.id)
 						.single();
 
@@ -199,6 +226,16 @@
 						});
 
 						cryptoSession.setSharingKeys(keyPair.privateKey, keyPair.publicKey);
+					}
+
+					// Unwrap the personal vault key (DEK), or upgrade legacy accounts that
+					// were created before this architecture existed.
+					if (profile?.encrypted_vault_key) {
+						const vaultKeyBase64 = await decryptLocal(profile.encrypted_vault_key, key);
+						cryptoSession.setVaultKey(await importProjectKey(vaultKeyBase64));
+					} else {
+						const vaultKeyObj = await migrateAccountToVaultKey(supabase, userData.user.id, key);
+						cryptoSession.setVaultKey(vaultKeyObj);
 					}
 
 					masterPasswordInput = "";

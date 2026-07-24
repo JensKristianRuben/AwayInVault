@@ -17,6 +17,7 @@
 		importProjectKey,
 	} from "$lib/utils/crypto";
 	import { cryptoSession } from "$lib/stores/cryptoSession.svelte";
+	import VaultImportExport from "$lib/components/settings/VaultImportExport.svelte";
 
 	let teamId = $derived(page.url.searchParams.get("teamId") || "");
 
@@ -30,7 +31,7 @@
 	let isLoading = $state(true);
 
 	// Navigation / Tab state
-	let activeTab = $state<"general" | "members" | "projects" | "danger">("members");
+	let activeTab = $state<"general" | "members" | "projects" | "data" | "danger">("members");
 
 	// Active project state
 	let activeProjectId = $state("");
@@ -441,6 +442,40 @@
 		}
 	}
 
+	// Passed to VaultImportExport as resolveKey when viewing the active project's Data
+	// tab: unwraps that project's symmetric key via the caller's RSA sharing keypair,
+	// the same way project_vault_items are decrypted elsewhere on this page.
+	async function resolveActiveProjectKey(): Promise<CryptoKey | null> {
+		if (!activeProjectId) {
+			toast.error("Select an active project first.");
+			return null;
+		}
+
+		const unlocked = await requestUnlock();
+		if (!unlocked || !cryptoSession.sharingPrivateKey) {
+			toast.error("Unlock required to decrypt this project's vault.");
+			return null;
+		}
+
+		const { data: keyRow, error } = await supabase
+			.from("project_keys")
+			.select("encrypted_key")
+			.eq("project_id", activeProjectId)
+			.eq("user_id", currentUser.id)
+			.maybeSingle();
+
+		if (error || !keyRow) {
+			toast.error("You do not have a key for this project yet.");
+			return null;
+		}
+
+		const projKeyBase64 = await unwrapProjectKey(
+			keyRow.encrypted_key,
+			cryptoSession.sharingPrivateKey,
+		);
+		return await importProjectKey(projKeyBase64);
+	}
+
 	// Manual distribute keys
 	async function handleManualDistributeKeys(member: any) {
 		if (!member.profiles?.public_key) {
@@ -658,6 +693,17 @@
 					>
 						Projects
 					</button>
+					{#if myRoleInSelectedTeam === "owner" || myRoleInSelectedTeam === "admin"}
+						<button
+							onclick={() => (activeTab = "data")}
+							class="whitespace-nowrap px-4 py-2.5 text-sm font-medium border-b-2 lg:border-b-0 lg:border-l-2 transition-all cursor-pointer
+								{activeTab === 'data'
+								? 'bg-accent/10 border-accent text-accent font-semibold'
+								: 'border-transparent text-text-muted hover:bg-bg-sidebar hover:text-text-base'}"
+						>
+							Data
+						</button>
+					{/if}
 					<button
 						onclick={() => (activeTab = "danger")}
 						class="whitespace-nowrap px-4 py-2.5 text-sm font-medium border-b-2 lg:border-b-0 lg:border-l-2 transition-all cursor-pointer
@@ -1008,6 +1054,30 @@
 								{/if}
 							</div>
 						</div>
+					{:else if activeTab === "data"}
+						<!-- DATA (IMPORT/EXPORT) SECTION - owners/admins only -->
+						{#if myRoleInSelectedTeam !== "owner" && myRoleInSelectedTeam !== "admin"}
+							<div class="bg-bg-sidebar border border-border-subtle p-6">
+								<p class="text-xs text-text-muted italic">
+									Only team owners and admins can import or export a project's vault.
+								</p>
+							</div>
+						{:else if !activeProjectId}
+							<div class="bg-bg-sidebar border border-border-subtle p-6">
+								<p class="text-xs text-text-muted italic">
+									Select or create a project under the Projects tab first, then set it as active.
+								</p>
+							</div>
+						{:else}
+							{#key activeProjectId}
+								<VaultImportExport
+									table="project_vault_items"
+									scopeColumn="project_id"
+									scopeValue={activeProjectId}
+									resolveKey={resolveActiveProjectKey}
+								/>
+							{/key}
+						{/if}
 					{:else if activeTab === "danger"}
 						<!-- DANGER ZONE SECTION -->
 						<div class="bg-bg-sidebar border border-border-subtle p-6 space-y-6">

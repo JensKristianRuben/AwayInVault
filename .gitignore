@@ -28,3 +28,6 @@ vite.config.ts.timestamp-*
 
 # Temporary CLI test sessions
 cli/temp-*.json
+
+# Import test data
+import-testset/

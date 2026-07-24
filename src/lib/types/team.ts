@@ -3,6 +3,7 @@ export interface Profile {
 	email: string;
 	public_key: string | null;
 	encrypted_private_key: string | null;
+	encrypted_vault_key: string | null;
 	created_at: string;
 	updated_at: string;
 }

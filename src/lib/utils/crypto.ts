@@ -121,9 +121,10 @@ export async function verifyMasterPassword(
 
 export async function getBiometricMasterKey(
 	userMetadata: AppUserMetadata,
+	userId: string,
 ): Promise<CryptoKey | null> {
 	try {
-		const credentials = await getBiometricCredentials();
+		const credentials = await getBiometricCredentials(userId);
 		let credentialId = credentials?.credentialId || null;
 		let encryptedKey = credentials?.encryptedKey || null;
 
@@ -190,7 +191,7 @@ export async function getBiometricMasterKey(
 			selectedCred = matched;
 
 			// Restore to local cache (IndexedDB)
-			await setBiometricCredentials(matched.credential_id, matched.encrypted_key);
+			await setBiometricCredentials(userId, matched.credential_id, matched.encrypted_key);
 		} else {
 			throw new Error("Biometric unlock is not configured");
 		}

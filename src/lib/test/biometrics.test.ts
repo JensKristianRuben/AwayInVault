@@ -34,7 +34,7 @@ const navigatorMock = {
 
 vi.mock("../utils/indexedDB", () => {
 	return {
-		getBiometricCredentials: vi.fn(async () => {
+		getBiometricCredentials: vi.fn(async (_userId: string) => {
 			const credentialId = localStorageStore["awayinvault_bio_credential_id"];
 			const encryptedKey = localStorageStore["awayinvault_bio_encrypted_key"];
 			if (credentialId && encryptedKey) {
@@ -42,11 +42,13 @@ vi.mock("../utils/indexedDB", () => {
 			}
 			return null;
 		}),
-		setBiometricCredentials: vi.fn(async (credentialId: string, encryptedKey: string) => {
-			localStorageStore["awayinvault_bio_credential_id"] = credentialId;
-			localStorageStore["awayinvault_bio_encrypted_key"] = encryptedKey;
-		}),
-		clearBiometricCredentials: vi.fn(async () => {
+		setBiometricCredentials: vi.fn(
+			async (_userId: string, credentialId: string, encryptedKey: string) => {
+				localStorageStore["awayinvault_bio_credential_id"] = credentialId;
+				localStorageStore["awayinvault_bio_encrypted_key"] = encryptedKey;
+			},
+		),
+		clearBiometricCredentials: vi.fn(async (_userId: string) => {
 			delete localStorageStore["awayinvault_bio_credential_id"];
 			delete localStorageStore["awayinvault_bio_encrypted_key"];
 		}),
@@ -173,7 +175,7 @@ describe("Biometric Master Key Retrieval Tests", () => {
 		});
 
 		const userMetadata: AppUserMetadata = { salt };
-		const resultKey = await getBiometricMasterKey(userMetadata);
+		const resultKey = await getBiometricMasterKey(userMetadata, "test-user-id");
 
 		expect(resultKey).not.toBeNull();
 		expect(resultKey).toBeInstanceOf(CryptoKey);
@@ -233,7 +235,7 @@ describe("Biometric Master Key Retrieval Tests", () => {
 			returnedPrfKey: dummyPrfKey,
 		});
 
-		const resultKey = await getBiometricMasterKey(userMetadata);
+		const resultKey = await getBiometricMasterKey(userMetadata, "test-user-id");
 
 		expect(resultKey).not.toBeNull();
 		expect(resultKey).toBeInstanceOf(CryptoKey);
@@ -253,7 +255,7 @@ describe("Biometric Master Key Retrieval Tests", () => {
 		});
 
 		const userMetadata: AppUserMetadata = { salt };
-		const resultKey = await getBiometricMasterKey(userMetadata);
+		const resultKey = await getBiometricMasterKey(userMetadata, "test-user-id");
 
 		expect(resultKey).toBeNull();
 	});
@@ -269,7 +271,7 @@ describe("Biometric Master Key Retrieval Tests", () => {
 		});
 
 		const userMetadata: AppUserMetadata = { salt };
-		const resultKey = await getBiometricMasterKey(userMetadata);
+		const resultKey = await getBiometricMasterKey(userMetadata, "test-user-id");
 
 		expect(resultKey).toBeNull();
 	});
@@ -294,7 +296,7 @@ describe("Biometric Master Key Retrieval Tests", () => {
 			returnedPrfKey: dummyPrfKey,
 		});
 
-		const resultKey = await getBiometricMasterKey(userMetadata);
+		const resultKey = await getBiometricMasterKey(userMetadata, "test-user-id");
 
 		expect(resultKey).toBeNull();
 		// LocalStorage should not have been updated
@@ -337,7 +339,7 @@ describe("Biometric Master Key Retrieval Tests", () => {
 			returnedPrfKey: dummyPrfKey,
 		});
 
-		const resultKey = await getBiometricMasterKey(userMetadata);
+		const resultKey = await getBiometricMasterKey(userMetadata, "test-user-id");
 
 		expect(resultKey).not.toBeNull();
 		expect(resultKey).toBeInstanceOf(CryptoKey);

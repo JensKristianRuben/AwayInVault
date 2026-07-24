@@ -63,6 +63,7 @@ if (!APP_URL) {
 
 // Reuse existing crypto logic
 import { verifyMasterPassword, encryptLocal, decryptLocal } from "../src/lib/utils/crypto.js";
+import { resolveVaultKey } from "../src/lib/utils/vaultMigration.js";
 
 function saveSession(session: any) {
 	const dir = path.dirname(SESSION_FILE);
@@ -534,12 +535,14 @@ program
 			process.exit(1);
 		}
 
+		const vaultKey = await resolveVaultKey(supabase, user.id, key);
+
 		console.log("Decrypting...");
 		try {
 			const username = data.username_encrypted
-				? await decryptLocal(data.username_encrypted, key)
+				? await decryptLocal(data.username_encrypted, vaultKey)
 				: "(no username)";
-			const password = await decryptLocal(data.password_encrypted, key);
+			const password = await decryptLocal(data.password_encrypted, vaultKey);
 
 			if (options.copy) {
 				await copyToClipboard(password);
@@ -684,9 +687,13 @@ program
 			process.exit(1);
 		}
 
+		const vaultKey = await resolveVaultKey(supabase, user.id, key);
+
 		console.log("Encrypting data...");
-		const usernameEncrypted = username.trim() ? await encryptLocal(username.trim(), key) : null;
-		const passwordEncrypted = await encryptLocal(password, key);
+		const usernameEncrypted = username.trim()
+			? await encryptLocal(username.trim(), vaultKey)
+			: null;
+		const passwordEncrypted = await encryptLocal(password, vaultKey);
 
 		console.log("Saving to database...");
 		const { error } = await supabase.from("vault_items").insert({

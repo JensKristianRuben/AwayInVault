@@ -2,6 +2,7 @@
 	import { supabase } from "$lib/utils/supabaseClient";
 	import { cryptoSession } from "$lib/stores/cryptoSession.svelte";
 	import { encryptLocal, getBiometricMasterKey, verifyMasterPassword } from "$lib/utils/crypto";
+	import { resolveVaultKey } from "$lib/utils/vaultMigration";
 	import { getBiometricCredentials } from "$lib/utils/indexedDB";
 	import { toast } from "svelte-sonner";
 	import { onMount } from "svelte";
@@ -31,16 +32,15 @@
 	let confirmMasterPassword = $state("");
 
 	onMount(async () => {
-		const credentials = await getBiometricCredentials();
-		const localBio = !!credentials;
 		try {
 			const {
 				data: { user },
 			} = await supabase.auth.getUser();
+			const localBio = user ? !!(await getBiometricCredentials(user.id)) : false;
 			const dbBio = (user?.user_metadata?.biometric_credentials || []).length > 0;
 			hasBiometrics = localBio || dbBio;
 		} catch (err) {
-			hasBiometrics = localBio;
+			hasBiometrics = false;
 		}
 	});
 
@@ -88,33 +88,38 @@
 				return;
 			}
 
-			let key = cryptoSession.cryptoKey;
-			if (!key) {
-				if (hasBiometrics) {
-					toast.info("Verify your biometrics to encrypt and save...");
-					key = await getBiometricMasterKey(user.user_metadata);
+			let vaultKey = cryptoSession.vaultKey;
+			if (!vaultKey) {
+				let kek = cryptoSession.cryptoKey;
+				if (!kek) {
+					if (hasBiometrics) {
+						toast.info("Verify your biometrics to encrypt and save...");
+						kek = await getBiometricMasterKey(user.user_metadata, user.id);
+					}
+
+					if (!kek) {
+						if (!confirmMasterPassword) {
+							toast.error("Please enter your Master Password to verify.");
+							isSaving = false;
+							return;
+						}
+						kek = await verifyMasterPassword(confirmMasterPassword, user.user_metadata);
+						if (!kek) {
+							toast.error("Incorrect Master Password.");
+							isSaving = false;
+							return;
+						}
+					}
 				}
 
-				if (!key) {
-					if (!confirmMasterPassword) {
-						toast.error("Please enter your Master Password to verify.");
-						isSaving = false;
-						return;
-					}
-					key = await verifyMasterPassword(confirmMasterPassword, user.user_metadata);
-					if (!key) {
-						toast.error("Incorrect Master Password.");
-						isSaving = false;
-						return;
-					}
-				}
+				vaultKey = await resolveVaultKey(supabase, user.id, kek);
 			}
 
 			// Encrypt sensitive fields locally
 			const usernameEncrypted = usernameInput.trim()
-				? await encryptLocal(usernameInput.trim(), key)
+				? await encryptLocal(usernameInput.trim(), vaultKey)
 				: null;
-			const passwordEncrypted = await encryptLocal(passwordInput, key);
+			const passwordEncrypted = await encryptLocal(passwordInput, vaultKey);
 
 			const { error } = await supabase.from("vault_items").insert({
 				user_id: user.id,
